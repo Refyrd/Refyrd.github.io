@@ -264,7 +264,11 @@ lbShowMore.addEventListener('click', () => {
     loadLeaderboard();
 });
 
-setInterval(() => { if (authUid) loadLeaderboard(); }, 3000);
+setInterval(() => { if (authUid) loadLeaderboard(); }, 5000);
+
+setInterval(() => {
+    if (isRunning && authUid && score > 0) saveScoreToLeaderboard();
+}, 5000);
 
 const confettiCanvas = document.getElementById('confettiCanvas');
 const cCtx = confettiCanvas.getContext('2d');
