@@ -217,6 +217,56 @@ body {
 #devMenu .high-score { font-size: 13px; margin-bottom: 4px; }
 #devMenu .button-group { width: 100%; max-width: none; gap: 8px; }
 
+#authLinkEmailView {
+    display: flex; flex-direction: column; align-items: stretch; gap: 12px; width: 100%;
+}
+#authLinkEmailView .auth-title { font-size: 16px; }
+
+#feedbackPanel {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: min(300px, 85vw);
+    background-color: var(--md-sys-color-surface-container);
+    box-shadow: var(--elevation-3);
+    display: flex; flex-direction: column;
+    padding: 0;
+    z-index: 80;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+#feedbackPanel.active { transform: translateX(0); }
+.feedback-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--md-sys-color-on-surface); opacity: 0.1;
+}
+.feedback-header span { font-size: 16px; font-weight: 700; }
+.feedback-list {
+    flex: 1; overflow-y: auto; padding: 12px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.feedback-form {
+    border-top: 1px solid var(--md-sys-color-on-surface); opacity: 0.1;
+    padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;
+}
+.fb-textarea {
+    width: 100%; border-radius: 12px; border: 2px solid transparent;
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface); padding: 10px 14px;
+    font-size: 13px; font-weight: 500; outline: none;
+    resize: vertical; min-height: 60px; max-height: 150px;
+    font-family: inherit; box-shadow: var(--elevation-2);
+}
+.fb-textarea::placeholder { opacity: 0.5; }
+.fb-textarea:focus { border-color: var(--md-sys-color-primary); box-shadow: 0 0 0 4px var(--md-sys-color-primary-container); }
+.fb-status { font-size: 11px; min-height: 16px; text-align: center; }
+.fb-entry {
+    padding: 10px 12px; border-radius: 12px;
+    background-color: var(--md-sys-color-surface);
+    font-size: 13px; line-height: 1.4;
+}
+.fb-entry .fb-name { font-weight: 700; font-size: 12px; opacity: 0.7; margin-bottom: 4px; }
+.fb-entry .fb-text { word-break: break-word; }
+.fb-entry .fb-time { font-size: 10px; opacity: 0.4; margin-top: 4px; }
+
 .menu-inner {
     flex: 0 0 auto;
     width: 100%;

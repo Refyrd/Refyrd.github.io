@@ -486,42 +486,81 @@ function upgradeFromAnonymous(action) {
 
 // === LINK PROVIDERS ===
 providerBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        if (btn.disabled || !authUser) return;
-        const prov = btn.dataset.prov;
-        const user = auth.currentUser;
-        if (!user) return;
+	btn.addEventListener('click', () => {
+		if (btn.disabled || !authUser) return;
+		const prov = btn.dataset.prov;
+		if (prov === 'password') {
+			document.getElementById('authLinkEmailView').style.display = '';
+			document.querySelectorAll('#authAccountView > .auth-acc-section, #authAccountView > .auth-title, #authAccountView > .auth-info-line, #authAccountView > .auth-social-btn, #authAccountView > hr').forEach(el => {
+				if (el) el.style.display = 'none';
+			});
+			return;
+		}
+		const user = auth.currentUser;
+		if (!user) return;
 
-        function handleLink(promise) {
-            promise.then(() => {
-                authUser = auth.currentUser;
-                renderProviders();
-                accNickStatus.textContent = prov.charAt(0).toUpperCase() + prov.slice(1) + ' linked!';
-                accNickStatus.style.color = 'var(--md-sys-color-primary)';
-            }).catch(e => {
-                if (e.code === 'auth/credential-already-in-use') {
-                    accNickStatus.textContent = 'This account is already linked to another user.';
-                } else {
-                    accNickStatus.textContent = e.message;
-                }
-                accNickStatus.style.color = 'var(--md-sys-color-error)';
-            });
-        }
+		function handleLink(promise) {
+			promise.then(() => {
+				authUser = auth.currentUser;
+				renderProviders();
+				accNickStatus.textContent = prov.charAt(0).toUpperCase() + prov.slice(1) + ' linked!';
+				accNickStatus.style.color = 'var(--md-sys-color-primary)';
+			}).catch(e => {
+				if (e.code === 'auth/credential-already-in-use') {
+					accNickStatus.textContent = 'This account is already linked to another user.';
+				} else {
+					accNickStatus.textContent = e.message;
+				}
+				accNickStatus.style.color = 'var(--md-sys-color-error)';
+			});
+		}
 
-        if (prov === 'google') {
-            handleLink(user.linkWithPopup(new firebase.auth.GoogleAuthProvider()));
-        } else if (prov === 'github') {
-            handleLink(user.linkWithPopup(new firebase.auth.GithubAuthProvider()));
-        } else if (prov === 'password') {
-            accNickStatus.textContent = 'Enter email and password to link';
-            accNickStatus.style.color = 'var(--md-sys-color-primary)';
-            const email = prompt('Email to link:');
-            if (!email) return;
-            const pass = prompt('Password (min 6 chars):');
-            if (!pass || pass.length < 6) return;
-            handleLink(user.linkWithCredential(firebase.auth.EmailAuthProvider.credential(email, pass)));
-        }
-    });
+		if (prov === 'google') {
+			handleLink(user.linkWithPopup(new firebase.auth.GoogleAuthProvider()));
+		} else if (prov === 'github') {
+			handleLink(user.linkWithPopup(new firebase.auth.GithubAuthProvider()));
+		}
+	});
+});
+
+// === LINK EMAIL VIEW ===
+const authLinkEmailBack = document.getElementById('authLinkEmailBack');
+const authLinkEmailLink = document.getElementById('authLinkEmailLink');
+const authLinkEmailInput = document.getElementById('authLinkEmail');
+const authLinkPassInput = document.getElementById('authLinkPassword');
+const authLinkEmailStat = document.getElementById('authLinkEmailStatus');
+
+authLinkEmailBack.addEventListener('click', () => {
+	document.getElementById('authLinkEmailView').style.display = 'none';
+	document.querySelectorAll('#authAccountView > .auth-acc-section, #authAccountView > .auth-title, #authAccountView > .auth-info-line, #authAccountView > .auth-social-btn, #authAccountView > hr').forEach(el => {
+		if (el) el.style.display = '';
+	});
+});
+
+authLinkEmailLink.addEventListener('click', () => {
+	if (!authUser || authUser.isAnonymous) { authLinkEmailStat.textContent = 'Not logged in'; return; }
+	const email = authLinkEmailInput.value.trim();
+	const pass = authLinkPassInput.value;
+	if (!email || !pass) { authLinkEmailStat.textContent = 'Fill in email and password'; return; }
+	if (pass.length < 6) { authLinkEmailStat.textContent = 'Password must be at least 6 characters'; return; }
+	authLinkEmailStat.textContent = 'Linking...';
+	authLinkEmailStat.style.color = '';
+	auth.currentUser.linkWithCredential(firebase.auth.EmailAuthProvider.credential(email, pass)).then(() => {
+		authUser = auth.currentUser;
+		renderProviders();
+		accNickStatus.textContent = 'Email linked!';
+		accNickStatus.style.color = 'var(--md-sys-color-primary)';
+		authLinkEmailStat.textContent = 'Email linked successfully!';
+		authLinkEmailStat.style.color = 'var(--md-sys-color-primary)';
+		authLinkEmailBack.click();
+	}).catch(e => {
+		if (e.code === 'auth/credential-already-in-use') {
+			authLinkEmailStat.textContent = 'This email is already linked to another user.';
+		} else {
+			authLinkEmailStat.textContent = e.message;
+		}
+		authLinkEmailStat.style.color = 'var(--md-sys-color-error)';
+	});
 });
 
 function formatCooldownUntil(timestamp) {
@@ -829,6 +868,73 @@ setInterval(() => { if (authUid) loadLeaderboard(); }, 5000);
 setInterval(() => {
     if (isRunning && authUid && score > 0) saveScoreToLeaderboard();
 }, 3000);
+
+// === FEEDBACK PANEL ===
+const fbToggle = document.getElementById('fbToggle');
+const fbPanel = document.getElementById('feedbackPanel');
+const fbClose = document.getElementById('fbClose');
+const fbList = document.getElementById('feedbackList');
+const fbNameInput = document.getElementById('fbNameInput');
+const fbMessageInput = document.getElementById('fbMessageInput');
+const fbSubmit = document.getElementById('fbSubmit');
+const fbStatus = document.getElementById('fbStatus');
+const FB_COLLECTION = 'feedback';
+
+fbToggle.addEventListener('click', () => {
+	fbPanel.classList.toggle('active');
+	if (fbPanel.classList.contains('active')) {
+		fbNameInput.value = savedName && isValidName(savedName) ? savedName : '';
+		loadFeedback();
+	}
+});
+
+fbClose.addEventListener('click', () => fbPanel.classList.remove('active'));
+
+async function loadFeedback() {
+	fbList.innerHTML = '<div class="lb-loading">Loading...</div>';
+	try {
+		const snap = await db.collection(FB_COLLECTION).orderBy('time', 'desc').limit(50).get();
+		if (snap.empty) {
+			fbList.innerHTML = '<div style="text-align:center;opacity:0.5;padding:20px;font-size:13px">No feedback yet. Be the first!</div>';
+			return;
+		}
+		let html = '';
+		snap.forEach(doc => {
+			const d = doc.data();
+			const time = d.time ? new Date(d.time.seconds * 1000).toLocaleDateString() : '';
+			html += `<div class="fb-entry">
+				<div class="fb-name">${escapeHtml(d.name || 'Anonymous')}</div>
+				<div class="fb-text">${escapeHtml(d.message)}</div>
+				<div class="fb-time">${time}</div>
+			</div>`;
+		});
+		fbList.innerHTML = html;
+	} catch (e) {
+		fbList.innerHTML = '<div style="text-align:center;opacity:0.5;padding:20px;font-size:13px">Failed to load feedback</div>';
+	}
+}
+
+fbSubmit.addEventListener('click', async () => {
+	const name = fbNameInput.value.trim();
+	const message = fbMessageInput.value.trim();
+	if (!name) { fbStatus.textContent = 'Enter your name'; return; }
+	if (!message || message.length < 3) { fbStatus.textContent = 'Message too short (min 3 chars)'; return; }
+	fbStatus.textContent = 'Sending...';
+	try {
+		await db.collection(FB_COLLECTION).add({
+			name: name,
+			message: message,
+			time: firebase.firestore.FieldValue.serverTimestamp()
+		});
+		fbStatus.textContent = 'Feedback sent! Thanks!';
+		fbStatus.style.color = 'var(--md-sys-color-primary)';
+		fbMessageInput.value = '';
+		loadFeedback();
+	} catch (e) {
+		fbStatus.textContent = e.message;
+		fbStatus.style.color = 'var(--md-sys-color-error)';
+	}
+});
 
 const confettiCanvas = document.getElementById('confettiCanvas');
 const cCtx = confettiCanvas.getContext('2d');

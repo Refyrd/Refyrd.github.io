@@ -29,6 +29,7 @@
             <button class="icon-btn" id="authBtn" title="Sign in">👤</button>
             <button class="icon-btn" id="langToggle">EN</button>
             <button class="icon-btn" id="themeToggle">☀️</button>
+            <button class="icon-btn" id="fbToggle" title="Feedback">💬</button>
         </div>
     </div>
 
@@ -94,6 +95,22 @@
         <button class="lb-show-more" id="lbShowMore">Show all</button>
     </div>
 
+    <div id="feedbackPanel">
+        <div class="feedback-header">
+            <span id="fbTitle">Feedback</span>
+            <button class="icon-btn" id="fbClose">&times;</button>
+        </div>
+        <div class="feedback-list" id="feedbackList">
+            <div class="lb-loading">Loading...</div>
+        </div>
+        <div class="feedback-form" id="feedbackForm">
+            <input type="text" id="fbNameInput" class="name-input" placeholder="Your name" maxlength="20" autocomplete="off">
+            <textarea id="fbMessageInput" class="fb-textarea" placeholder="Write your thoughts about the game..." rows="3" maxlength="500"></textarea>
+            <button class="btn-primary" id="fbSubmit">Send</button>
+            <div class="fb-status" id="fbStatus"></div>
+        </div>
+    </div>
+
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-modal">
             <button class="auth-close" id="authClose">&times;</button>
@@ -142,7 +159,7 @@
                     <div class="auth-providers">
                         <button class="auth-prov-btn" data-prov="google">+ Google</button>
                         <button class="auth-prov-btn" data-prov="github">+ GitHub</button>
-                        <button class="auth-prov-btn" data-prov="password">+ Email</button>
+                        <button class="auth-prov-btn" id="accLinkEmailBtn" data-prov="password">+ Email</button>
                     </div>
                 </div>
 
@@ -159,6 +176,18 @@
                 </div>
 
                 <button class="auth-social-btn" id="authSignOutBtn" style="margin-top:4px">Sign Out</button>
+
+                <div id="authLinkEmailView" style="display:none; width:100%">
+                    <hr style="width:100%; opacity:0.2; margin:8px 0">
+                    <div style="display:flex; align-items:center; gap:8px; width:100%">
+                        <button class="auth-back" id="authLinkEmailBack">&larr;</button>
+                        <div class="auth-title" style="flex:1; text-align:left">Link Email</div>
+                    </div>
+                    <input type="email" id="authLinkEmail" class="name-input" placeholder="Email" autocomplete="email">
+                    <input type="password" id="authLinkPassword" class="name-input" placeholder="Password" autocomplete="new-password">
+                    <button class="btn-primary" id="authLinkEmailLink">Link</button>
+                    <div class="auth-status" id="authLinkEmailStatus"></div>
+                </div>
             </div>
 
         </div>
