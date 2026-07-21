@@ -326,32 +326,56 @@ body {
 
 @media (max-width: 640px) {
     body {
-        padding: 12px 12px 24px;
+        padding: 8px 8px 24px;
         min-height: 100dvh;
         overflow-y: auto;
     }
+    .branding {
+        margin-bottom: 8px;
+    }
+    .branding .name {
+        font-size: clamp(20px, 5vw, 26px);
+    }
+    .branding .vibe {
+        font-size: 11px;
+    }
     .header {
-        max-width: calc(100vw - 24px);
-        margin-bottom: 10px;
+        max-width: calc(100vw - 16px);
+        height: clamp(48px, 8vh, 60px);
+        padding: 0 10px;
+        margin-bottom: 8px;
     }
     .game-container {
-        width: calc(100vw - 24px);
-        height: calc(100vw - 24px);
-        max-height: 65vh;
+        width: calc(100vw - 16px);
+        height: calc(100vw - 16px);
+        max-height: 62vh;
     }
     .leaderboard {
         position: static;
         transform: none;
-        width: calc(100vw - 24px);
-        max-width: 420px;
+        width: calc(100vw - 16px);
+        max-width: none;
         max-height: none;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 4px;
-        padding: 12px;
-        margin-top: 16px;
+        flex-direction: column;
+        padding: 12px 14px;
+        margin-top: 12px;
     }
-    .leaderboard h3 { width: 100%; margin-bottom: 8px; font-size: 12px; }
-    .lb-entry { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 80px; }
+    .leaderboard h3 {
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+    .lb-entry {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+    .lb-entry .lb-name {
+        font-size: 12px;
+    }
+    .lb-entry .lb-score {
+        font-size: 12px;
+    }
+    .lb-empty, .lb-loading {
+        padding: 14px 0;
+    }
     #confettiCanvas { position: fixed; }
 }

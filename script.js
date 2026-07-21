@@ -183,8 +183,14 @@ function setLbStatus(state, msg) {
     lbStatus.innerHTML = `<span class="dot ${dotClass}"></span><span>${escapeHtml(msg)}</span>`;
 }
 
+let lastScoreSaveTime = 0;
 async function saveScoreToLeaderboard() {
     if (score <= 0) return;
+    const maxPossible = tileCount * tileCount;
+    if (score > maxPossible || score > 50000) return;
+    const now = Date.now();
+    if (now - lastScoreSaveTime < 2000) return;
+    lastScoreSaveTime = now;
     const displayName = savedName && savedName !== 'Refyrd.dev' ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
     try {
         const docRef = db.collection(LEADERBOARD_COLLECTION).doc(displayName);
@@ -490,6 +496,20 @@ function toRGBA(color, alpha) {
     return color;
 }
 
+function lightenColor(color, amount) {
+    const temp = document.createElement('div');
+    temp.style.color = color;
+    document.body.appendChild(temp);
+    const computed = getComputedStyle(temp).color;
+    temp.remove();
+    const m = computed.match(/(\d+)/g);
+    if (!m || m.length < 3) return color;
+    const r = Math.min(255, parseInt(m[0]) + Math.round(amount * 255));
+    const g = Math.min(255, parseInt(m[1]) + Math.round(amount * 255));
+    const b = Math.min(255, parseInt(m[2]) + Math.round(amount * 255));
+    return `rgb(${r},${g},${b})`;
+}
+
 const tempColorCanvas = document.createElement('canvas');
 const tempColorCtx = tempColorCanvas.getContext('2d');
 
@@ -546,7 +566,7 @@ function drawGame() {
             ctx.fill();
         }
 
-        ctx.fillStyle = i === 0 ? toRGBA(rawPrimary, 0.85) : rawPrimary;
+        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.25) : rawPrimary;
         ctx.beginPath();
         const radius = size * (i === 0 ? 0.40 : 0.30);
         ctx.roundRect(cx - size / 2, cy - size / 2, size, size, radius);
