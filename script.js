@@ -558,7 +558,7 @@ function drawGame() {
             ctx.fill();
         }
 
-        ctx.fillStyle = i === 0 ? toRGBA(rawPrimary, 0.88) : rawPrimary;
+        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.15) : rawPrimary;
         ctx.beginPath();
         const radius = size * (i === 0 ? 0.40 : 0.30);
         ctx.roundRect(cx - size / 2, cy - size / 2, size, size, radius);
