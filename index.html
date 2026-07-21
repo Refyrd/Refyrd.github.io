@@ -57,8 +57,9 @@
             font-family: 'Google Sans', system-ui, sans-serif !important;
         }
 
-        body, .header, #gameCanvas, .overlay, .btn-primary, .btn-secondary, .color-btn, .size-btn, .name-input {
-            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+        body, .header, #gameCanvas, .overlay, .btn-primary, .btn-secondary, .color-btn, .size-btn, .name-input,
+        .leaderboard, .lb-entry, .lb-status, #devMenu, .branding .name {
+            transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
         }
 
         body {
@@ -229,9 +230,9 @@
             font-size: 13px;
             font-weight: 500;
         }
-        .lb-entry:nth-child(2) { background-color: rgba(255,215,0,0.1); }
-        .lb-entry:nth-child(3) { background-color: rgba(192,192,192,0.08); }
-        .lb-entry:nth-child(4) { background-color: rgba(205,127,50,0.06); }
+        .lb-entry:nth-child(1) { background-color: rgba(255,215,0,0.1); }
+        .lb-entry:nth-child(2) { background-color: rgba(192,192,192,0.08); }
+        .lb-entry:nth-child(3) { background-color: rgba(205,127,50,0.06); }
         .lb-entry .lb-rank {
             width: 22px;
             text-align: center;
@@ -309,10 +310,10 @@
 
     <canvas id="confettiCanvas"></canvas>
 
-    <div class="leaderboard" id="leaderboard">
-        <h3>Leaderboard</h3>
-        <div id="leaderboardList"><div class="lb-loading">Loading...</div></div>
-        <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span>Connecting...</span></div>
+        <div class="leaderboard" id="leaderboard">
+            <h3 id="lbTitle">LEADERBOARD</h3>
+            <div id="leaderboardList"><div class="lb-loading" id="lbLoadingText">Loading...</div></div>
+            <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span id="lbStatusText">Connecting...</span></div>
     </div>
 
     <div class="branding">
@@ -374,15 +375,15 @@
         </div>
 
         <div id="devMenu">
-                <div class="menu-title" style="color: var(--md-sys-color-primary)">DEV</div>
+                <div class="menu-title" id="uiDevTitle" style="color: var(--md-sys-color-primary)">DEV</div>
                 <div class="high-score">Refyrd.dev</div>
             
             <div class="button-group">
-                <button class="btn-secondary" onclick="triggerConfetti()">Конфетти</button>
-                <button class="btn-secondary" onclick="devGlow()">Свечение змеи</button>
-                <button class="btn-secondary" onclick="devAddScore()">+10 очков</button>
-                <button class="btn-secondary" onclick="devFillSnake()">Длинная змейка</button>
-                <button class="btn-primary" onclick="closeDevMenu()">Закрыть</button>
+                <button class="btn-secondary" id="uiDevConfetti" onclick="triggerConfetti()">Конфетти</button>
+                <button class="btn-secondary" id="uiDevGlow" onclick="devGlow()">Свечение змеи</button>
+                <button class="btn-secondary" id="uiDevAddScore" onclick="devAddScore()">+10 очков</button>
+                <button class="btn-secondary" id="uiDevFill" onclick="devFillSnake()">Длинная змейка</button>
+                <button class="btn-primary" id="uiDevClose" onclick="closeDevMenu()">Закрыть</button>
             </div>
         </div>
     </div>
@@ -390,8 +391,8 @@
     <script>
         // === ЛОКАЛИЗАЦИЯ ===
         const i18n = {
-            en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu" },
-            ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню" }
+            en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline" },
+            ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн" }
         };
 
         let currentLang = 'en'; 
@@ -415,6 +416,21 @@
             document.getElementById('uiFinalScoreText').innerText = i18n[currentLang].finalScoreText;
             document.getElementById('uiRestartBtn').innerText = i18n[currentLang].restartBtn;
             document.getElementById('uiMenuBtn').innerText = i18n[currentLang].menuBtn;
+            
+            document.querySelector('.leaderboard h3').innerText = i18n[currentLang].lbTitle;
+            document.getElementById('uiDevTitle').innerText = i18n[currentLang].devTitle;
+            document.getElementById('uiDevConfetti').innerText = i18n[currentLang].devConfetti;
+            document.getElementById('uiDevGlow').innerText = i18n[currentLang].devGlow;
+            document.getElementById('uiDevAddScore').innerText = i18n[currentLang].devAddScore;
+            document.getElementById('uiDevFill').innerText = i18n[currentLang].devFill;
+            document.getElementById('uiDevClose').innerText = i18n[currentLang].devClose;
+            
+            if (playerNameInput.disabled) {
+                playerNameInput.placeholder = currentLang === 'en' ? 'DEV MODE' : 'ДЕВ РЕЖИМ';
+            }
+            
+            const lbLoading = document.getElementById('lbLoadingText');
+            if (lbLoading) lbLoading.innerText = i18n[currentLang].lbLoading;
             
             updateHighScoreDisplay();
         }
@@ -565,7 +581,7 @@
                     .get();
                 setLbStatus('online', 'Online');
                 if (snapshot.empty) {
-                    leaderboardList.innerHTML = '<div class="lb-empty">No scores yet</div>';
+                    leaderboardList.innerHTML = `<div class="lb-empty">${i18n[currentLang].lbNoScores}</div>`;
                     return;
                 }
                 let html = '';
@@ -583,8 +599,8 @@
                 leaderboardList.innerHTML = html;
             } catch (e) {
                 console.warn('Firebase load error:', e);
-                setLbStatus('error', `Load error: ${e.message}`);
-                leaderboardList.innerHTML = '<div class="lb-empty">No scores yet</div>';
+                setLbStatus('error', `Error: ${e.message}`);
+                leaderboardList.innerHTML = `<div class="lb-empty">${i18n[currentLang].lbOffline}</div>`;
             }
         }
 
@@ -689,8 +705,9 @@
             if (playerNameInput.value.trim().toLowerCase() === 'refyrd.dev') {
                 devMenu.classList.add('active');
                 playerNameInput.disabled = true;
+                savedName = '';
                 playerNameInput.value = '';
-                playerNameInput.placeholder = 'DEV MODE';
+                playerNameInput.placeholder = currentLang === 'en' ? 'DEV MODE' : 'ДЕВ РЕЖИМ';
             }
         });
 
@@ -698,6 +715,7 @@
             devMenu.classList.remove('active');
             playerNameInput.disabled = false;
             playerNameInput.placeholder = i18n[currentLang].placeholder;
+            playerNameInput.value = savedName || '';
         }
 
         // Запуск одной волны свечения: узкая полоса бежит от головы до хвоста
