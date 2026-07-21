@@ -243,13 +243,13 @@ body {
     #feedbackPanel {
         position: static;
         transform: none;
-        width: calc(100vw - 20px);
+        width: calc(100vw - 32px);
         max-width: none;
         flex-direction: column;
-        padding: 10px 12px;
-        margin-top: 6px;
-        flex: 1 1 auto;
-        min-height: 0;
+        padding: 14px 16px;
+        margin-top: 12px;
+        margin-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        flex: none;
         overflow-y: auto;
         max-height: none;
     }
@@ -340,14 +340,19 @@ body {
 
 @media (max-width: 640px) {
     body {
-        padding: 8px 10px 0;
-        height: 100dvh;
+        padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        height: auto;
         min-height: 100dvh;
-        overflow: hidden;
+        overflow-y: auto;
         justify-content: flex-start;
     }
+    body.gameplay {
+        overflow: hidden;
+        height: 100dvh;
+        min-height: 100dvh;
+    }
     .branding {
-        margin-bottom: 4px;
+        margin-bottom: 8px;
         flex-shrink: 0;
     }
     .branding .name {
@@ -357,17 +362,17 @@ body {
         font-size: 10px;
     }
     .header {
-        max-width: calc(100vw - 20px);
+        max-width: calc(100vw - 32px);
         height: clamp(40px, 7vh, 48px);
-        padding: 0 10px;
-        margin-bottom: 6px;
+        padding: 0 14px;
+        margin-bottom: 10px;
         flex-shrink: 0;
     }
     .game-container {
-        width: calc(100vw - 20px);
-        height: calc(100vw - 20px);
+        width: calc(100vw - 32px);
+        height: calc(100vw - 32px);
         max-height: 48vh;
-        flex-shrink: 1;
+        flex-shrink: 0;
         min-height: 160px;
     }
     .overlay {
@@ -377,21 +382,26 @@ body {
     .leaderboard {
         position: static;
         transform: none;
-        width: calc(100vw - 20px);
+        width: calc(100vw - 32px);
         max-width: none;
         flex-direction: column;
-        padding: 10px 12px;
-        margin-top: 6px;
-        flex: 1 1 auto;
-        min-height: 0;
+        padding: 14px 16px;
+        margin-top: 12px;
+        flex: 1;
+        min-height: 200px;
         overflow-y: auto;
         max-height: none;
     }
     .gameplay .leaderboard {
-        display: none;
+        max-height: 40vh;
     }
     .leaderboard .lb-status {
         margin-top: 4px;
+    }
+    .leaderboard #leaderboardList {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
     .leaderboard h3 {
         font-size: 12px;
