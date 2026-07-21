@@ -131,10 +131,33 @@
                 <div class="auth-status" id="authEmailStatus"></div>
             </div>
 
-            <div class="auth-info" id="authInfo">
-                <span id="authInfoEmail"></span>
-                <button class="auth-social-btn" id="authSignOutBtn" style="display:none">Sign Out</button>
+            <div id="authAccountView" style="display:none">
+                <div class="auth-title">Account</div>
+                <div class="auth-info-line" id="accEmail"></div>
+
+                <div class="auth-acc-section">
+                    <div class="auth-acc-label">Linked providers</div>
+                    <div class="auth-providers" id="accProviders"></div>
+                    <div class="auth-acc-label">Link another</div>
+                    <div class="auth-providers">
+                        <button class="auth-prov-btn" data-prov="google">+ Google</button>
+                        <button class="auth-prov-btn" data-prov="github">+ GitHub</button>
+                        <button class="auth-prov-btn" data-prov="password">+ Email</button>
+                    </div>
+                </div>
+
+                <div class="auth-acc-section">
+                    <div class="auth-acc-label">Nickname</div>
+                    <div style="display:flex; gap:8px; width:100%">
+                        <input type="text" id="accNickInput" class="name-input" placeholder="Nickname" maxlength="12" autocomplete="off" style="flex:1">
+                        <button class="btn-primary" id="accNickSave" style="width:auto; padding:0 20px; flex-shrink:0">Save</button>
+                    </div>
+                    <div id="accNickStatus" style="font-size:11px; opacity:0.6; text-align:center; width:100%"></div>
+                </div>
+
+                <button class="auth-social-btn" id="authSignOutBtn" style="margin-top:4px">Sign Out</button>
             </div>
+
         </div>
     </div>
 

@@ -246,7 +246,8 @@ function applyLanguage() {
 langToggle.addEventListener('click', () => {
     currentLang = currentLang === 'ru' ? 'en' : 'ru';
     setCookie('snakeLang', currentLang);
-    applyLanguage();
+applyLanguage();
+updateNicknameInputVisibility();
 });
 
 
@@ -370,8 +371,14 @@ const authGithub = document.getElementById('authGithub');
 const authStatus = document.getElementById('authStatus');
 const authEmailStatus = document.getElementById('authEmailStatus');
 const authSignOutBtn = document.getElementById('authSignOutBtn');
-const authInfo = document.getElementById('authInfo');
-const authInfoEmail = document.getElementById('authInfoEmail');
+const authAccountView = document.getElementById('authAccountView');
+const accEmail = document.getElementById('accEmail');
+const accProviders = document.getElementById('accProviders');
+const accNickInput = document.getElementById('accNickInput');
+const accNickSave = document.getElementById('accNickSave');
+const accNickStatus = document.getElementById('accNickStatus');
+
+const providerBtns = document.querySelectorAll('.auth-prov-btn');
 
 function showAuthStatus(msg, isError) {
     authStatus.textContent = msg;
@@ -412,20 +419,38 @@ authClose.addEventListener('click', () => authOverlay.classList.remove('active')
 authOverlay.addEventListener('click', e => { if (e.target === authOverlay) authOverlay.classList.remove('active'); });
 authEmailBack.addEventListener('click', hideEmailView);
 
+function renderProviders() {
+    if (!authUser || authUser.isAnonymous) return;
+    const methods = authUser.providerData.map(p => p.providerId);
+    accProviders.innerHTML = methods.map(id => {
+        const label = { 'google.com': 'Google', 'github.com': 'GitHub', 'password': 'Email' }[id] || id;
+        return `<span class="auth-prov-btn" style="opacity:1; background:var(--md-sys-color-primary-container); border-color:var(--md-sys-color-primary)" disabled>${label} ✓</span>`;
+    }).join('');
+    const used = new Set(methods);
+    providerBtns.forEach(btn => {
+        const prov = btn.dataset.prov;
+        const target = prov === 'password' ? 'password' : prov + '.com';
+        btn.disabled = used.has(target);
+        btn.textContent = used.has(target) ? (prov === 'password' ? 'Email ✓' : (prov.charAt(0).toUpperCase() + prov.slice(1) + ' ✓')) : '+ ' + (prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1));
+    });
+}
+
 function updateAuthUI() {
     if (authUser && !authUser.isAnonymous) {
         authBtn.textContent = '✓';
         authBtn.style.color = 'var(--md-sys-color-primary)';
-        authInfoEmail.textContent = authUser.email || authUser.displayName || 'Logged in';
-        authSignOutBtn.style.display = 'block';
+        accEmail.textContent = authUser.email || authUser.displayName || 'Logged in';
         authMainView.style.display = 'none';
         authEmailView.style.display = 'none';
+        authAccountView.style.display = 'flex';
+        renderProviders();
+        loadNicknameFromFirestore();
     } else {
         authBtn.textContent = '👤';
         authBtn.style.color = '';
-        authSignOutBtn.style.display = 'none';
         authMainView.style.display = '';
         authEmailView.style.display = 'none';
+        authAccountView.style.display = 'none';
     }
 }
 
@@ -459,7 +484,113 @@ function upgradeFromAnonymous(action) {
     return action();
 }
 
-// Email button → show email view
+// === LINK PROVIDERS ===
+providerBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (btn.disabled || !authUser) return;
+        const prov = btn.dataset.prov;
+        let provider;
+        if (prov === 'google') provider = new firebase.auth.GoogleAuthProvider();
+        else if (prov === 'github') provider = new firebase.auth.GithubAuthProvider();
+        else if (prov === 'password') {
+            const email = prompt('Enter your email to link:');
+            if (!email) return;
+            const pass = prompt('Enter a password (min 6 chars):');
+            if (!pass || pass.length < 6) return;
+            const cred = firebase.auth.EmailAuthProvider.credential(email, pass);
+            authUser.linkWithCredential(cred).then(() => {
+                authUser = auth.currentUser;
+                renderProviders();
+                accNickStatus.textContent = 'Email linked!';
+                accNickStatus.style.color = 'var(--md-sys-color-primary)';
+            }).catch(e => {
+                accNickStatus.textContent = e.message;
+                accNickStatus.style.color = 'var(--md-sys-color-error)';
+            });
+            return;
+        }
+        if (provider) {
+            authUser.linkWithPopup(provider).then(() => {
+                authUser = auth.currentUser;
+                renderProviders();
+                accNickStatus.textContent = 'Linked!';
+                accNickStatus.style.color = 'var(--md-sys-color-primary)';
+            }).catch(e => {
+                accNickStatus.textContent = e.message;
+                accNickStatus.style.color = 'var(--md-sys-color-error)';
+            });
+        }
+    });
+});
+
+// === NICKNAME FROM FIRESTORE ===
+const NICK_COOLDOWN = 7 * 24 * 60 * 60 * 1000; // 1 week
+
+function loadNicknameFromFirestore() {
+    if (!authUser || authUser.isAnonymous) return;
+    const userRef = db.collection('users').doc(authUser.uid);
+    userRef.get().then(doc => {
+        if (doc.exists && doc.data().nickname) {
+            accNickInput.value = doc.data().nickname;
+            savedName = doc.data().nickname;
+            playerNameInput.value = savedName;
+        } else {
+            accNickInput.value = savedName || '';
+        }
+        // check cooldown
+        const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
+        const remaining = lastChange + NICK_COOLDOWN - Date.now();
+        if (remaining > 0) {
+            const days = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+            accNickStatus.textContent = `Can change again in ${days} day(s)`;
+            accNickStatus.style.color = '';
+            accNickSave.disabled = true;
+        } else {
+            accNickStatus.textContent = '';
+            accNickSave.disabled = false;
+        }
+    }).catch(() => {});
+}
+
+accNickSave.addEventListener('click', () => {
+    if (!authUser || authUser.isAnonymous) return;
+    const nick = sanitizeName(accNickInput.value.trim());
+    if (!isValidName(nick)) { accNickStatus.textContent = 'Invalid nickname'; accNickStatus.style.color = 'var(--md-sys-color-error)'; return; }
+    const userRef = db.collection('users').doc(authUser.uid);
+    userRef.get().then(doc => {
+        const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
+        if (Date.now() - lastChange < NICK_COOLDOWN) {
+            const remaining = lastChange + NICK_COOLDOWN - Date.now();
+            const days = Math.ceil(remaining / (24 * 60 * 60 * 1000));
+            accNickStatus.textContent = `Can change again in ${days} day(s)`;
+            accNickStatus.style.color = '';
+            return;
+        }
+        userRef.set({ nickname: nick, nicknameLastChange: Date.now() }, { merge: true }).then(() => {
+            savedName = nick;
+            setCookie('snakeNick', savedName);
+            playerNameInput.value = savedName;
+            accNickStatus.textContent = 'Nickname saved!';
+            accNickStatus.style.color = 'var(--md-sys-color-primary)';
+            accNickSave.disabled = true;
+        }).catch(e => {
+            accNickStatus.textContent = e.message;
+            accNickStatus.style.color = 'var(--md-sys-color-error)';
+        });
+    });
+});
+
+// === HIDE NICKNAME INPUT WHEN LOGGED IN ===
+function updateNicknameInputVisibility() {
+    const nickContainer = playerNameInput && playerNameInput.parentNode;
+    if (authUser && !authUser.isAnonymous) {
+        playerNameInput.style.display = 'none';
+    } else {
+        playerNameInput.style.display = '';
+    }
+}
+
+// === Email button → show email view ===
 authEmailBtn.addEventListener('click', showEmailView);
 
 // Toggle nickname field — show for Register, hide for Sign In
@@ -573,6 +704,7 @@ auth.onAuthStateChanged(user => {
         }
     }
     updateAuthUI();
+    updateNicknameInputVisibility();
 });
 
 const leaderboardList = document.getElementById('leaderboardList');
