@@ -378,7 +378,7 @@ const accNickInput = document.getElementById('accNickInput');
 const accNickSave = document.getElementById('accNickSave');
 const accNickStatus = document.getElementById('accNickStatus');
 
-const providerBtns = document.querySelectorAll('.auth-prov-btn');
+const providerBtns = document.querySelectorAll('.auth-prov-btn[data-prov]');
 
 function showAuthStatus(msg, isError) {
     authStatus.textContent = msg;
