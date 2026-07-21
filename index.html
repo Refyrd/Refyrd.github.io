@@ -190,6 +190,48 @@
         .btn-secondary { background-color: transparent; color: var(--md-sys-color-primary); border: 2px solid var(--md-sys-color-primary); }
         .btn-secondary:active { transform: scale(0.95); background-color: var(--md-sys-color-primary-container); }
 
+        .speed-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface);
+            cursor: pointer;
+            opacity: 0.8;
+            margin-top: -4px;
+        }
+        .speed-toggle input[type="checkbox"] {
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: var(--md-sys-color-surface-container);
+            border: 2px solid var(--md-sys-color-primary);
+            appearance: none;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s, border-color 0.2s;
+            flex-shrink: 0;
+        }
+        .speed-toggle input[type="checkbox"]::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--md-sys-color-primary);
+            transition: transform 0.2s;
+        }
+        .speed-toggle input[type="checkbox"]:checked {
+            background-color: var(--md-sys-color-primary-container);
+        }
+        .speed-toggle input[type="checkbox"]:checked::after {
+            transform: translateX(16px);
+            background-color: var(--md-sys-color-primary);
+        }
+
         .game-wrapper {
             display: flex;
             flex-direction: column;
@@ -371,6 +413,10 @@
                     <button class="color-btn" data-c="purple" style="background-color: #9C27B0;"></button>
                 </div>
                 
+                <label class="speed-toggle" id="speedLabel">
+                    <input type="checkbox" id="speedUpToggle" checked>
+                    <span id="uiSpeedText">Ускорение</span>
+                </label>
                 <div class="button-group">
                     <button class="btn-primary" id="uiPlayBtn" onclick="startGame()">Играть</button>
                 </div>
@@ -417,8 +463,8 @@
 
         // === ЛОКАЛИЗАЦИЯ ===
         const i18n = {
-            en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10" },
-            ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10" }
+            en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", speedText: "Speed up" },
+            ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", speedText: "Ускорение" }
         };
 
         let currentLang = 'en';
@@ -454,6 +500,7 @@
             document.getElementById('uiDevFill').innerText = i18n[currentLang].devFill;
             document.getElementById('uiDevClose').innerText = i18n[currentLang].devClose;
             
+            document.getElementById('uiSpeedText').innerText = i18n[currentLang].speedText;
             if (playerNameInput.disabled) {
                 playerNameInput.placeholder = currentLang === 'en' ? 'DEV MODE' : 'ДЕВ РЕЖИМ';
             }
@@ -528,6 +575,14 @@
         const ctx = canvas.getContext('2d');
         let tileCount = 20;
         let gridSize = 20;
+        const speedUpToggle = document.getElementById('speedUpToggle');
+        speedUpEnabled = getCookie('snakeSpeed') !== 'off';
+        speedUpToggle.checked = speedUpEnabled;
+        speedUpToggle.addEventListener('change', () => {
+            speedUpEnabled = speedUpToggle.checked;
+            setCookie('snakeSpeed', speedUpEnabled ? 'on' : 'off');
+        });
+
         const sizeBtns = document.querySelectorAll('.size-btn');
 
         // Подгоняем реальное разрешение canvas под размер контейнера (с учётом DPR).
@@ -672,6 +727,7 @@
         const initialSpeed = 150; 
         const maxSpeed = 70;
         const speedDecrease = 2;
+        let speedUpEnabled = true;
 
         let snake = [];
         let food = {};
@@ -831,11 +887,9 @@
                 glows = glows.filter(g => g.pos < snake.length + 4);
             }
 
-            // Плавная интерполяция позиций сегментов к целевым (движение без дёрганий)
-            const lerp = 0.35;
             for (let s of snake) {
-                s.rx += (s.x - s.rx) * lerp;
-                s.ry += (s.y - s.ry) * lerp;
+                s.rx += (s.x - s.rx) * 0.6;
+                s.ry += (s.y - s.ry) * 0.6;
             }
             
             drawGame();
@@ -861,7 +915,7 @@
             if (head.x === food.x && head.y === food.y) {
                 score++;
                 scoreElement.innerText = score;
-                if (currentSpeed > maxSpeed) currentSpeed -= speedDecrease;
+                if (speedUpEnabled && currentSpeed > maxSpeed) currentSpeed -= speedDecrease;
                 if (score > 0 && score % 10 === 0) triggerConfetti();
                 
                 glows = [{ pos: 0 }];
@@ -951,11 +1005,6 @@
                     }
                 }
                 
-                // Волна свечения бежит от головы (i=0) к хвосту
-                let baseBrightness = (i === 0) ? 1.15 : 1.0;
-                let finalBrightness = baseBrightness + (maxGlowIntensity * 0.3);
-
-                // Слабое свечение-ореол ВОКРУГ тела в цвет темы
                 if (maxGlowIntensity > 0) {
                     const glowR = size * 0.95;
                     const grad = ctx.createRadialGradient(cx, cy, size * 0.3, cx, cy, glowR);
@@ -968,15 +1017,12 @@
                     ctx.fill();
                 }
 
-                ctx.filter = i === 0 ? `brightness(${baseBrightness})` : 'none';
-                ctx.fillStyle = rawPrimary;
+                ctx.fillStyle = i === 0 ? toRGBA(rawPrimary, 0.85) : rawPrimary;
                 ctx.beginPath();
                 const radius = size * (i === 0 ? 0.40 : 0.30);
                 ctx.roundRect(cx - size / 2, cy - size / 2, size, size, radius);
                 ctx.fill();
             }
-            
-            ctx.filter = 'none';
         }
 
         function placeFood() {
@@ -1004,10 +1050,11 @@
         function changeDirection(newDx, newDy) {
             if (inputQueue.length >= 4) return;
             const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : {dx, dy};
-            if (newDx === 1 && lastDir.dx !== -1) inputQueue.push({dx: 1, dy: 0});
-            else if (newDx === -1 && lastDir.dx !== 1) inputQueue.push({dx: -1, dy: 0});
-            else if (newDy === -1 && lastDir.dy !== 1) inputQueue.push({dx: 0, dy: -1});
-            else if (newDy === 1 && lastDir.dy !== -1) inputQueue.push({dx: 0, dy: 1});
+            const valid = (newDx === 1 && lastDir.dx !== -1) || (newDx === -1 && lastDir.dx !== 1) ||
+                          (newDy === -1 && lastDir.dy !== 1) || (newDy === 1 && lastDir.dy !== -1);
+            if (!valid) return;
+            if (inputQueue.length === 0) { dx = newDx; dy = newDy; }
+            inputQueue.push({dx: newDx, dy: newDy});
         }
 
         document.addEventListener('keydown', (e) => {
