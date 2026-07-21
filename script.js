@@ -363,6 +363,7 @@ const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
 const authEmailSignIn = document.getElementById('authEmailSignIn');
 const authEmailRegister = document.getElementById('authEmailRegister');
+const authRegNick = document.getElementById('authRegNick');
 const authEmailBtn = document.getElementById('authEmailBtn');
 const authGoogle = document.getElementById('authGoogle');
 const authGithub = document.getElementById('authGithub');
@@ -389,6 +390,8 @@ function showEmailView() {
     authEmailView.style.display = 'flex';
     authEmail.value = '';
     authPassword.value = '';
+    authRegNick.value = '';
+    authRegNick.style.display = 'none';
     clearEmailStatus();
     authEmail.focus();
 }
@@ -459,12 +462,17 @@ function upgradeFromAnonymous(action) {
 // Email button → show email view
 authEmailBtn.addEventListener('click', showEmailView);
 
+// Toggle nickname field — show for Register, hide for Sign In
+authEmailSignIn.addEventListener('focus', () => { authRegNick.style.display = 'none'; }, true);
+authEmailRegister.addEventListener('focus', () => { authRegNick.style.display = 'block'; }, true);
+
 authPassword.addEventListener('keydown', e => {
     if (e.key === 'Enter') authEmailSignIn.click();
 });
 authEmail.addEventListener('keydown', e => {
     if (e.key === 'Enter') authPassword.focus();
 });
+authRegNick.addEventListener('input', () => { authRegNick.value = sanitizeName(authRegNick.value); });
 
 // Email Sign In
 authEmailSignIn.addEventListener('click', () => {
@@ -481,8 +489,14 @@ authEmailSignIn.addEventListener('click', () => {
 authEmailRegister.addEventListener('click', () => {
     const email = authEmail.value.trim();
     const pass = authPassword.value;
+    const nick = sanitizeName(authRegNick.value.trim());
     if (!email || !pass) { showEmailStatus('Fill in all fields', true); return; }
     if (pass.length < 6) { showEmailStatus('Password must be at least 6 characters', true); return; }
+    if (nick && isValidName(nick)) {
+        savedName = nick;
+        setCookie('snakeNick', savedName);
+        playerNameInput.value = savedName;
+    }
     showEmailStatus('Creating account...', false);
     upgradeFromAnonymous(() => auth.createUserWithEmailAndPassword(email, pass))
         .then(() => { authOverlay.classList.remove('active'); clearEmailStatus(); })
