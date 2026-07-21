@@ -1091,12 +1091,10 @@ function drawGame() {
         rawPrimary = getResolvedColor('var(--md-sys-color-primary)');
     }
 
-    const errorColor = style.getPropertyValue('--md-sys-color-error').trim();
-
     if (food.x !== undefined) {
         const pulse = 1 + Math.sin(performance.now() / 300) * 0.06;
         const foodSize = gridSize * 0.80 * pulse; 
-        ctx.fillStyle = errorColor;
+        ctx.fillStyle = '#ff3333';
         ctx.beginPath();
         ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, foodSize / 2, 0, Math.PI * 2);
         ctx.fill();
