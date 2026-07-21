@@ -11,8 +11,8 @@ function getCookie(name) {
 
 // === ЛОКАЛИЗАЦИЯ ===
 const i18n = {
-    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", speedText: "Speed up" },
-    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", speedText: "Ускорение" }
+    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10" },
+    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10" }
 };
 
 let currentLang = 'en';
@@ -47,8 +47,6 @@ function applyLanguage() {
     document.getElementById('uiDevAddScore').innerText = i18n[currentLang].devAddScore;
     document.getElementById('uiDevFill').innerText = i18n[currentLang].devFill;
     document.getElementById('uiDevClose').innerText = i18n[currentLang].devClose;
-    
-    document.getElementById('uiSpeedText').innerText = i18n[currentLang].speedText;
     if (playerNameInput.disabled) {
         playerNameInput.placeholder = currentLang === 'en' ? 'DEV MODE' : 'ДЕВ РЕЖИМ';
     }
@@ -123,14 +121,6 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 let tileCount = 20;
 let gridSize = 20;
-const speedUpToggle = document.getElementById('speedUpToggle');
-let speedUpEnabled = getCookie('snakeSpeed') === 'on';
-speedUpToggle.checked = speedUpEnabled;
-speedUpToggle.addEventListener('change', () => {
-    speedUpEnabled = speedUpToggle.checked;
-    setCookie('snakeSpeed', speedUpEnabled ? 'on' : 'off');
-});
-
 const sizeBtns = document.querySelectorAll('.size-btn');
 
 let lastCanvasW = 0, lastCanvasH = 0;
@@ -453,7 +443,7 @@ function updateLogic() {
     if (head.x === food.x && head.y === food.y) {
         score++;
         scoreElement.innerText = score;
-        if (speedUpEnabled && currentSpeed > maxSpeed) currentSpeed -= speedDecrease;
+        if (currentSpeed > maxSpeed) currentSpeed -= speedDecrease;
         if (score > 0 && score % 10 === 0) triggerConfetti();
         
         glows = [{ pos: 0 }];
@@ -497,12 +487,17 @@ function toRGBA(color, alpha) {
 }
 
 function lightenColor(color, amount) {
-    const temp = document.createElement('div');
-    temp.style.color = color;
-    document.body.appendChild(temp);
-    const computed = getComputedStyle(temp).color;
-    temp.remove();
-    const m = computed.match(/(\d+)/g);
+    if (color.startsWith('#')) {
+        let hex = color.slice(1);
+        if (hex.length === 3) hex = hex.split('').map(x => x + x).join('');
+        if (hex.length === 6) {
+            const r = Math.min(255, parseInt(hex.slice(0,2),16) + Math.round(amount * 255));
+            const g = Math.min(255, parseInt(hex.slice(2,4),16) + Math.round(amount * 255));
+            const b = Math.min(255, parseInt(hex.slice(4,6),16) + Math.round(amount * 255));
+            return `rgb(${r},${g},${b})`;
+        }
+    }
+    const m = color.match(/(\d+)/g);
     if (!m || m.length < 3) return color;
     const r = Math.min(255, parseInt(m[0]) + Math.round(amount * 255));
     const g = Math.min(255, parseInt(m[1]) + Math.round(amount * 255));
@@ -566,7 +561,7 @@ function drawGame() {
             ctx.fill();
         }
 
-        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.25) : rawPrimary;
+        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.35) : rawPrimary;
         ctx.beginPath();
         const radius = size * (i === 0 ? 0.40 : 0.30);
         ctx.roundRect(cx - size / 2, cy - size / 2, size, size, radius);

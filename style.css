@@ -178,48 +178,6 @@ body {
 .btn-secondary { background-color: transparent; color: var(--md-sys-color-primary); border: 2px solid var(--md-sys-color-primary); }
 .btn-secondary:active { transform: scale(0.95); background-color: var(--md-sys-color-primary-container); }
 
-.speed-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--md-sys-color-on-surface);
-    cursor: pointer;
-    opacity: 0.8;
-    margin-top: -4px;
-}
-.speed-toggle input[type="checkbox"] {
-    width: 36px;
-    height: 20px;
-    border-radius: 10px;
-    background-color: var(--md-sys-color-surface-container);
-    border: 2px solid var(--md-sys-color-primary);
-    appearance: none;
-    cursor: pointer;
-    position: relative;
-    transition: background-color 0.2s, border-color 0.2s;
-    flex-shrink: 0;
-}
-.speed-toggle input[type="checkbox"]::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: var(--md-sys-color-primary);
-    transition: transform 0.2s;
-}
-.speed-toggle input[type="checkbox"]:checked {
-    background-color: var(--md-sys-color-primary-container);
-}
-.speed-toggle input[type="checkbox"]:checked::after {
-    transform: translateX(16px);
-    background-color: var(--md-sys-color-primary);
-}
-
 .lb-show-more {
     background: none;
     border: none;
@@ -359,6 +317,9 @@ body {
         flex-direction: column;
         padding: 12px 14px;
         margin-top: 12px;
+    }
+    .leaderboard .lb-status {
+        margin-top: 8px;
     }
     .leaderboard h3 {
         font-size: 13px;
