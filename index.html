@@ -29,7 +29,6 @@
             <button class="icon-btn" id="authBtn" title="Sign in">👤</button>
             <button class="icon-btn" id="langToggle">EN</button>
             <button class="icon-btn" id="themeToggle">☀️</button>
-            <button class="icon-btn" id="fbToggle" title="Feedback">💬</button>
         </div>
     </div>
 
@@ -95,19 +94,20 @@
         <button class="lb-show-more" id="lbShowMore">Show all</button>
     </div>
 
-    <div id="feedbackPanel">
-        <div class="feedback-header">
-            <span id="fbTitle">Feedback</span>
-            <button class="icon-btn" id="fbClose">&times;</button>
-        </div>
-        <div class="feedback-list" id="feedbackList">
-            <div class="lb-loading">Loading...</div>
-        </div>
-        <div class="feedback-form" id="feedbackForm">
+    <div class="feedback-panel" id="feedbackPanel">
+        <h3 id="fbTitle">FEEDBACK</h3>
+        <div class="feedback-list" id="feedbackList"><div class="lb-loading">Loading...</div></div>
+        <button class="lb-show-more" id="fbWriteBtn">Write feedback</button>
+    </div>
+
+    <div class="auth-overlay" id="fbOverlay">
+        <div class="auth-modal" style="gap:12px">
+            <button class="auth-close" id="fbOverlayClose">&times;</button>
+            <div class="auth-title">Write feedback</div>
             <input type="text" id="fbNameInput" class="name-input" placeholder="Your name" maxlength="20" autocomplete="off">
-            <textarea id="fbMessageInput" class="fb-textarea" placeholder="Write your thoughts about the game..." rows="3" maxlength="500"></textarea>
-            <button class="btn-primary" id="fbSubmit">Send</button>
-            <div class="fb-status" id="fbStatus"></div>
+            <textarea id="fbMessageInput" class="fb-textarea" placeholder="Write your thoughts about the game..." rows="4" maxlength="500" style="width:100%"></textarea>
+            <button class="btn-primary" id="fbSubmit" style="width:100%">Send</button>
+            <div class="auth-status" id="fbStatus"></div>
         </div>
     </div>
 

@@ -870,32 +870,23 @@ setInterval(() => {
 }, 3000);
 
 // === FEEDBACK PANEL ===
-const fbToggle = document.getElementById('fbToggle');
+const Fb_COLLECTION = 'feedback';
 const fbPanel = document.getElementById('feedbackPanel');
-const fbClose = document.getElementById('fbClose');
 const fbList = document.getElementById('feedbackList');
+const fbWriteBtn = document.getElementById('fbWriteBtn');
+const fbOverlay = document.getElementById('fbOverlay');
+const fbOverlayClose = document.getElementById('fbOverlayClose');
 const fbNameInput = document.getElementById('fbNameInput');
 const fbMessageInput = document.getElementById('fbMessageInput');
 const fbSubmit = document.getElementById('fbSubmit');
 const fbStatus = document.getElementById('fbStatus');
-const FB_COLLECTION = 'feedback';
-
-fbToggle.addEventListener('click', () => {
-	fbPanel.classList.toggle('active');
-	if (fbPanel.classList.contains('active')) {
-		fbNameInput.value = savedName && isValidName(savedName) ? savedName : '';
-		loadFeedback();
-	}
-});
-
-fbClose.addEventListener('click', () => fbPanel.classList.remove('active'));
 
 async function loadFeedback() {
 	fbList.innerHTML = '<div class="lb-loading">Loading...</div>';
 	try {
-		const snap = await db.collection(FB_COLLECTION).orderBy('time', 'desc').limit(50).get();
+		const snap = await db.collection(Fb_COLLECTION).orderBy('time', 'desc').limit(50).get();
 		if (snap.empty) {
-			fbList.innerHTML = '<div style="text-align:center;opacity:0.5;padding:20px;font-size:13px">No feedback yet. Be the first!</div>';
+			fbList.innerHTML = '<div class="lb-empty">No feedback yet. Be the first!</div>';
 			return;
 		}
 		let html = '';
@@ -910,18 +901,30 @@ async function loadFeedback() {
 		});
 		fbList.innerHTML = html;
 	} catch (e) {
-		fbList.innerHTML = '<div style="text-align:center;opacity:0.5;padding:20px;font-size:13px">Failed to load feedback</div>';
+		fbList.innerHTML = '<div class="lb-empty">Failed to load feedback</div>';
 	}
 }
+loadFeedback();
+
+fbWriteBtn.addEventListener('click', () => {
+	fbNameInput.value = savedName && isValidName(savedName) ? savedName : '';
+	fbMessageInput.value = '';
+	fbStatus.textContent = '';
+	fbOverlay.classList.add('active');
+});
+
+fbOverlayClose.addEventListener('click', () => fbOverlay.classList.remove('active'));
+fbOverlay.addEventListener('click', e => { if (e.target === fbOverlay) fbOverlay.classList.remove('active'); });
 
 fbSubmit.addEventListener('click', async () => {
 	const name = fbNameInput.value.trim();
 	const message = fbMessageInput.value.trim();
-	if (!name) { fbStatus.textContent = 'Enter your name'; return; }
-	if (!message || message.length < 3) { fbStatus.textContent = 'Message too short (min 3 chars)'; return; }
+	if (!name) { fbStatus.textContent = 'Enter your name'; fbStatus.style.color = 'var(--md-sys-color-error)'; return; }
+	if (!message || message.length < 3) { fbStatus.textContent = 'Message too short (min 3 chars)'; fbStatus.style.color = 'var(--md-sys-color-error)'; return; }
 	fbStatus.textContent = 'Sending...';
+	fbStatus.style.color = '';
 	try {
-		await db.collection(FB_COLLECTION).add({
+		await db.collection(Fb_COLLECTION).add({
 			name: name,
 			message: message,
 			time: firebase.firestore.FieldValue.serverTimestamp()
@@ -929,6 +932,7 @@ fbSubmit.addEventListener('click', async () => {
 		fbStatus.textContent = 'Feedback sent! Thanks!';
 		fbStatus.style.color = 'var(--md-sys-color-primary)';
 		fbMessageInput.value = '';
+		setTimeout(() => fbOverlay.classList.remove('active'), 1500);
 		loadFeedback();
 	} catch (e) {
 		fbStatus.textContent = e.message;
