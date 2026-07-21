@@ -266,8 +266,6 @@ const menuLastScoreText = document.getElementById('menuLastScoreText');
 const playerNameInput = document.getElementById('playerNameInput');
 
 const initialSpeed = 150; 
-const maxSpeed = 70;
-const speedDecrease = 2;
 
 let snake = [];
 let food = {};
@@ -443,8 +441,7 @@ function updateLogic() {
     if (head.x === food.x && head.y === food.y) {
         score++;
         scoreElement.innerText = score;
-        if (currentSpeed > maxSpeed) currentSpeed -= speedDecrease;
-        if (score > 0 && score % 10 === 0) triggerConfetti();
+                if (score > 0 && score % 10 === 0) triggerConfetti();
         
         glows = [{ pos: 0 }];
         placeFood();
@@ -561,7 +558,7 @@ function drawGame() {
             ctx.fill();
         }
 
-        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.35) : rawPrimary;
+        ctx.fillStyle = i === 0 ? toRGBA(rawPrimary, 0.88) : rawPrimary;
         ctx.beginPath();
         const radius = size * (i === 0 ? 0.40 : 0.30);
         ctx.roundRect(cx - size / 2, cy - size / 2, size, size, radius);
