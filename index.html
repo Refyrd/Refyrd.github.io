@@ -189,35 +189,27 @@
         .btn-secondary { background-color: transparent; color: var(--md-sys-color-primary); border: 2px solid var(--md-sys-color-primary); }
         .btn-secondary:active { transform: scale(0.95); background-color: var(--md-sys-color-primary-container); }
 
-        .main-layout {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 720px;
-            padding: 0 16px;
-        }
         .game-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 1;
-            min-width: 0;
         }
         .leaderboard {
+            position: fixed;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
             width: 200px;
-            flex-shrink: 0;
             background-color: var(--md-sys-color-surface-container);
             border-radius: 16px;
             box-shadow: var(--elevation-2);
             padding: 16px;
-            margin-top: 0;
             display: flex;
             flex-direction: column;
             max-height: min(500px, 80vh);
             overflow-y: auto;
             scrollbar-width: thin;
+            z-index: 50;
         }
         .leaderboard h3 {
             font-size: 14px;
@@ -295,8 +287,18 @@
             50% { opacity: 0.3; }
         }
         @media (max-width: 640px) {
-            .main-layout { flex-direction: column; align-items: center; }
-            .leaderboard { width: 100%; max-width: 400px; max-height: none; flex-direction: row; flex-wrap: wrap; gap: 4px; padding: 12px; }
+            .leaderboard {
+                position: static;
+                transform: none;
+                width: 100%;
+                max-width: 400px;
+                max-height: none;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 4px;
+                padding: 12px;
+                margin-top: 12px;
+            }
             .leaderboard h3 { width: 100%; margin-bottom: 8px; font-size: 12px; }
             .lb-entry { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 80px; }
         }
@@ -307,14 +309,12 @@
 
     <canvas id="confettiCanvas"></canvas>
 
-    <div class="main-layout">
-        <div class="leaderboard" id="leaderboard">
-            <h3>Leaderboard</h3>
-            <div id="leaderboardList"><div class="lb-loading">Loading...</div></div>
-            <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span>Connecting...</span></div>
-        </div>
+    <div class="leaderboard" id="leaderboard">
+        <h3>Leaderboard</h3>
+        <div id="leaderboardList"><div class="lb-loading">Loading...</div></div>
+        <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span>Connecting...</span></div>
+    </div>
 
-        <div class="game-wrapper">
     <div class="branding">
         <div class="name">Refyrd</div>
         <div class="vibe">vibecoded by Hy3</div>
@@ -384,9 +384,6 @@
                 <button class="btn-secondary" onclick="devFillSnake()">Длинная змейка</button>
                 <button class="btn-primary" onclick="closeDevMenu()">Закрыть</button>
             </div>
-        </div>
-    </div>
-
         </div>
     </div>
 
@@ -508,6 +505,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const LEADERBOARD_COLLECTION = 'leaderboard';
 
         const leaderboardList = document.getElementById('leaderboardList');
         const lbStatus = document.getElementById('lbStatus');
@@ -522,37 +520,46 @@
 
         async function saveScoreToLeaderboard() {
             if (!savedName || score <= 0) return;
+            if (savedName === 'Refyrd.dev') return;
             try {
-                const existing = await db.collection('scores')
+                const existing = await db.collection(LEADERBOARD_COLLECTION)
                     .where('name', '==', savedName)
-                    .orderBy('score', 'desc')
                     .get();
 
-                if (!existing.empty) {
-                    const topScore = existing.docs[0].data().score;
-                    if (score <= topScore) {
-                        loadLeaderboard();
-                        return;
-                    }
+                let highestExisting = 0;
+                const docs = [];
+                existing.forEach(doc => {
+                    docs.push(doc);
+                    const d = doc.data();
+                    if ((d.score || 0) > highestExisting) highestExisting = d.score;
+                });
+
+                if (score <= highestExisting) {
+                    loadLeaderboard();
+                    return;
+                }
+
+                if (docs.length > 0) {
                     const batch = db.batch();
-                    existing.forEach(doc => batch.delete(doc.ref));
+                    docs.forEach(doc => batch.delete(doc.ref));
                     await batch.commit();
                 }
 
-                await db.collection('scores').add({
+                await db.collection(LEADERBOARD_COLLECTION).add({
                     name: savedName,
                     score: score,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } catch (e) {
                 console.warn('Firebase save error:', e);
+                setLbStatus('error', `Save error: ${e.message}`);
             }
             loadLeaderboard();
         }
 
         async function loadLeaderboard() {
             try {
-                const snapshot = await db.collection('scores')
+                const snapshot = await db.collection(LEADERBOARD_COLLECTION)
                     .orderBy('score', 'desc')
                     .limit(10)
                     .get();
@@ -576,7 +583,7 @@
                 leaderboardList.innerHTML = html;
             } catch (e) {
                 console.warn('Firebase load error:', e);
-                setLbStatus('error', `Error: ${e.message || 'Offline'}`);
+                setLbStatus('error', `Load error: ${e.message}`);
                 leaderboardList.innerHTML = '<div class="lb-empty">No scores yet</div>';
             }
         }
@@ -651,6 +658,8 @@
         function showMenu() {
             gameOverScreen.classList.remove('active');
             devMenu.classList.remove('active');
+            playerNameInput.disabled = false;
+            playerNameInput.placeholder = i18n[currentLang].placeholder;
             startMenu.classList.add('active');
             isRunning = false;
             updateHighScoreDisplay();
@@ -679,11 +688,16 @@
         playerNameInput.addEventListener('input', () => {
             if (playerNameInput.value.trim().toLowerCase() === 'refyrd.dev') {
                 devMenu.classList.add('active');
+                playerNameInput.disabled = true;
+                playerNameInput.value = '';
+                playerNameInput.placeholder = 'DEV MODE';
             }
         });
 
         function closeDevMenu() {
             devMenu.classList.remove('active');
+            playerNameInput.disabled = false;
+            playerNameInput.placeholder = i18n[currentLang].placeholder;
         }
 
         // Запуск одной волны свечения: узкая полоса бежит от головы до хвоста
