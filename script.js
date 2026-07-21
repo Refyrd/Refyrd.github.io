@@ -356,18 +356,18 @@ let skipAnonSignIn = false;
 const authOverlay = document.getElementById('authOverlay');
 const authClose = document.getElementById('authClose');
 const authBtn = document.getElementById('authBtn');
-const authTabs = document.querySelectorAll('.auth-tab');
-const authLogin = document.getElementById('authLogin');
-const authRegister = document.getElementById('authRegister');
+const authMainView = document.getElementById('authMainView');
+const authEmailView = document.getElementById('authEmailView');
+const authEmailBack = document.getElementById('authEmailBack');
 const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
-const regEmail = document.getElementById('regEmail');
-const regPassword = document.getElementById('regPassword');
+const authEmailSignIn = document.getElementById('authEmailSignIn');
+const authEmailRegister = document.getElementById('authEmailRegister');
 const authEmailBtn = document.getElementById('authEmailBtn');
-const authRegisterBtn = document.getElementById('authRegisterBtn');
 const authGoogle = document.getElementById('authGoogle');
 const authGithub = document.getElementById('authGithub');
 const authStatus = document.getElementById('authStatus');
+const authEmailStatus = document.getElementById('authEmailStatus');
 const authSignOutBtn = document.getElementById('authSignOutBtn');
 const authInfo = document.getElementById('authInfo');
 const authInfoEmail = document.getElementById('authInfoEmail');
@@ -378,26 +378,36 @@ function showAuthStatus(msg, isError) {
 }
 function clearAuthStatus() { authStatus.textContent = ''; }
 
+function showEmailStatus(msg, isError) {
+    authEmailStatus.textContent = msg;
+    authEmailStatus.style.color = isError ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)';
+}
+function clearEmailStatus() { authEmailStatus.textContent = ''; }
+
+function showEmailView() {
+    authMainView.style.display = 'none';
+    authEmailView.style.display = 'flex';
+    authEmail.value = '';
+    authPassword.value = '';
+    clearEmailStatus();
+    authEmail.focus();
+}
+
+function hideEmailView() {
+    authMainView.style.display = '';
+    authEmailView.style.display = 'none';
+    clearEmailStatus();
+}
+
 authBtn.addEventListener('click', () => {
+    hideEmailView();
     authOverlay.classList.add('active');
     updateAuthUI();
 });
 
 authClose.addEventListener('click', () => authOverlay.classList.remove('active'));
 authOverlay.addEventListener('click', e => { if (e.target === authOverlay) authOverlay.classList.remove('active'); });
-
-authTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        authTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        const isLogin = tab.dataset.tab === 'login';
-        authLogin.style.display = isLogin ? 'flex' : 'none';
-        authRegister.style.display = isLogin ? 'none' : 'flex';
-        clearAuthStatus();
-    });
-});
-authLogin.style.display = 'flex';
-authRegister.style.display = 'none';
+authEmailBack.addEventListener('click', hideEmailView);
 
 function updateAuthUI() {
     if (authUser && !authUser.isAnonymous) {
@@ -405,20 +415,14 @@ function updateAuthUI() {
         authBtn.style.color = 'var(--md-sys-color-primary)';
         authInfoEmail.textContent = authUser.email || authUser.displayName || 'Logged in';
         authSignOutBtn.style.display = 'block';
-        authLogin.style.display = 'none';
-        authRegister.style.display = 'none';
-        document.querySelectorAll('.auth-tab').forEach(t => t.style.display = 'none');
-        document.querySelector('.auth-divider').style.display = 'none';
-        document.querySelectorAll('.auth-social-btn:not(#authSignOutBtn)').forEach(b => b.style.display = 'none');
-        document.querySelector('.auth-title').textContent = authUser.email || 'Account';
+        authMainView.style.display = 'none';
+        authEmailView.style.display = 'none';
     } else {
         authBtn.textContent = '👤';
         authBtn.style.color = '';
         authSignOutBtn.style.display = 'none';
-        document.querySelectorAll('.auth-tab').forEach(t => t.style.display = '');
-        document.querySelector('.auth-divider').style.display = '';
-        document.querySelectorAll('.auth-social-btn:not(#authSignOutBtn)').forEach(b => b.style.display = '');
-        document.querySelector('.auth-title').textContent = currentLang === 'en' ? 'Sign In' : 'Войти';
+        authMainView.style.display = '';
+        authEmailView.style.display = 'none';
     }
 }
 
@@ -427,7 +431,6 @@ authSignOutBtn.addEventListener('click', () => {
     authOverlay.classList.remove('active');
 });
 
-// Helper: sign out anonymous, perform action, then write pending scores
 function upgradeFromAnonymous(action) {
     if (authUser && authUser.isAnonymous) {
         const s = score;
@@ -453,27 +456,37 @@ function upgradeFromAnonymous(action) {
     return action();
 }
 
-// Email + Password Login
-authEmailBtn.addEventListener('click', () => {
-    const email = authEmail.value.trim();
-    const pass = authPassword.value;
-    if (!email || !pass) { showAuthStatus('Fill in all fields', true); return; }
-    showAuthStatus('Signing in...', false);
-    upgradeFromAnonymous(() => auth.signInWithEmailAndPassword(email, pass))
-        .then(() => { authOverlay.classList.remove('active'); clearAuthStatus(); })
-        .catch(e => showAuthStatus(e.message, true));
+// Email button → show email view
+authEmailBtn.addEventListener('click', showEmailView);
+
+authPassword.addEventListener('keydown', e => {
+    if (e.key === 'Enter') authEmailSignIn.click();
+});
+authEmail.addEventListener('keydown', e => {
+    if (e.key === 'Enter') authPassword.focus();
 });
 
-// Email + Password Register
-authRegisterBtn.addEventListener('click', () => {
-    const email = regEmail.value.trim();
-    const pass = regPassword.value;
-    if (!email || !pass) { showAuthStatus('Fill in all fields', true); return; }
-    if (pass.length < 6) { showAuthStatus('Password must be at least 6 characters', true); return; }
-    showAuthStatus('Creating account...', false);
+// Email Sign In
+authEmailSignIn.addEventListener('click', () => {
+    const email = authEmail.value.trim();
+    const pass = authPassword.value;
+    if (!email || !pass) { showEmailStatus('Fill in all fields', true); return; }
+    showEmailStatus('Signing in...', false);
+    upgradeFromAnonymous(() => auth.signInWithEmailAndPassword(email, pass))
+        .then(() => { authOverlay.classList.remove('active'); clearEmailStatus(); })
+        .catch(e => showEmailStatus(e.message, true));
+});
+
+// Email Register
+authEmailRegister.addEventListener('click', () => {
+    const email = authEmail.value.trim();
+    const pass = authPassword.value;
+    if (!email || !pass) { showEmailStatus('Fill in all fields', true); return; }
+    if (pass.length < 6) { showEmailStatus('Password must be at least 6 characters', true); return; }
+    showEmailStatus('Creating account...', false);
     upgradeFromAnonymous(() => auth.createUserWithEmailAndPassword(email, pass))
-        .then(() => { authOverlay.classList.remove('active'); clearAuthStatus(); })
-        .catch(e => showAuthStatus(e.message, true));
+        .then(() => { authOverlay.classList.remove('active'); clearEmailStatus(); })
+        .catch(e => showEmailStatus(e.message, true));
 });
 
 // Google Auth
