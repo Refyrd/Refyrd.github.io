@@ -1069,6 +1069,22 @@ playerNameInput.addEventListener('input', () => {
     }
 });
 
+playerNameInput.addEventListener('blur', () => {
+	const raw = sanitizeName(playerNameInput.value);
+	playerNameInput.value = raw;
+	if (raw && raw.toLowerCase() !== 'refyrd.dev') {
+		const now = Date.now();
+		if (raw !== savedName && now - lastNickChange < 3000) {
+			playerNameInput.value = savedName || '';
+			return;
+		}
+		savedName = isValidName(raw) ? raw : '';
+		if (savedName) setCookie('snakeNick', savedName);
+		if (raw) lastNickChange = now;
+		updateHighScoreDisplay();
+	}
+});
+
 function closeDevMenu() {
     devMenu.classList.remove('active');
     playerNameInput.disabled = false;
@@ -1095,6 +1111,29 @@ function devFillSnake() {
         snake.push({ x: tail.x, y: tail.y, rx: tail.x, ry: tail.y });
     }
 }
+
+// === CLOSE POPUPS ON ESC / ANDROID BACK ===
+function closeTopOverlay() {
+	if (devMenu.classList.contains('active')) { closeDevMenu(); return true; }
+	if (fbOverlay.classList.contains('active')) { fbOverlay.classList.remove('active'); return true; }
+	if (authOverlay.classList.contains('active')) { authOverlay.classList.remove('active'); return true; }
+	if (gameOverScreen.classList.contains('active')) {
+		gameOverScreen.classList.remove('active');
+		startMenu.classList.add('active');
+		updateHighScoreDisplay();
+		return true;
+	}
+	return false;
+}
+
+document.addEventListener('keydown', e => {
+	if (e.key === 'Escape') closeTopOverlay();
+});
+
+history.pushState(null, '');
+window.addEventListener('popstate', () => {
+	if (!closeTopOverlay()) history.pushState(null, '');
+});
 
 function resetGameState() {
     syncCanvasSize();
