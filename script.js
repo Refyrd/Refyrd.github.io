@@ -881,6 +881,13 @@ const fbMessageInput = document.getElementById('fbMessageInput');
 const fbSubmit = document.getElementById('fbSubmit');
 const fbStatus = document.getElementById('fbStatus');
 
+function updateFbNameField() {
+	const hasName = savedName && isValidName(savedName);
+	fbNameInput.value = hasName ? savedName : '';
+	fbNameInput.disabled = !!hasName;
+	fbNameInput.placeholder = hasName ? '' : 'Your name';
+}
+
 async function loadFeedback() {
 	fbList.innerHTML = '<div class="lb-loading">Loading...</div>';
 	try {
@@ -907,7 +914,7 @@ async function loadFeedback() {
 loadFeedback();
 
 fbWriteBtn.addEventListener('click', () => {
-	fbNameInput.value = savedName && isValidName(savedName) ? savedName : '';
+	updateFbNameField();
 	fbMessageInput.value = '';
 	fbStatus.textContent = '';
 	fbOverlay.classList.add('active');
@@ -929,9 +936,26 @@ fbSubmit.addEventListener('click', async () => {
 			message: message,
 			time: firebase.firestore.FieldValue.serverTimestamp()
 		});
+		// sync nickname
+		if (name !== savedName) {
+			if (!authUser || authUser.isAnonymous) {
+				savedName = name;
+				setCookie('snakeNick', savedName);
+				playerNameInput.value = savedName;
+			} else {
+				const userRef = db.collection('users').doc(authUid);
+				const doc = await userRef.get();
+				if (!doc.exists || !doc.data().nickname) {
+					userRef.set({ nickname: name, nicknameLastChange: Date.now() }, { merge: true });
+					savedName = name;
+					playerNameInput.value = savedName;
+				}
+			}
+		}
 		fbStatus.textContent = 'Feedback sent! Thanks!';
 		fbStatus.style.color = 'var(--md-sys-color-primary)';
 		fbMessageInput.value = '';
+		updateFbNameField();
 		setTimeout(() => fbOverlay.classList.remove('active'), 1500);
 		loadFeedback();
 	} catch (e) {
