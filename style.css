@@ -154,7 +154,7 @@ body {
     cursor: pointer; opacity: 0.6; padding: 4px;
 }
 .auth-close:hover { opacity: 1; }
-.auth-title { font-size: 20px; font-weight: 800; color: var(--md-sys-color-primary); text-align: center; }
+.auth-title { font-size: 20px; font-weight: 800; color: var(--md-sys-color-primary); text-align: center; width: 100%; }
 .auth-modal .name-input { width: 100%; }
 .auth-divider {
     width: 100%; display: flex; align-items: center; gap: 12px;
@@ -170,7 +170,7 @@ body {
     font-size: 14px; font-weight: 600; cursor: pointer;
 }
 .auth-social-btn:hover { opacity: 1; }
-#authMainView, #authEmailView { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+#authMainView, #authEmailView { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .auth-email-btn {
     background: var(--md-sys-color-primary); color: var(--md-sys-color-surface);
     border: none; opacity: 1;
