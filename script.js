@@ -552,10 +552,13 @@ function loadNicknameFromFirestore() {
 			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
 			accNickStatus.style.color = '';
 			accNickSave.disabled = true;
+			accNickInput.disabled = true;
 			savedIcon.style.display = '';
+			savedIcon.textContent = '🔒';
 		} else {
 			accNickStatus.textContent = '';
 			accNickSave.disabled = false;
+			accNickInput.disabled = false;
 			savedIcon.style.display = 'none';
 		}
 	}).catch(e => {
@@ -587,7 +590,9 @@ accNickSave.addEventListener('click', () => {
 			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
 			accNickStatus.style.color = '';
 			accNickSave.disabled = true;
+			accNickInput.disabled = true;
 			savedIcon.style.display = '';
+			savedIcon.textContent = '🔒';
 		}).catch(e => {
 			accNickStatus.textContent = e.message;
 			accNickStatus.style.color = 'var(--md-sys-color-error)';
