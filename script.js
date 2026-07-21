@@ -724,11 +724,27 @@ authGoogle.addEventListener('click', () => handleSocialAuth(new firebase.auth.Go
 authGithub.addEventListener('click', () => handleSocialAuth(new firebase.auth.GithubAuthProvider()));
 
 // Auth state
+async function syncBestScoreFromServer() {
+    if (!authUid) return;
+    try {
+        const doc = await db.collection(LEADERBOARD_COLLECTION).doc(authUid).get();
+        if (doc.exists) {
+            const serverScore = doc.data().score || 0;
+            if (serverScore > bestScore) {
+                bestScore = serverScore;
+                localStorage.setItem('snakeHighScore', bestScore);
+                updateHighScoreDisplay();
+            }
+        }
+    } catch (e) { /* ignore */ }
+}
+
 auth.onAuthStateChanged(user => {
     if (user) {
         authUser = user;
         authUid = user.uid;
         loadLeaderboard();
+        syncBestScoreFromServer();
     } else {
         authUser = null;
         authUid = null;
