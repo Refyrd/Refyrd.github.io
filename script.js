@@ -524,61 +524,72 @@ providerBtns.forEach(btn => {
     });
 });
 
+function formatCooldownUntil(timestamp) {
+	const d = new Date(timestamp);
+	const pad = n => String(n).padStart(2, '0');
+	return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 // === NICKNAME FROM FIRESTORE ===
 const NICK_COOLDOWN = 7 * 24 * 60 * 60 * 1000; // 1 week
 
 function loadNicknameFromFirestore() {
-    if (!authUser || authUser.isAnonymous) return;
-    const userRef = db.collection('users').doc(authUser.uid);
-    userRef.get().then(doc => {
-        if (doc.exists && doc.data().nickname) {
-            accNickInput.value = doc.data().nickname;
-            savedName = doc.data().nickname;
-            playerNameInput.value = savedName;
-        } else {
-            accNickInput.value = savedName || '';
-        }
-        // check cooldown
-        const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
-        const remaining = lastChange + NICK_COOLDOWN - Date.now();
-        if (remaining > 0) {
-            const days = Math.ceil(remaining / (24 * 60 * 60 * 1000));
-            accNickStatus.textContent = `Can change again in ${days} day(s)`;
-            accNickStatus.style.color = '';
-            accNickSave.disabled = true;
-        } else {
-            accNickStatus.textContent = '';
-            accNickSave.disabled = false;
-        }
-    }).catch(() => {});
+	if (!authUser || authUser.isAnonymous) return;
+	const userRef = db.collection('users').doc(authUser.uid);
+	const savedIcon = document.getElementById('accNickSavedIcon');
+	userRef.get().then(doc => {
+		if (doc.exists && doc.data().nickname) {
+			accNickInput.value = doc.data().nickname;
+			savedName = doc.data().nickname;
+			playerNameInput.value = savedName;
+		} else {
+			accNickInput.value = savedName || '';
+		}
+		const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
+		const remaining = lastChange + NICK_COOLDOWN - Date.now();
+		if (remaining > 0) {
+			const until = new Date(lastChange + NICK_COOLDOWN);
+			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
+			accNickStatus.style.color = '';
+			accNickSave.disabled = true;
+			savedIcon.style.display = '';
+		} else {
+			accNickStatus.textContent = '';
+			accNickSave.disabled = false;
+			savedIcon.style.display = 'none';
+		}
+	}).catch(() => {});
 }
 
 accNickSave.addEventListener('click', () => {
-    if (!authUser || authUser.isAnonymous) return;
-    const nick = sanitizeName(accNickInput.value.trim());
-    if (!isValidName(nick)) { accNickStatus.textContent = 'Invalid nickname'; accNickStatus.style.color = 'var(--md-sys-color-error)'; return; }
-    const userRef = db.collection('users').doc(authUser.uid);
-    userRef.get().then(doc => {
-        const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
-        if (Date.now() - lastChange < NICK_COOLDOWN) {
-            const remaining = lastChange + NICK_COOLDOWN - Date.now();
-            const days = Math.ceil(remaining / (24 * 60 * 60 * 1000));
-            accNickStatus.textContent = `Can change again in ${days} day(s)`;
-            accNickStatus.style.color = '';
-            return;
-        }
-        userRef.set({ nickname: nick, nicknameLastChange: Date.now() }, { merge: true }).then(() => {
-            savedName = nick;
-            setCookie('snakeNick', savedName);
-            playerNameInput.value = savedName;
-            accNickStatus.textContent = 'Nickname saved!';
-            accNickStatus.style.color = 'var(--md-sys-color-primary)';
-            accNickSave.disabled = true;
-        }).catch(e => {
-            accNickStatus.textContent = e.message;
-            accNickStatus.style.color = 'var(--md-sys-color-error)';
-        });
-    });
+	if (!authUser || authUser.isAnonymous) return;
+	const nick = sanitizeName(accNickInput.value.trim());
+	if (!isValidName(nick)) { accNickStatus.textContent = 'Invalid nickname'; accNickStatus.style.color = 'var(--md-sys-color-error)'; return; }
+	const savedIcon = document.getElementById('accNickSavedIcon');
+	const userRef = db.collection('users').doc(authUser.uid);
+	userRef.get().then(doc => {
+		const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
+		if (Date.now() - lastChange < NICK_COOLDOWN) {
+			const until = new Date(lastChange + NICK_COOLDOWN);
+			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
+			accNickStatus.style.color = '';
+			return;
+		}
+		const now = Date.now();
+		userRef.set({ nickname: nick, nicknameLastChange: now }, { merge: true }).then(() => {
+			savedName = nick;
+			setCookie('snakeNick', savedName);
+			playerNameInput.value = savedName;
+			const until = new Date(now + NICK_COOLDOWN);
+			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
+			accNickStatus.style.color = '';
+			accNickSave.disabled = true;
+			savedIcon.style.display = '';
+		}).catch(e => {
+			accNickStatus.textContent = e.message;
+			accNickStatus.style.color = 'var(--md-sys-color-error)';
+		});
+	});
 });
 
 // === HIDE NICKNAME INPUT WHEN LOGGED IN ===
