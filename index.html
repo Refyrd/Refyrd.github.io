@@ -192,7 +192,7 @@
         .main-layout {
             display: flex;
             gap: 16px;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
             width: 100%;
             max-width: 720px;
@@ -269,6 +269,31 @@
             opacity: 0.5;
             padding: 20px 0;
         }
+        .lb-status {
+            font-size: 11px;
+            padding: 8px 8px 0;
+            opacity: 0.5;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .lb-status .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .lb-status .dot.online { background-color: #4CAF50; }
+        .lb-status .dot.connecting { background-color: #FFC107; animation: pulse-dot 1s infinite; }
+        .lb-status .dot.error { background-color: #F44336; }
+        .lb-status .dot.offline { background-color: #9E9E9E; }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
         @media (max-width: 640px) {
             .main-layout { flex-direction: column; align-items: center; }
             .leaderboard { width: 100%; max-width: 400px; max-height: none; flex-direction: row; flex-wrap: wrap; gap: 4px; padding: 12px; }
@@ -286,6 +311,7 @@
         <div class="leaderboard" id="leaderboard">
             <h3>Leaderboard</h3>
             <div id="leaderboardList"><div class="lb-loading">Loading...</div></div>
+            <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span>Connecting...</span></div>
         </div>
 
         <div class="game-wrapper">
@@ -471,7 +497,6 @@
             });
         });
 
-        // === ИГРОВАЯ ЛОГИКА ===
         // === FIREBASE LEADERBOARD ===
         const firebaseConfig = {
             apiKey: "AIzaSyBqT2PpyNjfI97TCq7A38XaV8eDJ8Qx6fM",
@@ -485,10 +510,35 @@
         const db = firebase.firestore();
 
         const leaderboardList = document.getElementById('leaderboardList');
+        const lbStatus = document.getElementById('lbStatus');
+
+        let lbConnectionState = 'connecting';
+
+        function setLbStatus(state, msg) {
+            lbConnectionState = state;
+            const dotClass = state === 'online' ? 'online' : state === 'connecting' ? 'connecting' : state === 'error' ? 'error' : 'offline';
+            lbStatus.innerHTML = `<span class="dot ${dotClass}"></span><span>${escapeHtml(msg)}</span>`;
+        }
 
         async function saveScoreToLeaderboard() {
             if (!savedName || score <= 0) return;
             try {
+                const existing = await db.collection('scores')
+                    .where('name', '==', savedName)
+                    .orderBy('score', 'desc')
+                    .get();
+
+                if (!existing.empty) {
+                    const topScore = existing.docs[0].data().score;
+                    if (score <= topScore) {
+                        loadLeaderboard();
+                        return;
+                    }
+                    const batch = db.batch();
+                    existing.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+                }
+
                 await db.collection('scores').add({
                     name: savedName,
                     score: score,
@@ -506,6 +556,7 @@
                     .orderBy('score', 'desc')
                     .limit(10)
                     .get();
+                setLbStatus('online', 'Online');
                 if (snapshot.empty) {
                     leaderboardList.innerHTML = '<div class="lb-empty">No scores yet</div>';
                     return;
@@ -525,7 +576,8 @@
                 leaderboardList.innerHTML = html;
             } catch (e) {
                 console.warn('Firebase load error:', e);
-                leaderboardList.innerHTML = '<div class="lb-empty">Offline</div>';
+                setLbStatus('error', `Error: ${e.message || 'Offline'}`);
+                leaderboardList.innerHTML = '<div class="lb-empty">No scores yet</div>';
             }
         }
 
