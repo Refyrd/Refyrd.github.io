@@ -195,28 +195,19 @@
             flex-direction: column;
             align-items: center;
         }
-        .lb-toggle {
-            position: fixed;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 51;
-            background: var(--md-sys-color-primary);
-            color: var(--md-sys-color-surface);
+        .lb-show-more {
+            background: none;
             border: none;
-            border-radius: 0 12px 12px 0;
-            width: 28px;
-            height: 48px;
-            font-size: 14px;
+            color: var(--md-sys-color-primary);
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--elevation-2);
-            transition: left 0.35s ease, background-color 0.35s ease, color 0.35s ease;
+            padding: 8px 0 2px;
+            opacity: 0.7;
+            text-align: center;
+            width: 100%;
         }
-        .lb-toggle:hover { opacity: 0.9; }
-        .lb-toggle.closed { left: 0; }
+        .lb-show-more:hover { opacity: 1; }
         .leaderboard {
             position: fixed;
             left: 16px;
@@ -233,12 +224,7 @@
             overflow-y: auto;
             scrollbar-width: thin;
             z-index: 50;
-            transition: transform 0.35s ease, opacity 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
-        }
-        .leaderboard.hidden {
-            transform: translateY(-50%) translateX(-240px);
-            opacity: 0;
-            pointer-events: none;
+            transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
         }
         .leaderboard h3 {
             font-size: 14px;
@@ -316,7 +302,6 @@
             50% { opacity: 0.3; }
         }
         @media (max-width: 640px) {
-            .lb-toggle { display: none; }
             .leaderboard {
                 position: static;
                 transform: none;
@@ -329,11 +314,6 @@
                 padding: 12px;
                 margin-top: 12px;
             }
-            .leaderboard.hidden {
-                transform: none;
-                opacity: 1;
-                pointer-events: all;
-            }
             .leaderboard h3 { width: 100%; margin-bottom: 8px; font-size: 12px; }
             .lb-entry { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 80px; }
         }
@@ -344,11 +324,11 @@
 
     <canvas id="confettiCanvas"></canvas>
 
-    <button class="lb-toggle" id="lbToggle">◀</button>
     <div class="leaderboard" id="leaderboard">
         <h3 id="lbTitle">LEADERBOARD</h3>
         <div id="leaderboardList"><div class="lb-loading" id="lbLoadingText">Loading...</div></div>
         <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span id="lbStatusText">Connecting...</span></div>
+        <button class="lb-show-more" id="lbShowMore">Show all</button>
     </div>
 
     <div class="branding">
@@ -426,8 +406,8 @@
     <script>
         // === ЛОКАЛИЗАЦИЯ ===
         const i18n = {
-            en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline" },
-            ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн" }
+            en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10" },
+            ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10" }
         };
 
         let currentLang = 'en'; 
@@ -466,6 +446,7 @@
             
             const lbLoading = document.getElementById('lbLoadingText');
             if (lbLoading) lbLoading.innerText = i18n[currentLang].lbLoading;
+            lbShowMore.innerText = lbShowAll ? i18n[currentLang].lbShowTop : i18n[currentLang].lbShowAll;
             
             updateHighScoreDisplay();
         }
@@ -570,10 +551,10 @@
         }
 
         async function saveScoreToLeaderboard() {
-            if (!savedName || score <= 0) return;
-            if (savedName === 'Refyrd.dev') return;
+            if (score <= 0) return;
+            const displayName = savedName && savedName !== 'Refyrd.dev' ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
             try {
-                const docRef = db.collection(LEADERBOARD_COLLECTION).doc(savedName);
+                const docRef = db.collection(LEADERBOARD_COLLECTION).doc(displayName);
                 const existing = await docRef.get();
 
                 if (existing.exists) {
@@ -585,7 +566,7 @@
                 }
 
                 await docRef.set({
-                    name: savedName,
+                    name: displayName,
                     score: score
                 });
             } catch (e) {
@@ -599,7 +580,7 @@
             try {
                 const snapshot = await db.collection(LEADERBOARD_COLLECTION)
                     .orderBy('score', 'desc')
-                    .limit(10)
+                    .limit(lbLimit)
                     .get();
                 setLbStatus('online', 'Online');
                 if (snapshot.empty) {
@@ -613,7 +594,7 @@
                     const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
                     html += `<div class="lb-entry">
                         <span class="lb-rank">${medal || rank}</span>
-                        <span class="lb-name">${escapeHtml(d.name || '???')}</span>
+                        <span class="lb-name">${escapeHtml(d.name && d.name.trim() ? d.name : (currentLang === 'en' ? 'Anonymous' : 'Аноним'))}</span>
                         <span class="lb-score">${d.score || 0}</span>
                     </div>`;
                     rank++;
@@ -632,17 +613,17 @@
             return div.innerHTML;
         }
 
-        loadLeaderboard();
-
-        const lbToggle = document.getElementById('lbToggle');
-        const lbPanel = document.getElementById('leaderboard');
-        let lbOpen = true;
-        lbToggle.addEventListener('click', () => {
-            lbOpen = !lbOpen;
-            lbPanel.classList.toggle('hidden', !lbOpen);
-            lbToggle.innerText = lbOpen ? '◀' : '▶';
-            lbToggle.classList.toggle('closed', !lbOpen);
+        let lbLimit = 10;
+        let lbShowAll = false;
+        const lbShowMore = document.getElementById('lbShowMore');
+        lbShowMore.addEventListener('click', () => {
+            lbShowAll = !lbShowAll;
+            lbLimit = lbShowAll ? 1000 : 10;
+            lbShowMore.innerText = lbShowAll ? i18n[currentLang].lbShowTop : i18n[currentLang].lbShowAll;
+            loadLeaderboard();
         });
+
+        loadLeaderboard();
 
         const confettiCanvas = document.getElementById('confettiCanvas');
         const cCtx = confettiCanvas.getContext('2d');
@@ -676,7 +657,8 @@
         let glows = []; 
         
         function updateHighScoreDisplay() {
-            const nameDisplay = savedName ? ` (${savedName})` : '';
+            const displayName = savedName && savedName.trim() ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
+            const nameDisplay = ` (${displayName})`;
             menuHighScoreText.innerText = `${i18n[currentLang].bestScore}${bestScore}${nameDisplay}`;
             if (lastScore > 0) {
                 menuLastScoreText.style.display = 'block';
