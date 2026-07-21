@@ -558,7 +558,7 @@ function drawGame() {
             ctx.fill();
         }
 
-        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.15) : rawPrimary;
+        ctx.fillStyle = i === 0 ? lightenColor(rawPrimary, 0.05) : rawPrimary;
         ctx.beginPath();
         const radius = size * (i === 0 ? 0.40 : 0.30);
         ctx.roundRect(cx - size / 2, cy - size / 2, size, size, radius);
@@ -589,13 +589,12 @@ function handleGameOver() {
 }
 
 function changeDirection(newDx, newDy) {
-    if (inputQueue.length >= 4) return;
-    const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : {dx, dy};
-    const valid = (newDx === 1 && lastDir.dx !== -1) || (newDx === -1 && lastDir.dx !== 1) ||
-                  (newDy === -1 && lastDir.dy !== 1) || (newDy === 1 && lastDir.dy !== -1);
+    const valid = (newDx === 1 && dx !== -1) || (newDx === -1 && dx !== 1) ||
+                  (newDy === -1 && dy !== 1) || (newDy === 1 && dy !== -1);
     if (!valid) return;
-    if (inputQueue.length === 0) { dx = newDx; dy = newDy; }
-    inputQueue.push({dx: newDx, dy: newDy});
+    inputQueue = [];
+    dx = newDx;
+    dy = newDy;
 }
 
 document.addEventListener('keydown', (e) => {
