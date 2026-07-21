@@ -511,7 +511,20 @@ authGoogle.addEventListener('click', () => {
         .then(() => { authOverlay.classList.remove('active'); clearAuthStatus(); })
         .catch(e => {
             if (e.code === 'auth/account-exists-with-different-credential') {
-                showAuthStatus('An account with this email already exists. Sign in with your password.', true);
+                const email = e.email;
+                auth.fetchSignInMethodsForEmail(email).then(methods => {
+                    if (methods.includes('password')) {
+                        showAuthStatus(`Email "${email}" already registered. Sign in with Email+Password.`, true);
+                    } else if (methods.includes('google.com')) {
+                        showAuthStatus(`Email "${email}" already registered. Sign in with Google.`, true);
+                    } else if (methods.includes('github.com')) {
+                        showAuthStatus(`Email "${email}" already registered. Sign in with GitHub.`, true);
+                    } else {
+                        showAuthStatus(`Email "${email}" already registered with another method.`, true);
+                    }
+                }).catch(() => {
+                    showAuthStatus('An account with this email already exists. Try a different sign-in method.', true);
+                });
             } else {
                 showAuthStatus(e.message, true);
             }
@@ -524,7 +537,26 @@ authGithub.addEventListener('click', () => {
     showAuthStatus('Signing in...', false);
     upgradeFromAnonymous(() => auth.signInWithPopup(provider))
         .then(() => { authOverlay.classList.remove('active'); clearAuthStatus(); })
-        .catch(e => showAuthStatus(e.message, true));
+        .catch(e => {
+            if (e.code === 'auth/account-exists-with-different-credential') {
+                const email = e.email;
+                auth.fetchSignInMethodsForEmail(email).then(methods => {
+                    if (methods.includes('password')) {
+                        showAuthStatus(`Email "${email}" already registered. Sign in with Email+Password.`, true);
+                    } else if (methods.includes('google.com')) {
+                        showAuthStatus(`Email "${email}" already registered. Sign in with Google.`, true);
+                    } else if (methods.includes('github.com')) {
+                        showAuthStatus(`Email "${email}" already registered. Sign in with GitHub.`, true);
+                    } else {
+                        showAuthStatus(`Email "${email}" already registered with another method.`, true);
+                    }
+                }).catch(() => {
+                    showAuthStatus('An account with this email already exists. Try a different sign-in method.', true);
+                });
+            } else {
+                showAuthStatus(e.message, true);
+            }
+        });
 });
 
 // Auth state
