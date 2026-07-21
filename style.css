@@ -68,13 +68,13 @@ body {
 .branding .vibe { font-size: clamp(12px, 3vw, 14px); font-weight: 500; opacity: 0.7; }
 
 .header {
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%; max-width: min(420px, 100vw - 32px); height: clamp(56px, 8vh, 72px); padding: 0 clamp(12px, 4vw, 20px); margin-bottom: clamp(12px, 2vh, 16px);
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    width: 100%; max-width: min(420px, 100vw - 32px); height: clamp(56px, 8.5vh, 72px); padding: 0 clamp(12px, 4vw, 20px); margin-bottom: clamp(12px, 2.5vh, 20px);
     background-color: var(--md-sys-color-surface-container);
     border-radius: 16px; box-shadow: var(--elevation-2); z-index: 10;
 }
 
-.score-box { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.score-box { display: flex; flex-direction: column; min-width: 0; }
 .score-title { font-size: clamp(10px, 2.5vw, 12px); font-weight: 500; color: var(--md-sys-color-primary); text-transform: uppercase; letter-spacing: 0.1em; }
 .score-value { font-size: clamp(20px, 5.5vw, 28px); font-weight: 800; line-height: 1; }
 
@@ -86,10 +86,9 @@ body {
     text-decoration: none;
     opacity: 0.6;
     text-align: center;
-    flex: 0 0 auto;
+    justify-self: center;
 }
 .header-github:hover { opacity: 1; }
-
 .header-actions { display: flex; gap: clamp(4px, 1.5vw, 8px); flex: 0 0 auto; }
 .icon-btn { 
     background: none; border: none; color: var(--md-sys-color-on-surface); 
