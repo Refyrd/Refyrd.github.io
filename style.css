@@ -392,9 +392,6 @@ body {
         overflow-y: auto;
         max-height: none;
     }
-    .gameplay .leaderboard {
-        max-height: 40vh;
-    }
     .leaderboard .lb-status {
         margin-top: 4px;
     }

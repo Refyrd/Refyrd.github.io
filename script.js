@@ -11,8 +11,8 @@ function getCookie(name) {
 
 // === ЛОКАЛИЗАЦИЯ ===
 const i18n = {
-    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10" },
-    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10" }
+    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", fbTitle: "FEEDBACK", fbWriteBtn: "Write feedback", fbOverlayTitle: "Write feedback", fbNamePlaceholder: "Your name", fbMsgPlaceholder: "Write your thoughts about the game...", fbSubmitBtn: "Send", fbLoadFail: "Failed to load feedback", fbNoFeedback: "No feedback yet. Be the first!", fbNameRequired: "Enter your name", fbMsgShort: "Message too short (min 3 chars)", fbSending: "Sending...", fbSent: "Feedback sent! Thanks!", authSignIn: "Sign In", authEmailBtn: "Sign in with Email", authGoogleBtn: "Sign in with Google", authGithubBtn: "Sign in with GitHub", authEmailTitle: "Email", authEmailSignIn: "Sign In", authEmailRegister: "Register", authSignOut: "Sign Out", authAccount: "Account", authLinkedProviders: "Linked providers", authLinkAnother: "Link another", authNickname: "Nickname", authSave: "Save", authLinkEmail: "Link Email", authLinkEmailBtn: "Link", authEmailPlaceholder: "Email", authPassPlaceholder: "Password", authNickPlaceholder: "Nickname" },
+    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", fbTitle: "ОТЗЫВЫ", fbWriteBtn: "Написать отзыв", fbOverlayTitle: "Написать отзыв", fbNamePlaceholder: "Ваше имя", fbMsgPlaceholder: "Напишите, что вы думаете об игре...", fbSubmitBtn: "Отправить", fbLoadFail: "Не удалось загрузить отзывы", fbNoFeedback: "Пока нет отзывов. Будьте первым!", fbNameRequired: "Введите имя", fbMsgShort: "Слишком короткое сообщение (мин. 3 символа)", fbSending: "Отправка...", fbSent: "Отзыв отправлен! Спасибо!", authSignIn: "Войти", authEmailBtn: "Войти через Email", authGoogleBtn: "Войти через Google", authGithubBtn: "Войти через GitHub", authEmailTitle: "Email", authEmailSignIn: "Войти", authEmailRegister: "Регистрация", authSignOut: "Выйти", authAccount: "Аккаунт", authLinkedProviders: "Привязанные провайдеры", authLinkAnother: "Привязать другой", authNickname: "Никнейм", authSave: "Сохранить", authLinkEmail: "Привязать Email", authLinkEmailBtn: "Привязать", authEmailPlaceholder: "Эл. почта", authPassPlaceholder: "Пароль", authNickPlaceholder: "Никнейм" }
 };
 
 let currentLang = 'en';
@@ -239,6 +239,34 @@ function applyLanguage() {
     const lbLoading = document.getElementById('lbLoadingText');
     if (lbLoading) lbLoading.innerText = i18n[currentLang].lbLoading;
     lbShowMore.innerText = lbShowAll ? i18n[currentLang].lbShowTop : i18n[currentLang].lbShowAll;
+    
+    document.getElementById('fbTitle').innerText = i18n[currentLang].fbTitle;
+    fbWriteBtn.innerText = i18n[currentLang].fbWriteBtn;
+    document.querySelector('#fbOverlay .auth-title').innerText = i18n[currentLang].fbOverlayTitle;
+    fbNameInput.placeholder = i18n[currentLang].fbNamePlaceholder;
+    fbMessageInput.placeholder = i18n[currentLang].fbMsgPlaceholder;
+    fbSubmit.innerText = i18n[currentLang].fbSubmitBtn;
+    
+    document.getElementById('authTitle').innerText = i18n[currentLang].authSignIn;
+    authEmailBtn.childNodes[1].textContent = ' ' + i18n[currentLang].authEmailBtn;
+    authGoogle.childNodes[1].textContent = ' ' + i18n[currentLang].authGoogleBtn;
+    authGithub.childNodes[1].textContent = ' ' + i18n[currentLang].authGithubBtn;
+    document.getElementById('authEmailTitle').innerText = i18n[currentLang].authEmailTitle;
+    authEmailSignIn.innerText = i18n[currentLang].authEmailSignIn;
+    authEmailRegister.innerText = i18n[currentLang].authEmailRegister;
+    document.getElementById('authEmail').placeholder = i18n[currentLang].authEmailPlaceholder;
+    document.getElementById('authPassword').placeholder = i18n[currentLang].authPassPlaceholder;
+    document.getElementById('authRegNick').placeholder = i18n[currentLang].authNickPlaceholder;
+    authSignOutBtn.innerText = i18n[currentLang].authSignOut;
+    document.querySelector('#authAccountView .auth-title').innerText = i18n[currentLang].authAccount;
+    document.querySelectorAll('#authAccountView .auth-acc-label')[0].innerText = i18n[currentLang].authLinkedProviders;
+    document.querySelectorAll('#authAccountView .auth-acc-label')[1].innerText = i18n[currentLang].authLinkAnother;
+    document.querySelectorAll('#authAccountView .auth-acc-label')[2].innerText = i18n[currentLang].authNickname;
+    accNickSave.innerText = i18n[currentLang].authSave;
+    document.getElementById('authLinkEmail').placeholder = i18n[currentLang].authEmailPlaceholder;
+    document.getElementById('authLinkPassword').placeholder = i18n[currentLang].authPassPlaceholder;
+    document.querySelector('#authLinkEmailView .auth-title').innerText = i18n[currentLang].authLinkEmail;
+    authLinkEmailLink.innerText = i18n[currentLang].authLinkEmailBtn;
     
     updateHighScoreDisplay();
 }
@@ -526,7 +554,7 @@ const authLinkEmailStat = document.getElementById('authLinkEmailStatus');
 authLinkEmailBack.addEventListener('click', () => toggleAccView(false));
 
 authLinkEmailLink.addEventListener('click', () => {
-	if (!authUser || authUser.isAnonymous) { authLinkEmailStat.textContent = 'Not logged in'; return; }
+	if (!authUser || authUser.isAnonymous) { authLinkEmailStat.textContent = i18n[currentLang].authSignIn || 'Not logged in'; return; }
 	const email = authLinkEmailInput.value.trim();
 	const pass = authLinkPassInput.value;
 	if (!email || !pass) { authLinkEmailStat.textContent = 'Fill in email and password'; return; }
@@ -820,15 +848,15 @@ function updateFbNameField() {
 	const hasName = savedName && isValidName(savedName);
 	fbNameInput.value = hasName ? savedName : '';
 	fbNameInput.disabled = !!hasName;
-	fbNameInput.placeholder = hasName ? '' : 'Your name';
+	fbNameInput.placeholder = hasName ? '' : i18n[currentLang].fbNamePlaceholder;
 }
 
 async function loadFeedback() {
-	fbList.innerHTML = '<div class="lb-loading">Loading...</div>';
+	fbList.innerHTML = `<div class="lb-loading">${i18n[currentLang].lbLoading}</div>`;
 	try {
 		const snap = await db.collection(Fb_COLLECTION).orderBy('time', 'desc').limit(50).get();
 		if (snap.empty) {
-			fbList.innerHTML = '<div class="lb-empty">No feedback yet. Be the first!</div>';
+			fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbNoFeedback}</div>`;
 			return;
 		}
 		let html = '';
@@ -843,7 +871,7 @@ async function loadFeedback() {
 		});
 		fbList.innerHTML = html;
 	} catch (e) {
-		fbList.innerHTML = '<div class="lb-empty">Failed to load feedback</div>';
+		fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;
 	}
 }
 loadFeedback();
@@ -861,9 +889,9 @@ fbOverlay.addEventListener('click', e => { if (e.target === fbOverlay) fbOverlay
 fbSubmit.addEventListener('click', async () => {
 	const name = fbNameInput.value.trim();
 	const message = fbMessageInput.value.trim();
-	if (!name) { fbStatus.textContent = 'Enter your name'; fbStatus.style.color = 'var(--md-sys-color-error)'; return; }
-	if (!message || message.length < 3) { fbStatus.textContent = 'Message too short (min 3 chars)'; fbStatus.style.color = 'var(--md-sys-color-error)'; return; }
-	fbStatus.textContent = 'Sending...';
+	if (!name) { fbStatus.textContent = i18n[currentLang].fbNameRequired; fbStatus.style.color = 'var(--md-sys-color-error)'; return; }
+	if (!message || message.length < 3) { fbStatus.textContent = i18n[currentLang].fbMsgShort; fbStatus.style.color = 'var(--md-sys-color-error)'; return; }
+	fbStatus.textContent = i18n[currentLang].fbSending;
 	fbStatus.style.color = '';
 	try {
 		await db.collection(Fb_COLLECTION).add({
@@ -887,7 +915,7 @@ fbSubmit.addEventListener('click', async () => {
 				}
 			}
 		}
-		fbStatus.textContent = 'Feedback sent! Thanks!';
+		fbStatus.textContent = i18n[currentLang].fbSent;
 		fbStatus.style.color = 'var(--md-sys-color-primary)';
 		fbMessageInput.value = '';
 		updateFbNameField();
