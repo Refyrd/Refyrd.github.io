@@ -620,10 +620,12 @@
             lbShowAll = !lbShowAll;
             lbLimit = lbShowAll ? 1000 : 10;
             lbShowMore.innerText = lbShowAll ? i18n[currentLang].lbShowTop : i18n[currentLang].lbShowAll;
+            leaderboardList.innerHTML = `<div class="lb-loading">${i18n[currentLang].lbLoading}</div>`;
             loadLeaderboard();
         });
 
         loadLeaderboard();
+        setInterval(loadLeaderboard, 3000);
 
         const confettiCanvas = document.getElementById('confettiCanvas');
         const cCtx = confettiCanvas.getContext('2d');
@@ -967,7 +969,7 @@
         }
 
         function changeDirection(newDx, newDy) {
-            if (inputQueue.length >= 2) return;
+            if (inputQueue.length >= 4) return;
             const lastDir = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : {dx, dy};
             if (newDx === 1 && lastDir.dx !== -1) inputQueue.push({dx: 1, dy: 0});
             else if (newDx === -1 && lastDir.dx !== 1) inputQueue.push({dx: -1, dy: 0});
