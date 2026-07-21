@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RefyrdSnake</title>
     
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    
     <style>
         /* === Базовые и светлые переменные (MD3) === */
         :root {
@@ -186,12 +189,106 @@
         .btn-secondary { background-color: transparent; color: var(--md-sys-color-primary); border: 2px solid var(--md-sys-color-primary); }
         .btn-secondary:active { transform: scale(0.95); background-color: var(--md-sys-color-primary-container); }
 
+        .main-layout {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            justify-content: center;
+            width: 100%;
+            max-width: 720px;
+            padding: 0 16px;
+        }
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+        .leaderboard {
+            width: 200px;
+            flex-shrink: 0;
+            background-color: var(--md-sys-color-surface-container);
+            border-radius: 16px;
+            box-shadow: var(--elevation-2);
+            padding: 16px;
+            margin-top: 0;
+            display: flex;
+            flex-direction: column;
+            max-height: min(500px, 80vh);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .leaderboard h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--md-sys-color-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .lb-entry {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .lb-entry:nth-child(2) { background-color: rgba(255,215,0,0.1); }
+        .lb-entry:nth-child(3) { background-color: rgba(192,192,192,0.08); }
+        .lb-entry:nth-child(4) { background-color: rgba(205,127,50,0.06); }
+        .lb-entry .lb-rank {
+            width: 22px;
+            text-align: center;
+            font-weight: 800;
+            color: var(--md-sys-color-primary);
+            flex-shrink: 0;
+        }
+        .lb-entry .lb-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .lb-entry .lb-score {
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .lb-empty {
+            text-align: center;
+            font-size: 13px;
+            opacity: 0.5;
+            padding: 20px 0;
+        }
+        .lb-loading {
+            text-align: center;
+            font-size: 13px;
+            opacity: 0.5;
+            padding: 20px 0;
+        }
+        @media (max-width: 640px) {
+            .main-layout { flex-direction: column; align-items: center; }
+            .leaderboard { width: 100%; max-width: 400px; max-height: none; flex-direction: row; flex-wrap: wrap; gap: 4px; padding: 12px; }
+            .leaderboard h3 { width: 100%; margin-bottom: 8px; font-size: 12px; }
+            .lb-entry { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 80px; }
+        }
+
     </style>
 </head>
 <body data-color="green">
 
     <canvas id="confettiCanvas"></canvas>
 
+    <div class="main-layout">
+        <div class="leaderboard" id="leaderboard">
+            <h3>Leaderboard</h3>
+            <div id="leaderboardList"><div class="lb-loading">Loading...</div></div>
+        </div>
+
+        <div class="game-wrapper">
     <div class="branding">
         <div class="name">Refyrd</div>
         <div class="vibe">vibecoded by Hy3</div>
@@ -261,6 +358,9 @@
                 <button class="btn-secondary" onclick="devFillSnake()">Длинная змейка</button>
                 <button class="btn-primary" onclick="closeDevMenu()">Закрыть</button>
             </div>
+        </div>
+    </div>
+
         </div>
     </div>
 
@@ -372,6 +472,71 @@
         });
 
         // === ИГРОВАЯ ЛОГИКА ===
+        // === FIREBASE LEADERBOARD ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqT2PpyNjfI97TCq7A38XaV8eDJ8Qx6fM",
+            authDomain: "refyrdsnake.firebaseapp.com",
+            projectId: "refyrdsnake",
+            storageBucket: "refyrdsnake.firebasestorage.app",
+            messagingSenderId: "358595828224",
+            appId: "1:358595828224:web:eec89884a7d78f467a16e5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const leaderboardList = document.getElementById('leaderboardList');
+
+        async function saveScoreToLeaderboard() {
+            if (!savedName || score <= 0) return;
+            try {
+                await db.collection('scores').add({
+                    name: savedName,
+                    score: score,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (e) {
+                console.warn('Firebase save error:', e);
+            }
+            loadLeaderboard();
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const snapshot = await db.collection('scores')
+                    .orderBy('score', 'desc')
+                    .limit(10)
+                    .get();
+                if (snapshot.empty) {
+                    leaderboardList.innerHTML = '<div class="lb-empty">No scores yet</div>';
+                    return;
+                }
+                let html = '';
+                let rank = 1;
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                    html += `<div class="lb-entry">
+                        <span class="lb-rank">${medal || rank}</span>
+                        <span class="lb-name">${escapeHtml(d.name || '???')}</span>
+                        <span class="lb-score">${d.score || 0}</span>
+                    </div>`;
+                    rank++;
+                });
+                leaderboardList.innerHTML = html;
+            } catch (e) {
+                console.warn('Firebase load error:', e);
+                leaderboardList.innerHTML = '<div class="lb-empty">Offline</div>';
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        loadLeaderboard();
+
         const confettiCanvas = document.getElementById('confettiCanvas');
         const cCtx = confettiCanvas.getContext('2d');
         const scoreElement = document.getElementById('score');
@@ -700,6 +865,7 @@
             }
             document.getElementById('finalScore').innerText = score;
             gameOverScreen.classList.add('active');
+            saveScoreToLeaderboard();
         }
 
         function changeDirection(newDx, newDy) {
