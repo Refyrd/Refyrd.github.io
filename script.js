@@ -426,15 +426,16 @@ function animationLoop(timestamp) {
 
 function updateLogic() {
     const head = { x: snake[0].x + dx, y: snake[0].y + dy, rx: snake[0].x, ry: snake[0].y };
+    const ate = head.x === food.x && head.y === food.y;
 
-    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || checkSelfCollision(head)) {
+    if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || checkSelfCollision(head, ate)) {
         handleGameOver();
         return;
     }
 
     snake.unshift(head);
 
-    if (head.x === food.x && head.y === food.y) {
+    if (ate) {
         score++;
         scoreElement.innerText = score;
         if (score > 0 && score % 10 === 0) triggerConfetti();
@@ -449,8 +450,9 @@ function updateLogic() {
     committedDy = dy;
 }
 
-function checkSelfCollision(head) {
-    for (let i = 0; i < snake.length; i++) {
+function checkSelfCollision(head, ate) {
+    const len = ate ? snake.length : snake.length - 1;
+    for (let i = 0; i < len; i++) {
         if (head.x === snake[i].x && head.y === snake[i].y) return true;
     }
     return false;
