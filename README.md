@@ -1,4 +1,4 @@
-A REALLY COOL SNAKE GAME BY REFYRD !!!!!!! 
+A REALLY COOL SNAKE GAME BY REFYRD !!!!!!! \
 refyrd.github.io
 
 ⠀⠀⠀⠠⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⠤⠀⠀⠀⠀⠀\
