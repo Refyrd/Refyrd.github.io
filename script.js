@@ -380,17 +380,11 @@ const accNickStatus = document.getElementById('accNickStatus');
 
 const providerBtns = document.querySelectorAll('.auth-prov-btn[data-prov]');
 
-function showAuthStatus(msg, isError) {
-    authStatus.textContent = msg;
-    authStatus.style.color = isError ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)';
+function showStatus(el, msg, isError) {
+	el.textContent = msg;
+	el.style.color = isError ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)';
 }
-function clearAuthStatus() { authStatus.textContent = ''; }
-
-function showEmailStatus(msg, isError) {
-    authEmailStatus.textContent = msg;
-    authEmailStatus.style.color = isError ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)';
-}
-function clearEmailStatus() { authEmailStatus.textContent = ''; }
+function clearStatus(el) { el.textContent = ''; }
 
 function showEmailView() {
     authMainView.style.display = 'none';
@@ -399,14 +393,14 @@ function showEmailView() {
     authPassword.value = '';
     authRegNick.value = '';
     authRegNick.style.display = 'none';
-    clearEmailStatus();
+    clearStatus(authEmailStatus);
     authEmail.focus();
 }
 
 function hideEmailView() {
     authMainView.style.display = '';
     authEmailView.style.display = 'none';
-    clearEmailStatus();
+    clearStatus(authEmailStatus);
 }
 
 authBtn.addEventListener('click', () => {
@@ -430,8 +424,9 @@ function renderProviders() {
     providerBtns.forEach(btn => {
         const prov = btn.dataset.prov;
         const target = prov === 'password' ? 'password' : prov + '.com';
+        const label = prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1);
         btn.disabled = used.has(target);
-        btn.textContent = used.has(target) ? (prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1)) : '+ ' + (prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1));
+        btn.textContent = used.has(target) ? label : '+ ' + label;
     });
 }
 
@@ -485,17 +480,19 @@ function upgradeFromAnonymous(action) {
 }
 
 // === LINK PROVIDERS ===
+const authLinkEmailViewEl = document.getElementById('authLinkEmailView');
+const accChildren = document.querySelectorAll('#authAccountView > .auth-acc-section, #authAccountView > .auth-title, #authAccountView > .auth-info-line, #authAccountView > .auth-social-btn, #authAccountView > hr');
+
+function toggleAccView(showLink) {
+	authLinkEmailViewEl.style.display = showLink ? '' : 'none';
+	accChildren.forEach(el => { if (el) el.style.display = showLink ? 'none' : ''; });
+}
+
 providerBtns.forEach(btn => {
 	btn.addEventListener('click', () => {
 		if (btn.disabled || !authUser) return;
 		const prov = btn.dataset.prov;
-		if (prov === 'password') {
-			document.getElementById('authLinkEmailView').style.display = '';
-			document.querySelectorAll('#authAccountView > .auth-acc-section, #authAccountView > .auth-title, #authAccountView > .auth-info-line, #authAccountView > .auth-social-btn, #authAccountView > hr').forEach(el => {
-				if (el) el.style.display = 'none';
-			});
-			return;
-		}
+		if (prov === 'password') { toggleAccView(true); return; }
 		const user = auth.currentUser;
 		if (!user) return;
 
@@ -506,11 +503,7 @@ providerBtns.forEach(btn => {
 				accNickStatus.textContent = prov.charAt(0).toUpperCase() + prov.slice(1) + ' linked!';
 				accNickStatus.style.color = 'var(--md-sys-color-primary)';
 			}).catch(e => {
-				if (e.code === 'auth/credential-already-in-use') {
-					accNickStatus.textContent = 'This account is already linked to another user.';
-				} else {
-					accNickStatus.textContent = e.message;
-				}
+				accNickStatus.textContent = e.code === 'auth/credential-already-in-use' ? 'This account is already linked to another user.' : e.message;
 				accNickStatus.style.color = 'var(--md-sys-color-error)';
 			});
 		}
@@ -530,12 +523,7 @@ const authLinkEmailInput = document.getElementById('authLinkEmail');
 const authLinkPassInput = document.getElementById('authLinkPassword');
 const authLinkEmailStat = document.getElementById('authLinkEmailStatus');
 
-authLinkEmailBack.addEventListener('click', () => {
-	document.getElementById('authLinkEmailView').style.display = 'none';
-	document.querySelectorAll('#authAccountView > .auth-acc-section, #authAccountView > .auth-title, #authAccountView > .auth-info-line, #authAccountView > .auth-social-btn, #authAccountView > hr').forEach(el => {
-		if (el) el.style.display = '';
-	});
-});
+authLinkEmailBack.addEventListener('click', () => toggleAccView(false));
 
 authLinkEmailLink.addEventListener('click', () => {
 	if (!authUser || authUser.isAnonymous) { authLinkEmailStat.textContent = 'Not logged in'; return; }
@@ -554,11 +542,7 @@ authLinkEmailLink.addEventListener('click', () => {
 		authLinkEmailStat.style.color = 'var(--md-sys-color-primary)';
 		authLinkEmailBack.click();
 	}).catch(e => {
-		if (e.code === 'auth/credential-already-in-use') {
-			authLinkEmailStat.textContent = 'This email is already linked to another user.';
-		} else {
-			authLinkEmailStat.textContent = e.message;
-		}
+		authLinkEmailStat.textContent = e.code === 'auth/credential-already-in-use' ? 'This email is already linked to another user.' : e.message;
 		authLinkEmailStat.style.color = 'var(--md-sys-color-error)';
 	});
 });
@@ -575,28 +559,23 @@ const NICK_COOLDOWN = 7 * 24 * 60 * 60 * 1000; // 1 week
 function loadNicknameFromFirestore() {
 	if (!authUser || authUser.isAnonymous) return;
 	const userRef = db.collection('users').doc(authUser.uid);
+	const lockIcon = document.getElementById('accNickLock');
 	userRef.get().then(doc => {
-		const lockIcon = document.getElementById('accNickLock');
 		if (doc.exists && doc.data().nickname) {
-			accNickInput.value = doc.data().nickname;
-			savedName = doc.data().nickname;
+			accNickInput.value = savedName = doc.data().nickname;
 			playerNameInput.value = savedName;
 		} else {
 			accNickInput.value = savedName || '';
 		}
-		const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
-		const remaining = lastChange + NICK_COOLDOWN - Date.now();
+		const remaining = (doc.exists ? (doc.data().nicknameLastChange || 0) : 0) + NICK_COOLDOWN - Date.now();
 		if (remaining > 0) {
-			const until = new Date(lastChange + NICK_COOLDOWN);
-			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(until)}`;
+			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(new Date(Date.now() + remaining))}`;
 			accNickStatus.style.color = '';
-			accNickSave.disabled = true;
-			accNickInput.disabled = true;
+			accNickSave.disabled = accNickInput.disabled = true;
 			if (lockIcon) lockIcon.style.display = '';
 		} else {
 			accNickStatus.textContent = '';
-			accNickSave.disabled = false;
-			accNickInput.disabled = false;
+			accNickSave.disabled = accNickInput.disabled = false;
 			if (lockIcon) lockIcon.style.display = 'none';
 		}
 	}).catch(e => {
@@ -614,8 +593,7 @@ accNickSave.addEventListener('click', () => {
 	userRef.get().then(doc => {
 		const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
 		if (Date.now() - lastChange < NICK_COOLDOWN) {
-			const until = new Date(lastChange + NICK_COOLDOWN);
-			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(until)}`;
+			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(new Date(lastChange + NICK_COOLDOWN))}`;
 			accNickStatus.style.color = '';
 			return;
 		}
@@ -624,18 +602,12 @@ accNickSave.addEventListener('click', () => {
 			savedName = nick;
 			setCookie('snakeNick', savedName);
 			playerNameInput.value = savedName;
-			const until = new Date(now + NICK_COOLDOWN);
-			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(until)}`;
+			const msg = `Can't change until ${formatCooldownUntil(new Date(now + NICK_COOLDOWN))}`;
+			accNickStatus.textContent = msg;
 			accNickStatus.style.color = '';
-			accNickSave.disabled = true;
-			accNickInput.disabled = true;
+			accNickSave.disabled = accNickInput.disabled = true;
 			if (lockIcon) lockIcon.style.display = '';
-			// update leaderboard name immediately
-			if (authUid) {
-				db.collection(LEADERBOARD_COLLECTION).doc(authUid).set({
-					name: savedName && isValidName(savedName) ? savedName : 'Anonymous'
-				}, { merge: true });
-			}
+			if (authUid) db.collection(LEADERBOARD_COLLECTION).doc(authUid).set({ name: savedName && isValidName(savedName) ? savedName : 'Anonymous' }, { merge: true });
 		}).catch(e => {
 			accNickStatus.textContent = e.message;
 			accNickStatus.style.color = 'var(--md-sys-color-error)';
@@ -648,7 +620,6 @@ accNickSave.addEventListener('click', () => {
 
 // === HIDE NICKNAME INPUT WHEN LOGGED IN ===
 function updateNicknameInputVisibility() {
-    const nickContainer = playerNameInput && playerNameInput.parentNode;
     if (authUser && !authUser.isAnonymous) {
         playerNameInput.style.display = 'none';
     } else {
@@ -675,11 +646,11 @@ authRegNick.addEventListener('input', () => { authRegNick.value = sanitizeName(a
 authEmailSignIn.addEventListener('click', () => {
     const email = authEmail.value.trim();
     const pass = authPassword.value;
-    if (!email || !pass) { showEmailStatus('Fill in all fields', true); return; }
-    showEmailStatus('Signing in...', false);
+    if (!email || !pass) { showStatus(authEmailStatus,'Fill in all fields', true); return; }
+    showStatus(authEmailStatus,'Signing in...', false);
     upgradeFromAnonymous(() => auth.signInWithEmailAndPassword(email, pass))
-        .then(() => { authOverlay.classList.remove('active'); clearEmailStatus(); })
-        .catch(e => showEmailStatus(e.message, true));
+        .then(() => { authOverlay.classList.remove('active'); clearStatus(authEmailStatus); })
+        .catch(e => showStatus(authEmailStatus,e.message, true));
 });
 
 // Email Register
@@ -687,74 +658,42 @@ authEmailRegister.addEventListener('click', () => {
     const email = authEmail.value.trim();
     const pass = authPassword.value;
     const nick = sanitizeName(authRegNick.value.trim());
-    if (!email || !pass) { showEmailStatus('Fill in all fields', true); return; }
-    if (pass.length < 6) { showEmailStatus('Password must be at least 6 characters', true); return; }
+    if (!email || !pass) { showStatus(authEmailStatus,'Fill in all fields', true); return; }
+    if (pass.length < 6) { showStatus(authEmailStatus,'Password must be at least 6 characters', true); return; }
     if (nick && isValidName(nick)) {
         savedName = nick;
         setCookie('snakeNick', savedName);
         playerNameInput.value = savedName;
     }
-    showEmailStatus('Creating account...', false);
+    showStatus(authEmailStatus,'Creating account...', false);
     upgradeFromAnonymous(() => auth.createUserWithEmailAndPassword(email, pass))
-        .then(() => { authOverlay.classList.remove('active'); clearEmailStatus(); })
-        .catch(e => showEmailStatus(e.message, true));
+        .then(() => { authOverlay.classList.remove('active'); clearStatus(authEmailStatus); })
+        .catch(e => showStatus(authEmailStatus,e.message, true));
 });
 
-// Google Auth
-authGoogle.addEventListener('click', () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    showAuthStatus('Signing in...', false);
-    upgradeFromAnonymous(() => auth.signInWithPopup(provider))
-        .then(() => { authOverlay.classList.remove('active'); clearAuthStatus(); })
-        .catch(e => {
-            if (e.code === 'auth/account-exists-with-different-credential') {
-                const email = e.email;
-                auth.fetchSignInMethodsForEmail(email).then(methods => {
-                    if (methods.includes('password')) {
-                        showAuthStatus(`Email "${email}" already registered. Sign in with Email+Password.`, true);
-                    } else if (methods.includes('google.com')) {
-                        showAuthStatus(`Email "${email}" already registered. Sign in with Google.`, true);
-                    } else if (methods.includes('github.com')) {
-                        showAuthStatus(`Email "${email}" already registered. Sign in with GitHub.`, true);
-                    } else {
-                        showAuthStatus(`Email "${email}" already registered with another method.`, true);
-                    }
-                }).catch(() => {
-                    showAuthStatus('An account with this email already exists. Try a different sign-in method.', true);
-                });
-            } else {
-                showAuthStatus(e.message, true);
-            }
-        });
-});
+// === SOCIAL AUTH ===
+function handleSocialAuth(provider) {
+	showStatus(authStatus, 'Signing in...', false);
+	upgradeFromAnonymous(() => auth.signInWithPopup(provider))
+		.then(() => { authOverlay.classList.remove('active'); clearStatus(authStatus); })
+		.catch(e => {
+			if (e.code === 'auth/account-exists-with-different-credential') {
+				const email = e.email;
+				const labels = { password: 'Email+Password', 'google.com': 'Google', 'github.com': 'GitHub' };
+				auth.fetchSignInMethodsForEmail(email).then(methods => {
+					const method = methods.find(m => labels[m]);
+					showStatus(authStatus, method ? `Email "${email}" already registered. Sign in with ${labels[method]}.` : `Email "${email}" already registered with another method.`, true);
+				}).catch(() => {
+					showStatus(authStatus, 'An account with this email already exists. Try a different sign-in method.', true);
+				});
+			} else {
+				showStatus(authStatus, e.message, true);
+			}
+		});
+}
 
-// GitHub Auth
-authGithub.addEventListener('click', () => {
-    const provider = new firebase.auth.GithubAuthProvider();
-    showAuthStatus('Signing in...', false);
-    upgradeFromAnonymous(() => auth.signInWithPopup(provider))
-        .then(() => { authOverlay.classList.remove('active'); clearAuthStatus(); })
-        .catch(e => {
-            if (e.code === 'auth/account-exists-with-different-credential') {
-                const email = e.email;
-                auth.fetchSignInMethodsForEmail(email).then(methods => {
-                    if (methods.includes('password')) {
-                        showAuthStatus(`Email "${email}" already registered. Sign in with Email+Password.`, true);
-                    } else if (methods.includes('google.com')) {
-                        showAuthStatus(`Email "${email}" already registered. Sign in with Google.`, true);
-                    } else if (methods.includes('github.com')) {
-                        showAuthStatus(`Email "${email}" already registered. Sign in with GitHub.`, true);
-                    } else {
-                        showAuthStatus(`Email "${email}" already registered with another method.`, true);
-                    }
-                }).catch(() => {
-                    showAuthStatus('An account with this email already exists. Try a different sign-in method.', true);
-                });
-            } else {
-                showAuthStatus(e.message, true);
-            }
-        });
-});
+authGoogle.addEventListener('click', () => handleSocialAuth(new firebase.auth.GoogleAuthProvider()));
+authGithub.addEventListener('click', () => handleSocialAuth(new firebase.auth.GithubAuthProvider()));
 
 // Auth state
 auth.onAuthStateChanged(user => {
@@ -776,12 +715,8 @@ auth.onAuthStateChanged(user => {
 const leaderboardList = document.getElementById('leaderboardList');
 const lbStatus = document.getElementById('lbStatus');
 
-let lbConnectionState = 'connecting';
-
 function setLbStatus(state, msg) {
-    lbConnectionState = state;
-    const dotClass = state === 'online' ? 'online' : state === 'connecting' ? 'connecting' : state === 'error' ? 'error' : 'offline';
-    lbStatus.innerHTML = `<span class="dot ${dotClass}"></span><span>${escapeHtml(msg)}</span>`;
+    lbStatus.innerHTML = `<span class="dot ${state}"></span><span>${escapeHtml(msg)}</span>`;
 }
 
 let lastScoreSaveTime = 0;
@@ -978,7 +913,6 @@ const initialSpeed = 150;
 let snake = [];
 let food = {};
 let dx = 0, dy = 0;
-let committedDx = 0, committedDy = -1;
 let score = 0;
 
 let bestScore = localStorage.getItem('snakeHighScore') || 0;
@@ -1144,7 +1078,6 @@ function resetGameState() {
         { x: center, y: center + 2, rx: center, ry: center + 2 }
     ];
     dx = 0; dy = -1;
-    committedDx = 0; committedDy = -1;
     score = 0;
     currentSpeed = initialSpeed;
     glows = [];
@@ -1208,9 +1141,6 @@ function updateLogic() {
     } else {
         snake.pop();
     }
-
-    committedDx = dx;
-    committedDy = dy;
 }
 
 function checkSelfCollision(head, ate) {
@@ -1465,3 +1395,4 @@ function updateConfetti() {
 
 resetGameState();
 requestAnimationFrame(animationLoop);
+
