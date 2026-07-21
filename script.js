@@ -334,6 +334,7 @@ function showMenu() {
     isRunning = false;
     updateHighScoreDisplay();
     resetGameState();
+    document.body.classList.remove('gameplay');
 }
 
 function startGame() {
@@ -349,6 +350,7 @@ function startGame() {
     placeFood();
     isRunning = true;
     lastTickTime = performance.now();
+    document.body.classList.add('gameplay');
 }
 
 // === МЕНЮ РАЗРАБОТЧИКА ===
@@ -606,6 +608,7 @@ function handleGameOver() {
     document.getElementById('finalScore').innerText = score;
     gameOverScreen.classList.add('active');
     saveScoreToLeaderboard();
+    document.body.classList.remove('gameplay');
 }
 
 function changeDirection(newDx, newDy) {
