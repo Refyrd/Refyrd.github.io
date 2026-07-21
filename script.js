@@ -558,7 +558,10 @@ function loadNicknameFromFirestore() {
 			accNickSave.disabled = false;
 			savedIcon.style.display = 'none';
 		}
-	}).catch(() => {});
+	}).catch(e => {
+		accNickStatus.textContent = e.message;
+		accNickStatus.style.color = 'var(--md-sys-color-error)';
+	});
 }
 
 accNickSave.addEventListener('click', () => {
@@ -589,6 +592,9 @@ accNickSave.addEventListener('click', () => {
 			accNickStatus.textContent = e.message;
 			accNickStatus.style.color = 'var(--md-sys-color-error)';
 		});
+	}).catch(e => {
+		accNickStatus.textContent = e.message;
+		accNickStatus.style.color = 'var(--md-sys-color-error)';
 	});
 });
 
