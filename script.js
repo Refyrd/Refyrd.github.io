@@ -160,7 +160,15 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 const LEADERBOARD_COLLECTION = 'leaderboard';
+
+let authUid = null;
+auth.signInAnonymously().catch(e => console.warn('Auth error:', e));
+auth.onAuthStateChanged(user => {
+    authUid = user ? user.uid : null;
+    if (authUid) loadLeaderboard();
+});
 
 const leaderboardList = document.getElementById('leaderboardList');
 const lbStatus = document.getElementById('lbStatus');
@@ -175,7 +183,7 @@ function setLbStatus(state, msg) {
 
 let lastScoreSaveTime = 0;
 async function saveScoreToLeaderboard() {
-    if (score <= 0) return;
+    if (score <= 0 || !authUid) return;
     const maxPossible = tileCount * tileCount;
     if (score > maxPossible || score > 50000) return;
     const now = Date.now();
@@ -183,7 +191,7 @@ async function saveScoreToLeaderboard() {
     lastScoreSaveTime = now;
     const displayName = savedName && savedName !== 'Refyrd.dev' ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
     try {
-        const docRef = db.collection(LEADERBOARD_COLLECTION).doc(displayName);
+        const docRef = db.collection(LEADERBOARD_COLLECTION).doc(authUid);
         const existing = await docRef.get();
 
         if (existing.exists) {
@@ -200,7 +208,6 @@ async function saveScoreToLeaderboard() {
         });
     } catch (e) {
         console.warn('Firebase save error:', e);
-        setLbStatus('error', `Save error: ${e.message}`);
     }
     loadLeaderboard();
 }
@@ -253,8 +260,7 @@ lbShowMore.addEventListener('click', () => {
     loadLeaderboard();
 });
 
-loadLeaderboard();
-setInterval(loadLeaderboard, 3000);
+setInterval(() => { if (authUid) loadLeaderboard(); }, 3000);
 
 const confettiCanvas = document.getElementById('confettiCanvas');
 const cCtx = confettiCanvas.getContext('2d');
