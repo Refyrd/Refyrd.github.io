@@ -124,7 +124,7 @@ const ctx = canvas.getContext('2d');
 let tileCount = 20;
 let gridSize = 20;
 const speedUpToggle = document.getElementById('speedUpToggle');
-let speedUpEnabled = getCookie('snakeSpeed') !== 'off';
+let speedUpEnabled = getCookie('snakeSpeed') === 'on';
 speedUpToggle.checked = speedUpEnabled;
 speedUpToggle.addEventListener('change', () => {
     speedUpEnabled = speedUpToggle.checked;
