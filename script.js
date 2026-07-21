@@ -536,8 +536,8 @@ const NICK_COOLDOWN = 7 * 24 * 60 * 60 * 1000; // 1 week
 function loadNicknameFromFirestore() {
 	if (!authUser || authUser.isAnonymous) return;
 	const userRef = db.collection('users').doc(authUser.uid);
-	const lockIcon = document.getElementById('accNickLock');
 	userRef.get().then(doc => {
+		const lockIcon = document.getElementById('accNickLock');
 		if (doc.exists && doc.data().nickname) {
 			accNickInput.value = doc.data().nickname;
 			savedName = doc.data().nickname;
@@ -553,12 +553,12 @@ function loadNicknameFromFirestore() {
 			accNickStatus.style.color = '';
 			accNickSave.disabled = true;
 			accNickInput.disabled = true;
-			lockIcon.style.display = '';
+			if (lockIcon) lockIcon.style.display = '';
 		} else {
 			accNickStatus.textContent = '';
 			accNickSave.disabled = false;
 			accNickInput.disabled = false;
-			lockIcon.style.display = 'none';
+			if (lockIcon) lockIcon.style.display = 'none';
 		}
 	}).catch(e => {
 		accNickStatus.textContent = e.message;
@@ -590,7 +590,13 @@ accNickSave.addEventListener('click', () => {
 			accNickStatus.style.color = '';
 			accNickSave.disabled = true;
 			accNickInput.disabled = true;
-			lockIcon.style.display = '';
+			if (lockIcon) lockIcon.style.display = '';
+			// update leaderboard name immediately
+			if (authUid) {
+				db.collection(LEADERBOARD_COLLECTION).doc(authUid).set({
+					name: savedName && isValidName(savedName) ? savedName : 'Anonymous'
+				}, { merge: true });
+			}
 		}).catch(e => {
 			accNickStatus.textContent = e.message;
 			accNickStatus.style.color = 'var(--md-sys-color-error)';
@@ -752,17 +758,17 @@ async function saveScoreToLeaderboard() {
         const docRef = db.collection(LEADERBOARD_COLLECTION).doc(authUid);
         const existing = await docRef.get();
 
-        if (existing.exists) {
-            const existingScore = existing.data().score || 0;
-            if (score <= existingScore) {
-                loadLeaderboard();
-                return;
-            }
+        const existingScore = existing.exists ? (existing.data().score || 0) : 0;
+        const existingName = existing.exists ? (existing.data().name || '') : '';
+
+        if (score <= existingScore && displayName === existingName) {
+            loadLeaderboard();
+            return;
         }
 
         await docRef.set({
             name: displayName,
-            score: score
+            score: Math.max(score, existingScore)
         });
     } catch (e) {
         console.warn('Firebase save error:', e);
