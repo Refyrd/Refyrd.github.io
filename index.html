@@ -404,18 +404,32 @@
     </div>
 
     <script>
+        // === COOKIES ===
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days || 365) * 24 * 60 * 60 * 1000);
+            document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/';
+        }
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        }
+
         // === ЛОКАЛИЗАЦИЯ ===
         const i18n = {
             en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10" },
             ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10" }
         };
 
-        let currentLang = 'en'; 
-        const browserLang = navigator.language || navigator.userLanguage;
-        if (browserLang && browserLang.toLowerCase().startsWith('ru')) currentLang = 'ru';
-
-        const savedLang = localStorage.getItem('snakeLanguage');
-        if (savedLang === 'ru' || savedLang === 'en') currentLang = savedLang;
+        let currentLang = 'en';
+        const cookieLang = getCookie('snakeLang');
+        if (cookieLang === 'ru' || cookieLang === 'en') {
+            currentLang = cookieLang;
+        } else {
+            const browserLang = navigator.language || navigator.userLanguage;
+            if (browserLang && browserLang.toLowerCase().startsWith('ru')) currentLang = 'ru';
+            setCookie('snakeLang', currentLang);
+        }
 
         const langToggle = document.getElementById('langToggle');
 
@@ -453,16 +467,23 @@
 
         langToggle.addEventListener('click', () => {
             currentLang = currentLang === 'ru' ? 'en' : 'ru';
-            localStorage.setItem('snakeLanguage', currentLang);
+            setCookie('snakeLang', currentLang);
             applyLanguage();
         });
 
 
         // === ТЕМА И СИСТЕМНЫЙ ЦВЕТ ===
-        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-        let isDark = !prefersLight; 
         const body = document.body;
         const themeToggle = document.getElementById('themeToggle');
+        let isDark = true;
+        const cookieTheme = getCookie('snakeTheme');
+        if (cookieTheme === 'dark' || cookieTheme === 'light') {
+            isDark = cookieTheme === 'dark';
+        } else {
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            if (prefersLight) isDark = false;
+            setCookie('snakeTheme', isDark ? 'dark' : 'light');
+        }
 
         function getResolvedColor(cssVarName) {
             const temp = document.createElement('div');
@@ -479,15 +500,27 @@
         }
         applyTheme();
 
-        themeToggle.addEventListener('click', () => { isDark = !isDark; applyTheme(); });
+        themeToggle.addEventListener('click', () => {
+            isDark = !isDark;
+            setCookie('snakeTheme', isDark ? 'dark' : 'light');
+            applyTheme();
+        });
 
         // === ВЫБОР ЦВЕТА И РАЗМЕРА ===
         const colorBtns = document.querySelectorAll('.color-btn');
+        const savedColor = getCookie('snakeColor') || 'green';
         colorBtns.forEach(btn => {
+            if (btn.getAttribute('data-c') === savedColor) {
+                colorBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                body.setAttribute('data-color', savedColor);
+            }
             btn.addEventListener('click', () => {
                 colorBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                body.setAttribute('data-color', btn.getAttribute('data-c'));
+                const c = btn.getAttribute('data-c');
+                body.setAttribute('data-color', c);
+                setCookie('snakeColor', c);
             });
         });
 
@@ -647,7 +680,7 @@
         
         let bestScore = localStorage.getItem('snakeHighScore') || 0;
         let lastScore = localStorage.getItem('snakeLastScore') || 0; 
-        let savedName = localStorage.getItem('snakePlayerName') || '';
+        let savedName = getCookie('snakeNick') || '';
         playerNameInput.value = savedName;
 
         let currentSpeed = initialSpeed;
@@ -700,7 +733,7 @@
 
         function startGame() {
             savedName = playerNameInput.value.trim();
-            if (savedName) localStorage.setItem('snakePlayerName', savedName);
+            if (savedName) setCookie('snakeNick', savedName);
             
             startMenu.classList.remove('active');
             gameOverScreen.classList.remove('active');
