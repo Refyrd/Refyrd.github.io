@@ -192,9 +192,11 @@ body {
     font-size: 12px; font-weight: 600; cursor: pointer;
     background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface);
     border: 1px solid var(--md-sys-color-on-surface); opacity: 0.8;
+    display: inline-flex; align-items: center; justify-content: center;
 }
 .auth-prov-btn:disabled { opacity: 0.3; cursor: default; }
 .auth-prov-btn:hover:not(:disabled) { opacity: 1; }
+.auth-prov-btn.badge { opacity: 1; background: var(--md-sys-color-primary-container); border-color: var(--md-sys-color-primary); cursor: default; }
 
 #devMenu {
     position: fixed; top: 0; right: 0; bottom: 0;

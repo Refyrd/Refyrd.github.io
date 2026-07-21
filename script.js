@@ -424,14 +424,14 @@ function renderProviders() {
     const methods = authUser.providerData.map(p => p.providerId);
     accProviders.innerHTML = methods.map(id => {
         const label = { 'google.com': 'Google', 'github.com': 'GitHub', 'password': 'Email' }[id] || id;
-        return `<span class="auth-prov-btn" style="opacity:1; background:var(--md-sys-color-primary-container); border-color:var(--md-sys-color-primary)" disabled>${label} ✓</span>`;
+        return `<span class="auth-prov-btn badge">${label}</span>`;
     }).join('');
     const used = new Set(methods);
     providerBtns.forEach(btn => {
         const prov = btn.dataset.prov;
         const target = prov === 'password' ? 'password' : prov + '.com';
         btn.disabled = used.has(target);
-        btn.textContent = used.has(target) ? (prov === 'password' ? 'Email ✓' : (prov.charAt(0).toUpperCase() + prov.slice(1) + ' ✓')) : '+ ' + (prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1));
+        btn.textContent = used.has(target) ? (prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1)) : '+ ' + (prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1));
     });
 }
 
@@ -489,36 +489,37 @@ providerBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         if (btn.disabled || !authUser) return;
         const prov = btn.dataset.prov;
-        let provider;
-        if (prov === 'google') provider = new firebase.auth.GoogleAuthProvider();
-        else if (prov === 'github') provider = new firebase.auth.GithubAuthProvider();
-        else if (prov === 'password') {
-            const email = prompt('Enter your email to link:');
-            if (!email) return;
-            const pass = prompt('Enter a password (min 6 chars):');
-            if (!pass || pass.length < 6) return;
-            const cred = firebase.auth.EmailAuthProvider.credential(email, pass);
-            authUser.linkWithCredential(cred).then(() => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        function handleLink(promise) {
+            promise.then(() => {
                 authUser = auth.currentUser;
                 renderProviders();
-                accNickStatus.textContent = 'Email linked!';
+                accNickStatus.textContent = prov.charAt(0).toUpperCase() + prov.slice(1) + ' linked!';
                 accNickStatus.style.color = 'var(--md-sys-color-primary)';
             }).catch(e => {
-                accNickStatus.textContent = e.message;
+                if (e.code === 'auth/credential-already-in-use') {
+                    accNickStatus.textContent = 'This account is already linked to another user.';
+                } else {
+                    accNickStatus.textContent = e.message;
+                }
                 accNickStatus.style.color = 'var(--md-sys-color-error)';
             });
-            return;
         }
-        if (provider) {
-            authUser.linkWithPopup(provider).then(() => {
-                authUser = auth.currentUser;
-                renderProviders();
-                accNickStatus.textContent = 'Linked!';
-                accNickStatus.style.color = 'var(--md-sys-color-primary)';
-            }).catch(e => {
-                accNickStatus.textContent = e.message;
-                accNickStatus.style.color = 'var(--md-sys-color-error)';
-            });
+
+        if (prov === 'google') {
+            handleLink(user.linkWithPopup(new firebase.auth.GoogleAuthProvider()));
+        } else if (prov === 'github') {
+            handleLink(user.linkWithPopup(new firebase.auth.GithubAuthProvider()));
+        } else if (prov === 'password') {
+            accNickStatus.textContent = 'Enter email and password to link';
+            accNickStatus.style.color = 'var(--md-sys-color-primary)';
+            const email = prompt('Email to link:');
+            if (!email) return;
+            const pass = prompt('Password (min 6 chars):');
+            if (!pass || pass.length < 6) return;
+            handleLink(user.linkWithCredential(firebase.auth.EmailAuthProvider.credential(email, pass)));
         }
     });
 });
