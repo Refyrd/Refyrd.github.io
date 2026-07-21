@@ -270,6 +270,7 @@ const initialSpeed = 150;
 let snake = [];
 let food = {};
 let dx = 0, dy = 0;
+let committedDx = 0, committedDy = -1;
 let score = 0;
 
 let bestScore = localStorage.getItem('snakeHighScore') || 0;
@@ -385,9 +386,9 @@ function resetGameState() {
         { x: center, y: center + 2, rx: center, ry: center + 2 }
     ];
     dx = 0; dy = -1;
+    committedDx = 0; committedDy = -1;
     score = 0;
     currentSpeed = initialSpeed;
-    inputQueue = [];
     glows = [];
     scoreElement.innerText = score;
 }
@@ -424,11 +425,6 @@ function animationLoop(timestamp) {
 }
 
 function updateLogic() {
-    if (inputQueue.length > 0) {
-        const nextDir = inputQueue.shift();
-        dx = nextDir.dx; dy = nextDir.dy;
-    }
-
     const head = { x: snake[0].x + dx, y: snake[0].y + dy, rx: snake[0].x, ry: snake[0].y };
 
     if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || checkSelfCollision(head)) {
@@ -441,13 +437,16 @@ function updateLogic() {
     if (head.x === food.x && head.y === food.y) {
         score++;
         scoreElement.innerText = score;
-                if (score > 0 && score % 10 === 0) triggerConfetti();
+        if (score > 0 && score % 10 === 0) triggerConfetti();
         
         glows = [{ pos: 0 }];
         placeFood();
     } else {
         snake.pop();
     }
+
+    committedDx = dx;
+    committedDy = dy;
 }
 
 function checkSelfCollision(head) {
@@ -589,10 +588,9 @@ function handleGameOver() {
 }
 
 function changeDirection(newDx, newDy) {
-    const valid = (newDx === 1 && dx !== -1) || (newDx === -1 && dx !== 1) ||
-                  (newDy === -1 && dy !== 1) || (newDy === 1 && dy !== -1);
+    const valid = (newDx === 1 && committedDx !== -1) || (newDx === -1 && committedDx !== 1) ||
+                  (newDy === -1 && committedDy !== 1) || (newDy === 1 && committedDy !== -1);
     if (!valid) return;
-    inputQueue = [];
     dx = newDx;
     dy = newDy;
 }
