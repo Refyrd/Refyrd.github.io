@@ -268,7 +268,7 @@ setInterval(() => { if (authUid) loadLeaderboard(); }, 5000);
 
 setInterval(() => {
     if (isRunning && authUid && score > 0) saveScoreToLeaderboard();
-}, 5000);
+}, 3000);
 
 const confettiCanvas = document.getElementById('confettiCanvas');
 const cCtx = confettiCanvas.getContext('2d');
