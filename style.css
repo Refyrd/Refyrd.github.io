@@ -322,7 +322,8 @@ body {
         width: calc(100vw - 20px);
         height: calc(100vw - 20px);
         max-height: 48vh;
-        flex-shrink: 0;
+        flex-shrink: 1;
+        min-height: 160px;
     }
     .overlay {
         padding: 12px;

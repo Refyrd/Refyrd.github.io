@@ -16,6 +16,191 @@ const i18n = {
 };
 
 let currentLang = 'en';
+
+// === NICKNAME FILTERS ===
+const zalgoRegex = /[\u0300-\u036f\u0483-\u0489\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06dc\u06df-\u06e4\u06e7-\u06e8\u06ea-\u06ed\u0711\u0730-\u074a\u07a6-\u07b0\u0901-\u0903\u093c\u093e-\u094d\u0951-\u0954\u0962-\u0963\u0981-\u0983\u09bc\u09be-\u09cc\u09d7\u09e2-\u09e3\u0a01-\u0a03\u0abc\u0abe-\u0acc\u0b01-\u0b03\u0b3c\u0b3e-\u0b4c\u0b56-\u0b57\u0b82\u0bbe-\u0bcc\u0bd7\u0c01-\u0c03\u0c3e-\u0c4c\u0c55-\u0c56\u0c82-\u0c83\u0cbc\u0cbe-\u0ccc\u0cd5-\u0cd6\u0d02-\u0d03\u0d3e-\u0d4c\u0d57\u0d82-\u0d83\u0dca\u0dcf-\u0ddf\u0df2-\u0df3\u0e31\u0e34-\u0e3a\u0e47-\u0e4e\u0eb1\u0eb4-\u0eb9\u0ebb-\u0ebc\u0ec8-\u0ecd\u0f18-\u0f19\u0f35\u0f37\u0f39\u0f3e-\u0f3f\u0f71-\u0f84\u0f86-\u0f87\u0f90-\u0f97\u0f99-\u0fbc\u0fc6\u102b-\u103e\u1056-\u1059\u105e-\x1060\u1062-\x1064\u1067-\x106d\u1071-\x1074\u1082-\x108d\u108f\u109a-\x109d\u1100-\u1159\u115f-\u11a2\u11a8-\u11f9\u1dc0-\u1dcf\u1dfe-\u1dff\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2cef-\u2cf1\u2de0-\u2dff\ua66f\ua67c-\ua67d\ua6f0-\ua6f1\ua802\ua806\ua80b\ua823-\ua827\ua880-\ua881\ua8b4-\ua8c4\ua8e0-\ua8f1\ua926-\ua92d\ua947-\ua953\ua980-\ua983\ua9b3-\ua9c0\uaa29-\uaa36\uaa43\uaa4c\uaa4d\uaa7b\uaab0\uaab2-\uaab4\uaa7b-\uaa7d\uaab5-\uaab6\uaab9-\uaabd\uaac1\uabe3-\uabea\uabec\uabed\ufb1e\ufe00-\ufe0f\ufe20-\ufe26\uff9e-\uff9f]/g;
+const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{200D}\u{231A}-\u{231B}\u{23E9}-\u{23F3}\u{23F8}-\u{23FA}\u{25AA}-\u{25AB}\u{25B6}\u{25C0}\u{25FB}-\u{25FE}\u{2934}-\u{2935}\u{2B05}-\u{2B07}\u{2B1B}-\u{2B1C}\u{2B50}\u{2B55}\u{3030}\u{303D}\u{3297}\u{3299}]/gu;
+const badSymbolsRegex = /[^\w\sа-яА-ЯёЁa-zA-Z0-9_.\-]/g;
+
+const profanityRu = [
+    'хуй', 'хуя', 'хуе', 'хую', 'хуи', 'хуё', 'пизд', 'пиzd', 'пиzdа', 'нахуй', 'нахуя', 'похуй',
+    'бляд', 'бля', 'блять', 'блят', 'ебал', 'ебат', 'ебет', 'ебут', 'ебаш', 'ёб',
+    'ебан', 'ебаш', 'заеб', 'наеб', 'объеб', 'выеб', 'выеб', 'доеб', 'отъеб',
+    'пиздец', 'пизда', 'пизды', 'пизду', 'пiзд', 'пиздa',
+    'гандон', 'гондон', 'мудак', 'муда', 'мyдак',
+    'сучка', 'сука', 'сyка',
+    'долбоеб', 'долбоёб', 'долбаеб',
+    'хуесос', 'хуила', 'хуило',
+    'залупа', 'залуп', 'шлюха', 'шлюх',
+    'манда', 'мандa', 'мандов',
+    'пидор', 'пидар', 'пидр', 'петух', 'петуша',
+    'разъеб', 'разьеб', 'раzzеб',
+    'уебищ', 'уёбищ',
+    'хер', 'хера', 'хрен', 'хрена',
+    'член', 'члена',
+    'сперма', 'сперм',
+    'гей', 'геи', 'геев',
+    'трахал', 'трахат', 'трахну',
+    'выебон', 'выеб',
+    'охуе', 'охуи', 'охуен',
+    'ахуе', 'ахуи', 'ахуен',
+    'приеб', 'приєб',
+    'срать', 'сру', 'срет', 'срал',
+    'говно', 'гавно', 'говн',
+    'какать', 'какаш',
+    'ссать', 'ссыт', 'ссал',
+    'моча', 'мочой', 'мочи',
+    'ссанина', 'говнина',
+    'пися', 'письк', 'писюн',
+    'кант', 'канта',
+    'клон', 'фейк',
+    'смерть', 'убить', 'убива',
+    'бомж', 'бомжи',
+    'алкаш', 'алкогол',
+    'нарком', 'наркот',
+    'даун', 'дауны',
+    'дебил', 'дeбил',
+    'идиот', 'идиот',
+    'лох', 'лоха', 'лоху', 'лохи',
+    'глуп', 'туп', 'тупо',
+    'жирн', 'толст',
+    'урод', 'уроды',
+    'соси', 'сосат', 'сосет', 'сосут',
+    'отсос', 'минета', 'минет',
+    'вагин', 'влагалищ',
+    'мошонк', 'яичк',
+    'член', 'члена',
+    'анальн', 'анус',
+    'оральн', 'ротов',
+    'порно', 'порнух',
+    'секс', 'сексу',
+    'извращ', 'извращен',
+    'зоофил', 'некрофил',
+    'педофил', 'пeдофил',
+    'проститутк', 'шалав',
+    'шмара', 'шмар',
+    'дрочит', 'дроч', 'дрочит',
+    'мастурб',
+    'конча', 'кончи',
+    'военный', 'военн',
+    'путин', 'путина', 'путину',
+    'зеленск', 'зелен',
+    'нацист', 'наци',
+    'свастик', 'свасти',
+    'зиг', 'зигу',
+    'расист', 'расизм',
+    'фашист', 'фашизм',
+    'жид', 'жиды', 'жидов',
+    'хач', 'хачи', 'хачей',
+    'черн', 'черный', 'чернож',
+    'нигер', 'нигг',
+    'nигер', 'nигг',
+    'лошад', 'козел', 'козл',
+    'осел', 'осл',
+    'баран', 'бараны',
+    'свинья', 'свин',
+    'собака', 'собак',
+    'крыса', 'крыс',
+    'обезьян', 'обезья',
+    'коров', 'быдло',
+    'чмо', 'чма',
+    'редиск', 'редис',
+    'тыква', 'тыкв',
+    'сиськ', 'сися', 'сись',
+    'попк', 'попа', 'попка',
+    'грудь', 'груди', 'гpyдь',
+    'norn', 'porn',
+    'fuck', 'shit', 'fck',
+];
+
+const profanityEn = [
+    'fuck', 'fck', 'fuk', 'fuk', 'shit', 'sh1t', 'sh!t',
+    'asshole', 'asshol', 'ashole', 'ashol',
+    'bastard', 'bastrd',
+    'bitch', 'b1tch', 'biatch', 'btch',
+    'cunt', 'cnt',
+    'dick', 'd1ck', 'dck',
+    'motherfucker', 'motherfuck', 'mothafuck', 'mf',
+    'nigga', 'nigger', 'n1gga', 'n1gger', 'nigg',
+    'pussy', 'pusy', 'puss',
+    'slut', 'slut',
+    'whore', 'hor', 'hoar',
+    'damn', 'dmn',
+    'douche', 'douch',
+    'prick', 'prck',
+    'cock', 'c0ck',
+    'sucker', 'suckr',
+    'wanker', 'wank',
+    'twat', 'tw4t',
+    'fag', 'f4g', 'faggot', 'fagot',
+    'retard', 'retrd', 'r3tard',
+    'moron', 'm0ron',
+    'idiot', '1diot',
+    'stupid', 'stpd',
+    'loser', 'losr',
+    'crap', 'cr4p',
+    'bullshit', 'bullsh1t',
+    'goddamn', 'goddmn',
+    'holy', 'holyshit',
+    'sex', 's3x',
+    'porn', 'p0rn', 'porn',
+    'anal', '4nal',
+    'blowjob', 'bl0wjob', 'bj',
+    'cum', 'c0m',
+    'cock', 'c0ck',
+    'dildo', 'd1ldo',
+    'erect',
+    'facial', 'fac1al',
+    'handjob',
+    'horny', 'h0rny',
+    'incest',
+    'masturbat', 'mastrubat',
+    'naked', 'nak3d',
+    'nude', 'n00d',
+    'orgasm', '0rgasm',
+    'penis', 'pen1s', 'p3nis',
+    'tits', 't1ts', 'tts',
+    'vagina', 'vagin',
+    'boob', 'b00b',
+    'ass', '4ss',
+    'hitler', 'h1tler',
+    'nazi', 'n4zi',
+    'fascist',
+    'racist', 'rac1st',
+    'kkk', 'kluklux',
+    'swastika',
+    'terrorist',
+    'bomb', 'b0mb',
+    'kill', 'k1ll',
+    'murder', 'murdr',
+    'suicide',
+    'hate', 'h4te',
+];
+
+const profanityAll = [...profanityRu, ...profanityEn];
+
+function containsProfanity(text) {
+    const lower = text.toLowerCase();
+    for (const word of profanityAll) {
+        if (lower.includes(word)) return true;
+    }
+    return false;
+}
+
+function sanitizeName(raw) {
+    let val = raw.replace(zalgoRegex, '');
+    val = val.replace(emojiRegex, '');
+    val = val.replace(badSymbolsRegex, '');
+    val = val.replace(/\s/g, '');
+    return val;
+}
+
+function isValidName(val) {
+    if (!val || val.length < 2) return false;
+    if (val.length > 16) return false;
+    if (containsProfanity(val)) return false;
+    return true;
+}
 const cookieLang = getCookie('snakeLang');
 if (cookieLang === 'ru' || cookieLang === 'en') {
     currentLang = cookieLang;
@@ -290,6 +475,7 @@ let score = 0;
 let bestScore = localStorage.getItem('snakeHighScore') || 0;
 let lastScore = localStorage.getItem('snakeLastScore') || 0; 
 let savedName = getCookie('snakeNick') || '';
+let lastNickChange = 0;
 playerNameInput.value = savedName;
 
 let currentSpeed = initialSpeed;
@@ -338,8 +524,15 @@ function showMenu() {
 }
 
 function startGame() {
-    savedName = playerNameInput.value.trim();
-    if (savedName) setCookie('snakeNick', savedName);
+    const now = Date.now();
+    const raw = sanitizeName(playerNameInput.value);
+    playerNameInput.value = raw;
+    if (raw && raw.toLowerCase() !== 'refyrd.dev') {
+        if (raw !== savedName && now - lastNickChange < 3000) return;
+        savedName = isValidName(raw) ? raw : '';
+        if (savedName) setCookie('snakeNick', savedName);
+        if (raw) lastNickChange = now;
+    }
     
     startMenu.classList.remove('active');
     gameOverScreen.classList.remove('active');
@@ -357,7 +550,8 @@ function startGame() {
 const devMenu = document.getElementById('devMenu');
 
 playerNameInput.addEventListener('input', () => {
-    if (playerNameInput.value.trim().toLowerCase() === 'refyrd.dev') {
+    playerNameInput.value = sanitizeName(playerNameInput.value);
+    if (playerNameInput.value.toLowerCase() === 'refyrd.dev') {
         devMenu.classList.add('active');
         playerNameInput.disabled = true;
         savedName = '';
