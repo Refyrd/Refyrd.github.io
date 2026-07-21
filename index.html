@@ -149,9 +149,11 @@
                 <div class="auth-acc-section">
                     <div class="auth-acc-label">Nickname</div>
                     <div style="display:flex; gap:8px; width:100%; align-items:center">
-                        <input type="text" id="accNickInput" class="name-input" placeholder="Nickname" maxlength="12" autocomplete="off" style="flex:1">
+                        <div style="position:relative; flex:1">
+                            <input type="text" id="accNickInput" class="name-input" placeholder="Nickname" maxlength="12" autocomplete="off" style="width:100%">
+                            <span id="accNickLock" style="display:none; position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:16px; pointer-events:none">🔒</span>
+                        </div>
                         <button class="btn-primary" id="accNickSave" style="width:auto; padding:0 20px; flex-shrink:0">Save</button>
-                        <span id="accNickSavedIcon" style="display:none; font-size:18px; color:var(--md-sys-color-primary)">✓</span>
                     </div>
                     <div id="accNickStatus" style="font-size:11px; opacity:0.6; text-align:center; width:100%"></div>
                 </div>

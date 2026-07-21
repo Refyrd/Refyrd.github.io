@@ -536,7 +536,7 @@ const NICK_COOLDOWN = 7 * 24 * 60 * 60 * 1000; // 1 week
 function loadNicknameFromFirestore() {
 	if (!authUser || authUser.isAnonymous) return;
 	const userRef = db.collection('users').doc(authUser.uid);
-	const savedIcon = document.getElementById('accNickSavedIcon');
+	const lockIcon = document.getElementById('accNickLock');
 	userRef.get().then(doc => {
 		if (doc.exists && doc.data().nickname) {
 			accNickInput.value = doc.data().nickname;
@@ -549,17 +549,16 @@ function loadNicknameFromFirestore() {
 		const remaining = lastChange + NICK_COOLDOWN - Date.now();
 		if (remaining > 0) {
 			const until = new Date(lastChange + NICK_COOLDOWN);
-			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
+			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(until)}`;
 			accNickStatus.style.color = '';
 			accNickSave.disabled = true;
 			accNickInput.disabled = true;
-			savedIcon.style.display = '';
-			savedIcon.textContent = '🔒';
+			lockIcon.style.display = '';
 		} else {
 			accNickStatus.textContent = '';
 			accNickSave.disabled = false;
 			accNickInput.disabled = false;
-			savedIcon.style.display = 'none';
+			lockIcon.style.display = 'none';
 		}
 	}).catch(e => {
 		accNickStatus.textContent = e.message;
@@ -571,13 +570,13 @@ accNickSave.addEventListener('click', () => {
 	if (!authUser || authUser.isAnonymous) return;
 	const nick = sanitizeName(accNickInput.value.trim());
 	if (!isValidName(nick)) { accNickStatus.textContent = 'Invalid nickname'; accNickStatus.style.color = 'var(--md-sys-color-error)'; return; }
-	const savedIcon = document.getElementById('accNickSavedIcon');
+	const lockIcon = document.getElementById('accNickLock');
 	const userRef = db.collection('users').doc(authUser.uid);
 	userRef.get().then(doc => {
 		const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
 		if (Date.now() - lastChange < NICK_COOLDOWN) {
 			const until = new Date(lastChange + NICK_COOLDOWN);
-			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
+			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(until)}`;
 			accNickStatus.style.color = '';
 			return;
 		}
@@ -587,12 +586,11 @@ accNickSave.addEventListener('click', () => {
 			setCookie('snakeNick', savedName);
 			playerNameInput.value = savedName;
 			const until = new Date(now + NICK_COOLDOWN);
-			accNickStatus.textContent = `Can change again until ${formatCooldownUntil(until)}`;
+			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(until)}`;
 			accNickStatus.style.color = '';
 			accNickSave.disabled = true;
 			accNickInput.disabled = true;
-			savedIcon.style.display = '';
-			savedIcon.textContent = '🔒';
+			lockIcon.style.display = '';
 		}).catch(e => {
 			accNickStatus.textContent = e.message;
 			accNickStatus.style.color = 'var(--md-sys-color-error)';

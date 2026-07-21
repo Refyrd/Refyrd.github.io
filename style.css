@@ -239,7 +239,7 @@ body {
 }
 .name-input::placeholder { color: var(--md-sys-color-on-surface); opacity: 0.5; font-weight: 500; }
 .name-input:focus { border-color: var(--md-sys-color-primary); box-shadow: 0 0 0 4px var(--md-sys-color-primary-container); }
-.name-input:disabled { opacity: 0.4; cursor: not-allowed; }
+.name-input:disabled { opacity: 0.4; cursor: not-allowed; padding-right: 36px; }
 
 .size-picker { display: flex; border: 1px solid var(--md-sys-color-primary); border-radius: 100px; overflow: hidden; background-color: var(--md-sys-color-surface); }
 .size-btn { background: transparent; color: var(--md-sys-color-on-surface); border: none; padding: clamp(6px, 1vh, 12px) clamp(12px, 3.5vw, 22px); font-size: clamp(11px, 2.5vw, 14px); font-weight: 600; cursor: pointer; }
