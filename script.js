@@ -164,10 +164,14 @@ const auth = firebase.auth();
 const LEADERBOARD_COLLECTION = 'leaderboard';
 
 let authUid = null;
-auth.signInAnonymously().catch(e => console.warn('Auth error:', e));
 auth.onAuthStateChanged(user => {
-    authUid = user ? user.uid : null;
-    if (authUid) loadLeaderboard();
+    if (user) {
+        authUid = user.uid;
+        loadLeaderboard();
+    } else {
+        authUid = null;
+        auth.signInAnonymously().catch(() => {});
+    }
 });
 
 const leaderboardList = document.getElementById('leaderboardList');
