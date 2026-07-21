@@ -195,6 +195,28 @@
             flex-direction: column;
             align-items: center;
         }
+        .lb-toggle {
+            position: fixed;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 51;
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-surface);
+            border: none;
+            border-radius: 0 12px 12px 0;
+            width: 28px;
+            height: 48px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--elevation-2);
+            transition: left 0.35s ease, background-color 0.35s ease, color 0.35s ease;
+        }
+        .lb-toggle:hover { opacity: 0.9; }
+        .lb-toggle.closed { left: 0; }
         .leaderboard {
             position: fixed;
             left: 16px;
@@ -211,6 +233,12 @@
             overflow-y: auto;
             scrollbar-width: thin;
             z-index: 50;
+            transition: transform 0.35s ease, opacity 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
+        }
+        .leaderboard.hidden {
+            transform: translateY(-50%) translateX(-240px);
+            opacity: 0;
+            pointer-events: none;
         }
         .leaderboard h3 {
             font-size: 14px;
@@ -288,6 +316,7 @@
             50% { opacity: 0.3; }
         }
         @media (max-width: 640px) {
+            .lb-toggle { display: none; }
             .leaderboard {
                 position: static;
                 transform: none;
@@ -300,6 +329,11 @@
                 padding: 12px;
                 margin-top: 12px;
             }
+            .leaderboard.hidden {
+                transform: none;
+                opacity: 1;
+                pointer-events: all;
+            }
             .leaderboard h3 { width: 100%; margin-bottom: 8px; font-size: 12px; }
             .lb-entry { font-size: 12px; padding: 4px 6px; flex: 1; min-width: 80px; }
         }
@@ -310,10 +344,11 @@
 
     <canvas id="confettiCanvas"></canvas>
 
-        <div class="leaderboard" id="leaderboard">
-            <h3 id="lbTitle">LEADERBOARD</h3>
-            <div id="leaderboardList"><div class="lb-loading" id="lbLoadingText">Loading...</div></div>
-            <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span id="lbStatusText">Connecting...</span></div>
+    <button class="lb-toggle" id="lbToggle">◀</button>
+    <div class="leaderboard" id="leaderboard">
+        <h3 id="lbTitle">LEADERBOARD</h3>
+        <div id="leaderboardList"><div class="lb-loading" id="lbLoadingText">Loading...</div></div>
+        <div class="lb-status" id="lbStatus"><span class="dot connecting"></span><span id="lbStatusText">Connecting...</span></div>
     </div>
 
     <div class="branding">
@@ -538,33 +573,20 @@
             if (!savedName || score <= 0) return;
             if (savedName === 'Refyrd.dev') return;
             try {
-                const existing = await db.collection(LEADERBOARD_COLLECTION)
-                    .where('name', '==', savedName)
-                    .get();
+                const docRef = db.collection(LEADERBOARD_COLLECTION).doc(savedName);
+                const existing = await docRef.get();
 
-                let highestExisting = 0;
-                const docs = [];
-                existing.forEach(doc => {
-                    docs.push(doc);
-                    const d = doc.data();
-                    if ((d.score || 0) > highestExisting) highestExisting = d.score;
-                });
-
-                if (score <= highestExisting) {
-                    loadLeaderboard();
-                    return;
+                if (existing.exists) {
+                    const existingScore = existing.data().score || 0;
+                    if (score <= existingScore) {
+                        loadLeaderboard();
+                        return;
+                    }
                 }
 
-                if (docs.length > 0) {
-                    const batch = db.batch();
-                    docs.forEach(doc => batch.delete(doc.ref));
-                    await batch.commit();
-                }
-
-                await db.collection(LEADERBOARD_COLLECTION).add({
+                await docRef.set({
                     name: savedName,
-                    score: score,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    score: score
                 });
             } catch (e) {
                 console.warn('Firebase save error:', e);
@@ -611,6 +633,16 @@
         }
 
         loadLeaderboard();
+
+        const lbToggle = document.getElementById('lbToggle');
+        const lbPanel = document.getElementById('leaderboard');
+        let lbOpen = true;
+        lbToggle.addEventListener('click', () => {
+            lbOpen = !lbOpen;
+            lbPanel.classList.toggle('hidden', !lbOpen);
+            lbToggle.innerText = lbOpen ? '◀' : '▶';
+            lbToggle.classList.toggle('closed', !lbOpen);
+        });
 
         const confettiCanvas = document.getElementById('confettiCanvas');
         const cCtx = confettiCanvas.getContext('2d');
