@@ -439,6 +439,11 @@ function animationLoop(timestamp) {
 }
 
 function updateLogic() {
+    if (inputQueue.length > 0) {
+        const next = inputQueue.shift();
+        dx = next.dx;
+        dy = next.dy;
+    }
     const head = { x: snake[0].x + dx, y: snake[0].y + dy, rx: snake[0].x, ry: snake[0].y };
     const ate = head.x === food.x && head.y === food.y;
 
@@ -604,11 +609,12 @@ function handleGameOver() {
 }
 
 function changeDirection(newDx, newDy) {
-    const valid = (newDx === 1 && committedDx !== -1) || (newDx === -1 && committedDx !== 1) ||
-                  (newDy === -1 && committedDy !== 1) || (newDy === 1 && committedDy !== -1);
+    if (inputQueue.length >= 4) return;
+    const last = inputQueue.length > 0 ? inputQueue[inputQueue.length - 1] : { dx, dy };
+    const valid = (newDx === 1 && last.dx !== -1) || (newDx === -1 && last.dx !== 1) ||
+                  (newDy === -1 && last.dy !== 1) || (newDy === 1 && last.dy !== -1);
     if (!valid) return;
-    dx = newDx;
-    dy = newDy;
+    inputQueue.push({ dx: newDx, dy: newDy });
 }
 
 document.addEventListener('keydown', (e) => {
