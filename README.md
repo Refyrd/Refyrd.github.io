@@ -1,5 +1,5 @@
 A REALLY COOL SNAKE GAME BY REFYRD !!!!!!! \
-refyrd.github.io
+https://refyrd.github.io
 
 ⠀⠀⠀⠠⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣤⠤⠀⠀⠀⠀⠀\
 ⠀⠀⠀⠀⢈⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣅⠀⠀⠀⠀⠀⠀\
