@@ -886,23 +886,17 @@ async function loadFeedback() {
 			fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbNoFeedback}</div>`;
 			return;
 		}
-		let voteKey = authUid;
-		if (!voteKey) {
-			voteKey = localStorage.getItem('anonVoteId');
-			if (!voteKey) {
-				voteKey = 'anon_' + Math.random().toString(36).slice(2, 10);
-				localStorage.setItem('anonVoteId', voteKey);
-			}
-		}
 		const feedbackIds = [];
 		snap.forEach(doc => feedbackIds.push(doc.id));
 		const userVotes = {};
-		const voteResults = await Promise.allSettled(
-			feedbackIds.map(id => db.collection(Fb_COLLECTION).doc(id).collection('votes').doc(voteKey).get())
-		);
-		voteResults.forEach((r, i) => {
-			if (r.status === 'fulfilled' && r.value.exists) userVotes[feedbackIds[i]] = r.value.data().type;
-		});
+		if (authUid) {
+			const voteResults = await Promise.allSettled(
+				feedbackIds.map(id => db.collection(Fb_COLLECTION).doc(id).collection('votes').doc(authUid).get())
+			);
+			voteResults.forEach((r, i) => {
+				if (r.status === 'fulfilled' && r.value.exists) userVotes[feedbackIds[i]] = r.value.data().type;
+			});
+		}
 		let html = '';
 		snap.forEach(doc => {
 			const d = doc.data();
@@ -949,7 +943,7 @@ fbList.addEventListener('click', (e) => {
 });
 
 async function voteFeedback(docId, type) {
-	const voteKey = authUid || localStorage.getItem('anonVoteId');
+	const voteKey = authUid;
 	if (!voteKey) return;
 	const ref = db.collection(Fb_COLLECTION).doc(docId);
 	const voteRef = ref.collection('votes').doc(voteKey);
