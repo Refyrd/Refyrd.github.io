@@ -972,6 +972,7 @@ async function loadFeedback() {
 				<button class="fb-comment-stats" style="display:none">0</button>
 				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
 				<div class="fb-comments" style="display:none">
+					<div class="fb-comments-header"><span>${escapeHtml(d.name || 'Anonymous')} · ${time}</span><button class="fb-comments-close">✕</button></div>
 					<div class="fb-comments-list"></div>
 					<div class="fb-comment-form">
 						<input class="fb-comment-input" placeholder="${i18n[currentLang].fbWriteComment}">
@@ -1059,6 +1060,12 @@ fbList.addEventListener('click', (e) => {
 		const entry = sendBtn.closest('.fb-entry');
 		if (!entry) return;
 		submitComment(entry);
+		return;
+	}
+	const closeBtn = e.target.closest('.fb-comments-close');
+	if (closeBtn) {
+		const section = closeBtn.closest('.fb-comments');
+		if (section) section.style.display = 'none';
 	}
 });
 
