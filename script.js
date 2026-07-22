@@ -294,11 +294,8 @@ function applyLanguage() {
     if (lbStatusSpan) lbStatusSpan.textContent = i18n[currentLang].online;
     // Update existing DOM elements with new language
     document.querySelectorAll('.fb-expand').forEach(el => {
-        const entry = el.closest('.fb-entry');
-        if (entry) {
-            const textEl = entry.querySelector('.fb-text');
-            el.textContent = textEl && textEl.classList.contains('expanded') ? i18n[currentLang].fbShowLess : i18n[currentLang].fbShowMore;
-        }
+        const textEl = el.closest('.fb-entry')?.querySelector('.fb-text');
+        el.textContent = textEl && textEl.classList.contains('expanded') ? i18n[currentLang].fbShowLess : i18n[currentLang].fbShowMore;
     });
     document.querySelectorAll('.fb-reply-btn').forEach(el => el.textContent = i18n[currentLang].fbReply);
     document.querySelectorAll('.lb-entry .lb-name').forEach(el => {
@@ -320,8 +317,9 @@ langToggle.addEventListener('click', () => {
     setCookie('snakeLang', currentLang);
 applyLanguage();
 updateNicknameInputVisibility();
+// Re-fetch data with new language, no loading flash
 loadLeaderboard();
-loadFeedback();
+loadFeedback(true);
 });
 
 
@@ -870,6 +868,7 @@ async function loadLeaderboard() {
             rank++;
         });
         leaderboardList.innerHTML = html;
+        window._lbCachedHtml = html;
         if (!window._lbHeightFixed) {
             const lb = document.getElementById('leaderboard');
             if (lb) {
@@ -1084,8 +1083,8 @@ function startEditComment(entry, commentEl) {
 	input.addEventListener('blur', finish);
 }
 
-async function loadFeedback() {
-	fbList.innerHTML = `<div class="lb-loading">${i18n[currentLang].lbLoading}</div>`;
+async function loadFeedback(silent) {
+	if (!silent) fbList.innerHTML = `<div class="lb-loading">${i18n[currentLang].lbLoading}</div>`;
 	try {
 		const snap = await db.collection(Fb_COLLECTION).orderBy('time', 'desc').limit(50).get();
 		if (snap.empty) {
@@ -1134,6 +1133,7 @@ async function loadFeedback() {
 			</div>`;
 		});
 		fbList.innerHTML = html;
+		window._fbCachedHtml = html;
 		// Sync votes from Firestore in background, update DOM if differs from cache
 		if (authUid) {
 			const voteResults = await Promise.allSettled(
