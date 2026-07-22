@@ -946,21 +946,18 @@ async function submitComment(entry) {
 	statsBtn.style.display = '';
 
 	try {
-		const ref = await db.collection(Fb_COLLECTION).doc(docId).collection('comments').add({
+		await db.collection(Fb_COLLECTION).doc(docId).collection('comments').add({
 			name, message: msg, uid,
 			time: firebase.firestore.FieldValue.serverTimestamp()
 		});
-		// Replace temp ID with real ID
-		const tc = list.querySelector(`[data-cid="${tempId}"]`);
-		if (tc) { tc.dataset.cid = ref.id; tc.classList.remove('fb-comment-pending'); }
-		// Update comment count on feedback doc
 		await db.collection(Fb_COLLECTION).doc(docId).update({
 			commentCount: firebase.firestore.FieldValue.increment(1)
 		});
+		// Reload from Firestore to sync IDs and remove pending state
+		await loadComments(entry);
 	} catch (_) {
 		// Remove optimistic comment on failure
-		const tc = list.querySelector(`[data-cid="${tempId}"]`);
-		if (tc) tc.remove();
+		list.querySelectorAll('.fb-comment-pending').forEach(el => el.remove());
 		const cur2 = parseInt(statsBtn.dataset.count) || 1;
 		const newCount2 = cur2 - 1;
 		statsBtn.dataset.count = newCount2;
