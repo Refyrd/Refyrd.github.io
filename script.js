@@ -11,8 +11,8 @@ function getCookie(name) {
 
 // === ЛОКАЛИЗАЦИЯ ===
 const i18n = {
-    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", fbTitle: "FEEDBACK", fbWriteBtn: "Write feedback", fbOverlayTitle: "Write feedback", fbNamePlaceholder: "Your name", fbMsgPlaceholder: "Write your thoughts about the game...", fbSubmitBtn: "Send", fbLoadFail: "Failed to load feedback", fbNoFeedback: "No feedback yet. Be the first!", fbNameRequired: "Enter your name", fbMsgShort: "Message too short (min 3 chars)", fbSending: "Sending...", fbSent: "Feedback sent! Thanks!", fbShowMore: "Show more", fbShowLess: "Show less", fbComments: "Comments", fbNoComments: "No comments yet", fbWriteComment: "Write a comment...", fbSendComment: "Send", authSignIn: "Sign In", authEmailBtn: "Sign in with Email", authGoogleBtn: "Sign in with Google", authGithubBtn: "Sign in with GitHub", authEmailTitle: "Email", authEmailSignIn: "Sign In", authEmailRegister: "Register", authSignOut: "Sign Out", authAccount: "Account", authLinkedProviders: "Linked providers", authLinkAnother: "Link another", authNickname: "Nickname", authSave: "Save", authLinkEmail: "Link Email", authLinkEmailBtn: "Link", authEmailPlaceholder: "Email", authPassPlaceholder: "Password", authNickPlaceholder: "Nickname" },
-    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", fbTitle: "ОТЗЫВЫ", fbWriteBtn: "Написать отзыв", fbOverlayTitle: "Написать отзыв", fbNamePlaceholder: "Ваше имя", fbMsgPlaceholder: "Напишите, что вы думаете об игре...", fbSubmitBtn: "Отправить", fbLoadFail: "Не удалось загрузить отзывы", fbNoFeedback: "Пока нет отзывов. Будьте первым!", fbNameRequired: "Введите имя", fbMsgShort: "Слишком короткое сообщение (мин. 3 символа)", fbSending: "Отправка...", fbSent: "Отзыв отправлен! Спасибо!", fbShowMore: "Развернуть", fbShowLess: "Свернуть", fbComments: "Комментарии", fbNoComments: "Пока нет комментариев", fbWriteComment: "Напишите комментарий...", fbSendComment: "Отправить", authSignIn: "Войти", authEmailBtn: "Войти через Email", authGoogleBtn: "Войти через Google", authGithubBtn: "Войти через GitHub", authEmailTitle: "Email", authEmailSignIn: "Войти", authEmailRegister: "Регистрация", authSignOut: "Выйти", authAccount: "Аккаунт", authLinkedProviders: "Привязанные провайдеры", authLinkAnother: "Привязать другой", authNickname: "Никнейм", authSave: "Сохранить", authLinkEmail: "Привязать Email", authLinkEmailBtn: "Привязать", authEmailPlaceholder: "Эл. почта", authPassPlaceholder: "Пароль", authNickPlaceholder: "Никнейм" }
+    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", fbTitle: "FEEDBACK", fbWriteBtn: "Write feedback", fbOverlayTitle: "Write feedback", fbNamePlaceholder: "Your name", fbMsgPlaceholder: "Write your thoughts about the game...", fbSubmitBtn: "Send", fbLoadFail: "Failed to load feedback", fbNoFeedback: "No feedback yet. Be the first!", fbNameRequired: "Enter your name", fbMsgShort: "Message too short (min 3 chars)", fbSending: "Sending...", fbSent: "Feedback sent! Thanks!", fbShowMore: "Show more", fbShowLess: "Show less", fbComments: "Comments", fbNoComments: "No comments yet", fbWriteComment: "Write a comment...", fbSendComment: "Send", fbReply: "Reply", authSignIn: "Sign In", authEmailBtn: "Sign in with Email", authGoogleBtn: "Sign in with Google", authGithubBtn: "Sign in with GitHub", authEmailTitle: "Email", authEmailSignIn: "Sign In", authEmailRegister: "Register", authSignOut: "Sign Out", authAccount: "Account", authLinkedProviders: "Linked providers", authLinkAnother: "Link another", authNickname: "Nickname", authSave: "Save", authLinkEmail: "Link Email", authLinkEmailBtn: "Link", authEmailPlaceholder: "Email", authPassPlaceholder: "Password", authNickPlaceholder: "Nickname" },
+    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", fbTitle: "ОТЗЫВЫ", fbWriteBtn: "Написать отзыв", fbOverlayTitle: "Написать отзыв", fbNamePlaceholder: "Ваше имя", fbMsgPlaceholder: "Напишите, что вы думаете об игре...", fbSubmitBtn: "Отправить", fbLoadFail: "Не удалось загрузить отзывы", fbNoFeedback: "Пока нет отзывов. Будьте первым!", fbNameRequired: "Введите имя", fbMsgShort: "Слишком короткое сообщение (мин. 3 символа)", fbSending: "Отправка...", fbSent: "Отзыв отправлен! Спасибо!", fbShowMore: "Развернуть", fbShowLess: "Свернуть", fbComments: "Комментарии", fbNoComments: "Пока нет комментариев", fbWriteComment: "Напишите комментарий...", fbSendComment: "Отправить", fbReply: "Ответить", authSignIn: "Войти", authEmailBtn: "Войти через Email", authGoogleBtn: "Войти через Google", authGithubBtn: "Войти через GitHub", authEmailTitle: "Email", authEmailSignIn: "Войти", authEmailRegister: "Регистрация", authSignOut: "Выйти", authAccount: "Аккаунт", authLinkedProviders: "Привязанные провайдеры", authLinkAnother: "Привязать другой", authNickname: "Никнейм", authSave: "Сохранить", authLinkEmail: "Привязать Email", authLinkEmailBtn: "Привязать", authEmailPlaceholder: "Эл. почта", authPassPlaceholder: "Пароль", authNickPlaceholder: "Никнейм" }
 };
 
 let currentLang = 'en';
@@ -882,12 +882,12 @@ function updateFbNameField() {
 async function loadComments(entry) {
 	const docId = entry.dataset.id;
 	const list = entry.querySelector('.fb-comments-list');
-	const countEl = entry.querySelector('.fb-comment-count');
+	const statsBtn = entry.querySelector('.fb-comment-stats');
 	try {
 		const snap = await db.collection(Fb_COLLECTION).doc(docId).collection('comments').orderBy('time', 'asc').limit(20).get();
 		if (snap.empty) {
 			list.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbNoComments}</div>`;
-			countEl.textContent = '0';
+			statsBtn.textContent = '💬 0';
 			return;
 		}
 		let html = '';
@@ -899,7 +899,7 @@ async function loadComments(entry) {
 			count++;
 		});
 		list.innerHTML = html;
-		countEl.textContent = count;
+		statsBtn.textContent = '💬 ' + formatCommentCount(count);
 	} catch (_) {
 		list.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;
 	}
@@ -921,6 +921,15 @@ async function submitComment(entry) {
 		loadComments(entry);
 	} catch (_) {}
 	input.disabled = false;
+}
+
+function formatCommentCount(n) {
+	if (currentLang === 'ru') {
+		if (n % 10 === 1 && n % 100 !== 11) return n + ' ответ';
+		if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return n + ' ответа';
+		return n + ' ответов';
+	}
+	return n + ' ' + (n === 1 ? 'reply' : 'replies');
 }
 
 async function loadFeedback() {
@@ -951,12 +960,15 @@ async function loadFeedback() {
 			const long = msg.length > 100;
 			html += `<div class="fb-entry" data-id="${id}">
 				<div class="fb-text${long ? ' collapsed' : ''}">${msg}</div>
-				${long ? '<button class="fb-expand">Show more</button>' : ''}
+				<div class="fb-expand-row">
+					${long ? '<button class="fb-expand">Show more</button>' : '<span></span>'}
+					<button class="fb-reply-btn">${i18n[currentLang].fbReply}</button>
+				</div>
 				<div class="fb-actions">
 					<button class="fb-like${userVote === 'like' ? ' active' : ''}">👍 <span>${likes}</span></button>
 					<button class="fb-dislike${userVote === 'dislike' ? ' active' : ''}">👎 <span>${dislikes}</span></button>
-					<button class="fb-comment-btn">💬 <span class="fb-comment-count">0</span></button>
 				</div>
+				<button class="fb-comment-stats">💬 0</button>
 				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
 				<div class="fb-comments" style="display:none">
 					<div class="fb-comments-list"></div>
@@ -1016,17 +1028,24 @@ fbList.addEventListener('click', (e) => {
 		voteFeedback(docId, type);
 		return;
 	}
-	const commentBtn = e.target.closest('.fb-comment-btn');
-	if (commentBtn) {
-		const entry = commentBtn.closest('.fb-entry');
+	const replyBtn = e.target.closest('.fb-reply-btn');
+	if (replyBtn) {
+		const entry = replyBtn.closest('.fb-entry');
+		if (!entry) return;
+		const section = entry.querySelector('.fb-comments');
+		section.style.display = '';
+		if (!section.dataset.loaded) { section.dataset.loaded = '1'; loadComments(entry); }
+		entry.querySelector('.fb-comment-input').focus();
+		return;
+	}
+	const statsBtn = e.target.closest('.fb-comment-stats');
+	if (statsBtn) {
+		const entry = statsBtn.closest('.fb-entry');
 		if (!entry) return;
 		const section = entry.querySelector('.fb-comments');
 		if (section.style.display === 'none') {
 			section.style.display = '';
-			if (!section.dataset.loaded) {
-				section.dataset.loaded = '1';
-				loadComments(entry);
-			}
+			if (!section.dataset.loaded) { section.dataset.loaded = '1'; loadComments(entry); }
 		} else {
 			section.style.display = 'none';
 		}
