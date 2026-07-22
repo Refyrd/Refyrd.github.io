@@ -348,8 +348,6 @@ body {
     }
     body.gameplay {
         overflow: hidden;
-        height: 100dvh;
-        min-height: 100dvh;
     }
     .branding {
         margin-bottom: 8px;

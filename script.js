@@ -353,6 +353,9 @@ function syncCanvasSize() {
         gridSize = side / tileCount;
     }
 }
+syncCanvasSize();
+window.addEventListener('resize', syncCanvasSize);
+if (window.visualViewport) window.visualViewport.addEventListener('resize', syncCanvasSize);
 
 sizeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1140,8 +1143,6 @@ function advanceLogic(now) {
 }
 
 function animationLoop(timestamp) {
-    syncCanvasSize();
-
     if (isRunning) {
         advanceLogic(timestamp);
         
@@ -1242,16 +1243,24 @@ function lightenColor(color, amount) {
 
 const tempColorCanvas = document.createElement('canvas');
 const tempColorCtx = tempColorCanvas.getContext('2d');
+let cachedPrimary = '';
+function getPrimary() {
+    if (!cachedPrimary) {
+        const s = getComputedStyle(document.body);
+        cachedPrimary = s.getPropertyValue('--md-sys-color-primary').trim();
+        if (cachedPrimary === '') cachedPrimary = getResolvedColor('var(--md-sys-color-primary)');
+    }
+    return cachedPrimary;
+}
+function clearPrimaryCache() { cachedPrimary = ''; }
+const observer = new MutationObserver(clearPrimaryCache);
+observer.observe(document.body, { attributes: true, attributeFilter: ['data-theme', 'data-color'] });
 
 function drawGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(); 
     
-    const style = getComputedStyle(document.body);
-    let rawPrimary = style.getPropertyValue('--md-sys-color-primary').trim();
-    if (rawPrimary === '') {
-        rawPrimary = getResolvedColor('var(--md-sys-color-primary)');
-    }
+    const rawPrimary = getPrimary();
 
     if (food.x !== undefined) {
         const pulse = 1 + Math.sin(performance.now() / 300) * 0.06;
