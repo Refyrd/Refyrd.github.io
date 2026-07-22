@@ -291,6 +291,22 @@ function applyLanguage() {
     authEmailBack.innerHTML = '&larr; ' + i18n[currentLang].back;
     authLinkEmailBack.innerHTML = '&larr; ' + i18n[currentLang].back;
     document.getElementById('lbStatusText').textContent = i18n[currentLang].connecting;
+    // Update existing DOM elements with new language
+    document.querySelectorAll('.fb-expand').forEach(el => {
+        const entry = el.closest('.fb-entry');
+        if (entry) {
+            const textEl = entry.querySelector('.fb-text');
+            el.textContent = textEl && textEl.classList.contains('expanded') ? i18n[currentLang].fbShowLess : i18n[currentLang].fbShowMore;
+        }
+    });
+    document.querySelectorAll('.fb-reply-btn').forEach(el => el.textContent = i18n[currentLang].fbReply);
+    document.querySelectorAll('.lb-entry .lb-name').forEach(el => {
+        if (el.textContent === 'Anonymous' || el.textContent === 'Аноним') el.textContent = i18n[currentLang].anonymous;
+    });
+    document.querySelectorAll('.fb-comment-stats').forEach(el => {
+        const n = parseInt(el.dataset.count) || 0;
+        el.textContent = formatCommentCount(n);
+    });
     
     updateHighScoreDisplay();
 }
@@ -1227,11 +1243,14 @@ document.addEventListener('keydown', (e) => {
 	}
 });
 
+const _votingLock = {};
 async function voteFeedback(docId, type) {
 	const voteKey = authUid;
 	if (!voteKey) return;
+	if (_votingLock[docId]) return;
+	_votingLock[docId] = true;
 	const entry = document.querySelector(`.fb-entry[data-id="${docId}"]`);
-	if (!entry) return;
+	if (!entry) { _votingLock[docId] = false; return; }
 	const likeBtn = entry.querySelector('.fb-like');
 	const dislikeBtn = entry.querySelector('.fb-dislike');
 	const likeCount = likeBtn.querySelector('span');
@@ -1250,48 +1269,43 @@ async function voteFeedback(docId, type) {
 		else { dislikeBtn.classList.add('active'); dislikeCount.textContent = prevDislikes + 1;
 			if (wasLiked) { likeBtn.classList.remove('active'); likeCount.textContent = prevLikes - 1; } }
 	}
-	// Update localStorage cache
-	const newVote = (wasLiked && type === 'like') || (wasDisliked && type === 'dislike') ? '' : type;
-	try {
-		const cache = JSON.parse(localStorage.getItem('fbVotes') || '{}');
-		if (newVote) cache[docId] = newVote; else delete cache[docId];
-		localStorage.setItem('fbVotes', JSON.stringify(cache));
-	} catch (_) {}
-	// Firestore write in background
 	const ref = db.collection(Fb_COLLECTION).doc(docId);
 	const voteRef = ref.collection('votes').doc(voteKey);
 	try {
-		const [fbDoc, voteDoc] = await Promise.all([ref.get(), voteRef.get()]);
-		if (!fbDoc.exists) return;
+		const voteDoc = await voteRef.get();
 		const existingType = voteDoc.exists ? voteDoc.data().type : '';
 		const batch = db.batch();
 		if (existingType === type) {
 			batch.delete(voteRef);
-			batch.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
+			batch.update(ref, { [type + 's']: firebase.firestore.FieldValue.increment(-1) });
 		} else {
 			batch.set(voteRef, {
 				userId: voteKey, type, feedbackId: docId,
 				timestamp: firebase.firestore.FieldValue.serverTimestamp()
 			});
-			if (existingType) batch.update(ref, { [existingType === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
-			batch.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(1) });
+			if (existingType) batch.update(ref, { [existingType + 's']: firebase.firestore.FieldValue.increment(-1) });
+			batch.update(ref, { [type + 's']: firebase.firestore.FieldValue.increment(1) });
 		}
 		await batch.commit();
-		// Update cache with confirmed state
-		try {
-			const cache = JSON.parse(localStorage.getItem('fbVotes') || '{}');
-			if (existingType === type) delete cache[docId];
-			else cache[docId] = type;
-			localStorage.setItem('fbVotes', JSON.stringify(cache));
-		} catch (_) {}
+		// Sync localStorage with confirmed Firestore state
+		const cache = JSON.parse(localStorage.getItem('fbVotes') || '{}');
+		if (existingType === type) delete cache[docId];
+		else cache[docId] = type;
+		localStorage.setItem('fbVotes', JSON.stringify(cache));
 	} catch (e) {
 		// Revert UI on failure
 		likeBtn.classList.toggle('active', wasLiked);
 		dislikeBtn.classList.toggle('active', wasDisliked);
 		likeCount.textContent = prevLikes;
 		dislikeCount.textContent = prevDislikes;
-		console.warn('Vote error:', e);
+		// Revert localStorage
+		const cache = JSON.parse(localStorage.getItem('fbVotes') || '{}');
+		if (wasLiked) cache[docId] = 'like';
+		else if (wasDisliked) cache[docId] = 'dislike';
+		else delete cache[docId];
+		localStorage.setItem('fbVotes', JSON.stringify(cache));
 	}
+	_votingLock[docId] = false;
 }
 
 loadFeedback();
