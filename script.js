@@ -20,7 +20,7 @@ const i18n = {
         fillAllFields: "Fill in all fields", signingIn: "Signing in...", creatingAccount: "Creating account...",
         invalidNickname: "Invalid nickname", cantChangeUntil: "Can't change until ",
         accountExists: "Email already registered. Sign in with ", accountExistsFallback: "An account with this email already exists. Try a different sign-in method.",
-        signInTooltip: "Sign in" },
+        signInTooltip: "Sign in", nicknamePlaceholder: "Nickname", pageTitle: "RefyrdSnake", fbReplyOne: "reply", fbReplyFew: "replies", githubLink: "GitHub" },
     ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", fbTitle: "ОТЗЫВЫ", fbWriteBtn: "Написать отзыв", fbOverlayTitle: "Написать отзыв", fbNamePlaceholder: "Ваше имя", fbMsgPlaceholder: "Напишите, что вы думаете об игре...", fbSubmitBtn: "Отправить", fbLoadFail: "Не удалось загрузить отзывы", fbNoFeedback: "Пока нет отзывов. Будьте первым!", fbNameRequired: "Введите имя", fbMsgShort: "Слишком короткое сообщение (мин. 3 символа)", fbSending: "Отправка...", fbSent: "Отзыв отправлен! Спасибо!", fbShowMore: "Развернуть", fbShowLess: "Свернуть", fbComments: "Комментарии", fbNoComments: "Пока нет комментариев", fbWriteComment: "Напишите комментарий...", fbSendComment: "Отправить", fbReply: "Ответить", authSignIn: "Войти", authEmailBtn: "Войти через Email", authGoogleBtn: "Войти через Google", authGithubBtn: "Войти через GitHub", authEmailTitle: "Email", authEmailSignIn: "Войти", authEmailRegister: "Регистрация", authSignOut: "Выйти", authAccount: "Аккаунт", authLinkedProviders: "Привязанные провайдеры", authLinkAnother: "Привязать другой", authNickname: "Никнейм", authSave: "Сохранить", authLinkEmail: "Привязать Email", authLinkEmailBtn: "Привязать", authEmailPlaceholder: "Эл. почта", authPassPlaceholder: "Пароль", authNickPlaceholder: "Никнейм",
         anonymous: "Аноним", online: "Онлайн", connecting: "Подключение...", errorPrefix: "Ошибка: ", or: "или", back: "Назад", devMode: "ДЕВ РЕЖИМ",
         providerGoogle: "Google", providerGithub: "GitHub", providerEmail: "Email", providerEmailPassword: "Email+Пароль",
@@ -30,7 +30,7 @@ const i18n = {
         fillAllFields: "Заполните все поля", signingIn: "Вход...", creatingAccount: "Создание аккаунта...",
         invalidNickname: "Недопустимый никнейм", cantChangeUntil: "Нельзя сменить до ",
         accountExists: "Email уже зарегистрирован. Войдите через ", accountExistsFallback: "Аккаунт с таким email уже существует. Попробуйте другой способ входа.",
-        signInTooltip: "Войти" }
+        signInTooltip: "Войти", nicknamePlaceholder: "Никнейм", pageTitle: "RefyrdSnake", fbReplyOne: "ответ", fbReplyFew: "ответов", githubLink: "GitHub" }
 };
 
 let currentLang = 'en';
@@ -307,6 +307,9 @@ function applyLanguage() {
         const n = parseInt(el.dataset.count) || 0;
         el.textContent = formatCommentCount(n);
     });
+    document.getElementById('accNickInput').placeholder = i18n[currentLang].nicknamePlaceholder;
+    document.title = i18n[currentLang].pageTitle;
+    document.querySelector('.header-github').textContent = i18n[currentLang].githubLink || 'GitHub';
     
     updateHighScoreDisplay();
 }
@@ -642,7 +645,7 @@ function loadNicknameFromFirestore() {
 		}
 		const remaining = (doc.exists ? (doc.data().nicknameLastChange || 0) : 0) + NICK_COOLDOWN - Date.now();
 		if (remaining > 0) {
-			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(new Date(Date.now() + remaining))}`;
+			accNickStatus.textContent = i18n[currentLang].cantChangeUntil + formatCooldownUntil(new Date(Date.now() + remaining));
 			accNickStatus.style.color = '';
 			accNickSave.disabled = accNickInput.disabled = true;
 			if (lockIcon) lockIcon.style.display = '';
@@ -1019,7 +1022,7 @@ function formatCommentCount(n) {
 		if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return n + ' ответа';
 		return n + ' ответов';
 	}
-	return n + ' ' + (n === 1 ? 'reply' : 'replies');
+	return n + ' ' + (n === 1 ? i18n[currentLang].fbReplyOne : i18n[currentLang].fbReplyFew);
 }
 
 async function deleteComment(entry, cid) {
@@ -1153,6 +1156,14 @@ async function loadFeedback() {
 			});
 			// Update cache
 			try { localStorage.setItem('fbVotes', JSON.stringify(fbVotes)); } catch (_) {}
+		}
+		// Lock feedback panel height like leaderboard
+		if (!window._fbHeightFixed) {
+			const fp = document.getElementById('feedbackPanel');
+			if (fp && fp.offsetHeight > 0) {
+				window._fbHeightFixed = true;
+				fp.style.height = Math.min(fp.offsetHeight, window.innerHeight * 0.75) + 'px';
+			}
 		}
 	} catch (e) {
 		fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;

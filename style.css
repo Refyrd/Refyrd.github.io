@@ -223,11 +223,11 @@ body {
     margin-top: 8px;
 }
 .fb-entry {
-    padding: 8px 10px;
-    border-radius: 10px;
+    padding: 6px 8px;
+    border-radius: 8px;
     background-color: var(--md-sys-color-surface);
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: 13px;
+    line-height: 1.35;
 }
 .fb-entry .fb-name { font-weight: 700; font-size: 11px; opacity: 0.7; margin-bottom: 3px; }
 .fb-entry .fb-text { word-break: break-word; font-size: 12px; }
