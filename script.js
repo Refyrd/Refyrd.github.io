@@ -878,14 +878,34 @@ async function loadFeedback() {
 			fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbNoFeedback}</div>`;
 			return;
 		}
+		let voteKey = authUid;
+		if (!voteKey) {
+			voteKey = localStorage.getItem('anonVoteId');
+			if (!voteKey) {
+				voteKey = 'anon_' + Math.random().toString(36).slice(2, 10);
+				localStorage.setItem('anonVoteId', voteKey);
+			}
+		}
 		let html = '';
 		snap.forEach(doc => {
 			const d = doc.data();
+			const id = doc.id;
 			const time = d.time ? new Date(d.time.seconds * 1000).toLocaleDateString() : '';
-			html += `<div class="fb-entry">
-				<div class="fb-name">${escapeHtml(d.name || 'Anonymous')}</div>
-				<div class="fb-text">${escapeHtml(d.message)}</div>
-				<div class="fb-time">${time}</div>
+			const voters = d.voters || {};
+			const userVote = voters[voteKey] || '';
+			const likes = d.likes || 0;
+			const dislikes = d.dislikes || 0;
+			const msg = escapeHtml(d.message);
+			const long = msg.length > 100;
+			const shortMsg = long ? msg.slice(0, 97) + '...' : msg;
+			html += `<div class="fb-entry" data-id="${id}">
+				<div class="fb-text${long ? ' collapsed' : ''}">${long ? shortMsg : msg}</div>
+				${long ? `<button class="fb-expand" onclick="var t=this.previousElementSibling;t.classList.toggle('expanded');this.textContent=t.classList.contains('expanded')?'Show less':'Show more'">Show more</button>` : ''}
+				<div class="fb-actions">
+					<button class="fb-like${userVote === 'like' ? ' active' : ''}" onclick="voteFeedback('${id}','like')">👍 <span>${likes}</span></button>
+					<button class="fb-dislike${userVote === 'dislike' ? ' active' : ''}" onclick="voteFeedback('${id}','dislike')">👎 <span>${dislikes}</span></button>
+				</div>
+				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
 			</div>`;
 		});
 		fbList.innerHTML = html;
@@ -893,6 +913,35 @@ async function loadFeedback() {
 		fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;
 	}
 }
+
+async function voteFeedback(docId, type) {
+	const voteKey = authUid || localStorage.getItem('anonVoteId');
+	if (!voteKey) return;
+	const ref = db.collection(Fb_COLLECTION).doc(docId);
+	try {
+		await db.runTransaction(async t => {
+			const doc = await t.get(ref);
+			if (!doc.exists) return;
+			const data = doc.data();
+			const voters = data.voters || {};
+			const prev = voters[voteKey] || '';
+			let likes = data.likes || 0;
+			let dislikes = data.dislikes || 0;
+			if (prev === type) {
+				if (type === 'like') likes--; else dislikes--;
+				voters[voteKey] = '';
+			} else {
+				if (prev === 'like') likes--;
+				else if (prev === 'dislike') dislikes--;
+				if (type === 'like') likes++; else dislikes++;
+				voters[voteKey] = type;
+			}
+			t.update(ref, { likes, dislikes, voters });
+		});
+		loadFeedback();
+	} catch (e) { console.warn('Vote error:', e); }
+}
+
 loadFeedback();
 
 fbWriteBtn.addEventListener('click', () => {
