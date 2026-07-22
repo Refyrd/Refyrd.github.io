@@ -748,6 +748,7 @@ auth.onAuthStateChanged(user => {
         authUid = user.uid;
         loadLeaderboard();
         syncBestScoreFromServer();
+        loadFeedback();
     } else {
         authUser = null;
         authUid = null;
