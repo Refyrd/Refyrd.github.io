@@ -195,14 +195,21 @@ const profanityEn = [
     'hate', 'h4te',
 ];
 
-const profanityAll = [...profanityRu, ...profanityEn];
+const _profSet = new Set([...profanityRu, ...profanityEn].map(w => w.toLowerCase()));
+const _cleanToken = s => s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').toLowerCase();
 
-function containsProfanity(text) {
-    const lower = text.toLowerCase();
-    for (const word of profanityAll) {
-        if (lower.includes(word)) return true;
-    }
-    return false;
+function hasProfanity(text) {
+  return text.split(/\s+/).some(t => {
+    const w = _cleanToken(t);
+    return w.length > 0 && _profSet.has(w);
+  });
+}
+
+function censorProfanity(text, replacement = '***') {
+  return text.replace(/\S+/g, t => {
+    const w = _cleanToken(t);
+    return w.length > 0 && _profSet.has(w) ? replacement : t;
+  });
 }
 
 function sanitizeName(raw) {
@@ -216,7 +223,7 @@ function sanitizeName(raw) {
 function isValidName(val) {
     if (!val || val.length < 2) return false;
     if (val.length > 16) return false;
-    if (containsProfanity(val)) return false;
+    if (hasProfanity(val)) return false;
     return true;
 }
 const cookieLang = getCookie('snakeLang');
