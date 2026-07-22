@@ -897,11 +897,11 @@ async function loadFeedback() {
 		const feedbackIds = [];
 		snap.forEach(doc => feedbackIds.push(doc.id));
 		const userVotes = {};
-		const voteSnaps = await Promise.all(
+		const voteResults = await Promise.allSettled(
 			feedbackIds.map(id => db.collection(Fb_COLLECTION).doc(id).collection('votes').doc(voteKey).get())
 		);
-		voteSnaps.forEach((vs, i) => {
-			if (vs.exists) userVotes[feedbackIds[i]] = vs.data().type;
+		voteResults.forEach((r, i) => {
+			if (r.status === 'fulfilled' && r.value.exists) userVotes[feedbackIds[i]] = r.value.data().type;
 		});
 		let html = '';
 		snap.forEach(doc => {
