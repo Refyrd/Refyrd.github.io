@@ -11,8 +11,26 @@ function getCookie(name) {
 
 // === ЛОКАЛИЗАЦИЯ ===
 const i18n = {
-    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", fbTitle: "FEEDBACK", fbWriteBtn: "Write feedback", fbOverlayTitle: "Write feedback", fbNamePlaceholder: "Your name", fbMsgPlaceholder: "Write your thoughts about the game...", fbSubmitBtn: "Send", fbLoadFail: "Failed to load feedback", fbNoFeedback: "No feedback yet. Be the first!", fbNameRequired: "Enter your name", fbMsgShort: "Message too short (min 3 chars)", fbSending: "Sending...", fbSent: "Feedback sent! Thanks!", fbShowMore: "Show more", fbShowLess: "Show less", fbComments: "Comments", fbNoComments: "No comments yet", fbWriteComment: "Write a comment...", fbSendComment: "Send", fbReply: "Reply", authSignIn: "Sign In", authEmailBtn: "Sign in with Email", authGoogleBtn: "Sign in with Google", authGithubBtn: "Sign in with GitHub", authEmailTitle: "Email", authEmailSignIn: "Sign In", authEmailRegister: "Register", authSignOut: "Sign Out", authAccount: "Account", authLinkedProviders: "Linked providers", authLinkAnother: "Link another", authNickname: "Nickname", authSave: "Save", authLinkEmail: "Link Email", authLinkEmailBtn: "Link", authEmailPlaceholder: "Email", authPassPlaceholder: "Password", authNickPlaceholder: "Nickname" },
-    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", fbTitle: "ОТЗЫВЫ", fbWriteBtn: "Написать отзыв", fbOverlayTitle: "Написать отзыв", fbNamePlaceholder: "Ваше имя", fbMsgPlaceholder: "Напишите, что вы думаете об игре...", fbSubmitBtn: "Отправить", fbLoadFail: "Не удалось загрузить отзывы", fbNoFeedback: "Пока нет отзывов. Будьте первым!", fbNameRequired: "Введите имя", fbMsgShort: "Слишком короткое сообщение (мин. 3 символа)", fbSending: "Отправка...", fbSent: "Отзыв отправлен! Спасибо!", fbShowMore: "Развернуть", fbShowLess: "Свернуть", fbComments: "Комментарии", fbNoComments: "Пока нет комментариев", fbWriteComment: "Напишите комментарий...", fbSendComment: "Отправить", fbReply: "Ответить", authSignIn: "Войти", authEmailBtn: "Войти через Email", authGoogleBtn: "Войти через Google", authGithubBtn: "Войти через GitHub", authEmailTitle: "Email", authEmailSignIn: "Войти", authEmailRegister: "Регистрация", authSignOut: "Выйти", authAccount: "Аккаунт", authLinkedProviders: "Привязанные провайдеры", authLinkAnother: "Привязать другой", authNickname: "Никнейм", authSave: "Сохранить", authLinkEmail: "Привязать Email", authLinkEmailBtn: "Привязать", authEmailPlaceholder: "Эл. почта", authPassPlaceholder: "Пароль", authNickPlaceholder: "Никнейм" }
+    en: { scoreTitle: "SCORE", mainTitle: "SNAKE", bestScore: "Best score: ", lastScore: "Last score: ", placeholder: "Your nickname", playBtn: "Play", gameOverTitle: "Game Over", finalScoreText: "Score: ", restartBtn: "Restart", menuBtn: "Menu", lbTitle: "LEADERBOARD", devTitle: "DEV", devConfetti: "Confetti", devGlow: "Glow", devAddScore: "+10 Score", devFill: "Fill Snake", devClose: "Close", lbNoScores: "No scores yet", lbLoading: "Loading...", lbOffline: "Offline", lbShowAll: "Show all", lbShowTop: "Show top 10", fbTitle: "FEEDBACK", fbWriteBtn: "Write feedback", fbOverlayTitle: "Write feedback", fbNamePlaceholder: "Your name", fbMsgPlaceholder: "Write your thoughts about the game...", fbSubmitBtn: "Send", fbLoadFail: "Failed to load feedback", fbNoFeedback: "No feedback yet. Be the first!", fbNameRequired: "Enter your name", fbMsgShort: "Message too short (min 3 chars)", fbSending: "Sending...", fbSent: "Feedback sent! Thanks!", fbShowMore: "Show more", fbShowLess: "Show less", fbComments: "Comments", fbNoComments: "No comments yet", fbWriteComment: "Write a comment...", fbSendComment: "Send", fbReply: "Reply", authSignIn: "Sign In", authEmailBtn: "Sign in with Email", authGoogleBtn: "Sign in with Google", authGithubBtn: "Sign in with GitHub", authEmailTitle: "Email", authEmailSignIn: "Sign In", authEmailRegister: "Register", authSignOut: "Sign Out", authAccount: "Account", authLinkedProviders: "Linked providers", authLinkAnother: "Link another", authNickname: "Nickname", authSave: "Save", authLinkEmail: "Link Email", authLinkEmailBtn: "Link", authEmailPlaceholder: "Email", authPassPlaceholder: "Password", authNickPlaceholder: "Nickname",
+        anonymous: "Anonymous", online: "Online", connecting: "Connecting...", errorPrefix: "Error: ", or: "or", back: "Back", devMode: "DEV MODE",
+        providerGoogle: "Google", providerGithub: "GitHub", providerEmail: "Email", providerEmailPassword: "Email+Password",
+        loggedIn: "Logged in", notLoggedIn: "Not logged in", linked: " linked!", alreadyLinked: "This account is already linked to another user.",
+        fillEmailPass: "Fill in email and password", passMin6: "Password must be at least 6 characters", linking: "Linking...",
+        emailLinked: "Email linked!", emailLinkedSuccess: "Email linked successfully!", emailAlreadyLinked: "This email is already linked to another user.",
+        fillAllFields: "Fill in all fields", signingIn: "Signing in...", creatingAccount: "Creating account...",
+        invalidNickname: "Invalid nickname", cantChangeUntil: "Can't change until ",
+        accountExists: "Email already registered. Sign in with ", accountExistsFallback: "An account with this email already exists. Try a different sign-in method.",
+        signInTooltip: "Sign in" },
+    ru: { scoreTitle: "СЧЕТ", mainTitle: "ЗМЕЙКА", bestScore: "Лучший счет: ", lastScore: "Последний счет: ", placeholder: "Твой никнейм", playBtn: "Играть", gameOverTitle: "Конец игры", finalScoreText: "Счет: ", restartBtn: "Начать заново", menuBtn: "В меню", lbTitle: "ТАБЛИЦА", devTitle: "ДЕВ", devConfetti: "Конфетти", devGlow: "Свечение", devAddScore: "+10 очков", devFill: "Длинная змейка", devClose: "Закрыть", lbNoScores: "Пока нет результатов", lbLoading: "Загрузка...", lbOffline: "Офлайн", lbShowAll: "Все", lbShowTop: "Топ 10", fbTitle: "ОТЗЫВЫ", fbWriteBtn: "Написать отзыв", fbOverlayTitle: "Написать отзыв", fbNamePlaceholder: "Ваше имя", fbMsgPlaceholder: "Напишите, что вы думаете об игре...", fbSubmitBtn: "Отправить", fbLoadFail: "Не удалось загрузить отзывы", fbNoFeedback: "Пока нет отзывов. Будьте первым!", fbNameRequired: "Введите имя", fbMsgShort: "Слишком короткое сообщение (мин. 3 символа)", fbSending: "Отправка...", fbSent: "Отзыв отправлен! Спасибо!", fbShowMore: "Развернуть", fbShowLess: "Свернуть", fbComments: "Комментарии", fbNoComments: "Пока нет комментариев", fbWriteComment: "Напишите комментарий...", fbSendComment: "Отправить", fbReply: "Ответить", authSignIn: "Войти", authEmailBtn: "Войти через Email", authGoogleBtn: "Войти через Google", authGithubBtn: "Войти через GitHub", authEmailTitle: "Email", authEmailSignIn: "Войти", authEmailRegister: "Регистрация", authSignOut: "Выйти", authAccount: "Аккаунт", authLinkedProviders: "Привязанные провайдеры", authLinkAnother: "Привязать другой", authNickname: "Никнейм", authSave: "Сохранить", authLinkEmail: "Привязать Email", authLinkEmailBtn: "Привязать", authEmailPlaceholder: "Эл. почта", authPassPlaceholder: "Пароль", authNickPlaceholder: "Никнейм",
+        anonymous: "Аноним", online: "Онлайн", connecting: "Подключение...", errorPrefix: "Ошибка: ", or: "или", back: "Назад", devMode: "ДЕВ РЕЖИМ",
+        providerGoogle: "Google", providerGithub: "GitHub", providerEmail: "Email", providerEmailPassword: "Email+Пароль",
+        loggedIn: "Вошли", notLoggedIn: "Не вошли", linked: " привязан!", alreadyLinked: "Этот аккаунт уже привязан к другому пользователю.",
+        fillEmailPass: "Заполните email и пароль", passMin6: "Пароль должен быть минимум 6 символов", linking: "Привязка...",
+        emailLinked: "Email привязан!", emailLinkedSuccess: "Email успешно привязан!", emailAlreadyLinked: "Этот email уже привязан к другому пользователю.",
+        fillAllFields: "Заполните все поля", signingIn: "Вход...", creatingAccount: "Создание аккаунта...",
+        invalidNickname: "Недопустимый никнейм", cantChangeUntil: "Нельзя сменить до ",
+        accountExists: "Email уже зарегистрирован. Войдите через ", accountExistsFallback: "Аккаунт с таким email уже существует. Попробуйте другой способ входа.",
+        signInTooltip: "Войти" }
 };
 
 let currentLang = 'en';
@@ -233,7 +251,7 @@ function applyLanguage() {
     document.getElementById('uiDevFill').innerText = i18n[currentLang].devFill;
     document.getElementById('uiDevClose').innerText = i18n[currentLang].devClose;
     if (playerNameInput.disabled) {
-        playerNameInput.placeholder = currentLang === 'en' ? 'DEV MODE' : 'ДЕВ РЕЖИМ';
+        playerNameInput.placeholder = i18n[currentLang].devMode;
     }
     
     const lbLoading = document.getElementById('lbLoadingText');
@@ -267,6 +285,12 @@ function applyLanguage() {
     document.getElementById('authLinkPassword').placeholder = i18n[currentLang].authPassPlaceholder;
     document.querySelector('#authLinkEmailView .auth-title').innerText = i18n[currentLang].authLinkEmail;
     authLinkEmailLink.innerText = i18n[currentLang].authLinkEmailBtn;
+    authBtn.title = i18n[currentLang].signInTooltip;
+    const authDivider = document.querySelector('.auth-divider span');
+    if (authDivider) authDivider.textContent = i18n[currentLang].or;
+    authEmailBack.innerHTML = '&larr; ' + i18n[currentLang].back;
+    authLinkEmailBack.innerHTML = '&larr; ' + i18n[currentLang].back;
+    document.getElementById('lbStatusText').textContent = i18n[currentLang].connecting;
     
     updateHighScoreDisplay();
 }
@@ -447,15 +471,16 @@ authEmailBack.addEventListener('click', hideEmailView);
 function renderProviders() {
     if (!authUser || authUser.isAnonymous) return;
     const methods = authUser.providerData.map(p => p.providerId);
+    const provLabel = { 'google.com': i18n[currentLang].providerGoogle, 'github.com': i18n[currentLang].providerGithub, 'password': i18n[currentLang].providerEmail };
     accProviders.innerHTML = methods.map(id => {
-        const label = { 'google.com': 'Google', 'github.com': 'GitHub', 'password': 'Email' }[id] || id;
-        return `<span class="auth-prov-btn badge">${label}</span>`;
+        return `<span class="auth-prov-btn badge">${provLabel[id] || id}</span>`;
     }).join('');
     const used = new Set(methods);
     providerBtns.forEach(btn => {
         const prov = btn.dataset.prov;
         const target = prov === 'password' ? 'password' : prov + '.com';
-        const label = prov === 'password' ? 'Email' : prov.charAt(0).toUpperCase() + prov.slice(1);
+        const labels = { google: i18n[currentLang].providerGoogle, github: i18n[currentLang].providerGithub, password: i18n[currentLang].providerEmail };
+        const label = labels[prov] || prov;
         btn.disabled = used.has(target);
         btn.textContent = used.has(target) ? label : '+ ' + label;
     });
@@ -465,7 +490,7 @@ function updateAuthUI() {
     if (authUser && !authUser.isAnonymous) {
         authBtn.textContent = '✓';
         authBtn.style.color = 'var(--md-sys-color-primary)';
-        accEmail.textContent = authUser.email || authUser.displayName || 'Logged in';
+        accEmail.textContent = authUser.email || authUser.displayName || i18n[currentLang].loggedIn;
         authMainView.style.display = 'none';
         authEmailView.style.display = 'none';
         authAccountView.style.display = 'flex';
@@ -495,7 +520,7 @@ function upgradeFromAnonymous(action) {
             if (u && !u.isAnonymous) {
                 if (s > 0) {
                     db.collection(LEADERBOARD_COLLECTION).doc(u.uid).set({
-                        name: savedName && isValidName(savedName) ? savedName : 'Anonymous',
+                        name: savedName && isValidName(savedName) ? savedName : i18n[currentLang].anonymous,
                         score: s
                     }, { merge: true });
                 }
@@ -527,16 +552,17 @@ providerBtns.forEach(btn => {
 		const user = auth.currentUser;
 		if (!user) return;
 
-		function handleLink(promise) {
-			promise.then(() => {
-				authUser = auth.currentUser;
-				renderProviders();
-				accNickStatus.textContent = prov.charAt(0).toUpperCase() + prov.slice(1) + ' linked!';
-				accNickStatus.style.color = 'var(--md-sys-color-primary)';
-			}).catch(e => {
-				accNickStatus.textContent = e.code === 'auth/credential-already-in-use' ? 'This account is already linked to another user.' : e.message;
-				accNickStatus.style.color = 'var(--md-sys-color-error)';
-			});
+			function handleLink(promise) {
+				const pLabel = { google: i18n[currentLang].providerGoogle, github: i18n[currentLang].providerGithub }[prov] || prov;
+				promise.then(() => {
+					authUser = auth.currentUser;
+					renderProviders();
+					accNickStatus.textContent = pLabel + i18n[currentLang].linked;
+					accNickStatus.style.color = 'var(--md-sys-color-primary)';
+				}).catch(e => {
+					accNickStatus.textContent = e.code === 'auth/credential-already-in-use' ? i18n[currentLang].alreadyLinked : e.message;
+					accNickStatus.style.color = 'var(--md-sys-color-error)';
+				});
 		}
 
 		if (prov === 'google') {
@@ -557,23 +583,23 @@ const authLinkEmailStat = document.getElementById('authLinkEmailStatus');
 authLinkEmailBack.addEventListener('click', () => toggleAccView(false));
 
 authLinkEmailLink.addEventListener('click', () => {
-	if (!authUser || authUser.isAnonymous) { authLinkEmailStat.textContent = i18n[currentLang].authSignIn || 'Not logged in'; return; }
+	if (!authUser || authUser.isAnonymous) { authLinkEmailStat.textContent = i18n[currentLang].notLoggedIn; return; }
 	const email = authLinkEmailInput.value.trim();
 	const pass = authLinkPassInput.value;
-	if (!email || !pass) { authLinkEmailStat.textContent = 'Fill in email and password'; return; }
-	if (pass.length < 6) { authLinkEmailStat.textContent = 'Password must be at least 6 characters'; return; }
-	authLinkEmailStat.textContent = 'Linking...';
+	if (!email || !pass) { authLinkEmailStat.textContent = i18n[currentLang].fillEmailPass; return; }
+	if (pass.length < 6) { authLinkEmailStat.textContent = i18n[currentLang].passMin6; return; }
+	authLinkEmailStat.textContent = i18n[currentLang].linking;
 	authLinkEmailStat.style.color = '';
 	auth.currentUser.linkWithCredential(firebase.auth.EmailAuthProvider.credential(email, pass)).then(() => {
 		authUser = auth.currentUser;
 		renderProviders();
-		accNickStatus.textContent = 'Email linked!';
+		accNickStatus.textContent = i18n[currentLang].emailLinked;
 		accNickStatus.style.color = 'var(--md-sys-color-primary)';
-		authLinkEmailStat.textContent = 'Email linked successfully!';
+		authLinkEmailStat.textContent = i18n[currentLang].emailLinkedSuccess;
 		authLinkEmailStat.style.color = 'var(--md-sys-color-primary)';
 		authLinkEmailBack.click();
 	}).catch(e => {
-		authLinkEmailStat.textContent = e.code === 'auth/credential-already-in-use' ? 'This email is already linked to another user.' : e.message;
+		authLinkEmailStat.textContent = e.code === 'auth/credential-already-in-use' ? i18n[currentLang].emailAlreadyLinked : e.message;
 		authLinkEmailStat.style.color = 'var(--md-sys-color-error)';
 	});
 });
@@ -618,13 +644,13 @@ function loadNicknameFromFirestore() {
 accNickSave.addEventListener('click', () => {
 	if (!authUser || authUser.isAnonymous) return;
 	const nick = sanitizeName(accNickInput.value.trim());
-	if (!isValidName(nick)) { accNickStatus.textContent = 'Invalid nickname'; accNickStatus.style.color = 'var(--md-sys-color-error)'; return; }
+	if (!isValidName(nick)) { accNickStatus.textContent = i18n[currentLang].invalidNickname; accNickStatus.style.color = 'var(--md-sys-color-error)'; return; }
 	const lockIcon = document.getElementById('accNickLock');
 	const userRef = db.collection('users').doc(authUser.uid);
 	userRef.get().then(doc => {
 		const lastChange = doc.exists ? (doc.data().nicknameLastChange || 0) : 0;
 		if (Date.now() - lastChange < NICK_COOLDOWN) {
-			accNickStatus.textContent = `Can't change until ${formatCooldownUntil(new Date(lastChange + NICK_COOLDOWN))}`;
+			accNickStatus.textContent = i18n[currentLang].cantChangeUntil + formatCooldownUntil(new Date(lastChange + NICK_COOLDOWN));
 			accNickStatus.style.color = '';
 			return;
 		}
@@ -633,12 +659,12 @@ accNickSave.addEventListener('click', () => {
 			savedName = nick;
 			setCookie('snakeNick', savedName);
 			playerNameInput.value = savedName;
-			const msg = `Can't change until ${formatCooldownUntil(new Date(now + NICK_COOLDOWN))}`;
+			const msg = i18n[currentLang].cantChangeUntil + formatCooldownUntil(new Date(now + NICK_COOLDOWN));
 			accNickStatus.textContent = msg;
 			accNickStatus.style.color = '';
 			accNickSave.disabled = accNickInput.disabled = true;
 			if (lockIcon) lockIcon.style.display = '';
-			if (authUid) db.collection(LEADERBOARD_COLLECTION).doc(authUid).set({ name: savedName && isValidName(savedName) ? savedName : 'Anonymous' }, { merge: true });
+			if (authUid) db.collection(LEADERBOARD_COLLECTION).doc(authUid).set({ name: savedName && isValidName(savedName) ? savedName : i18n[currentLang].anonymous }, { merge: true });
 		}).catch(e => {
 			accNickStatus.textContent = e.message;
 			accNickStatus.style.color = 'var(--md-sys-color-error)';
@@ -677,8 +703,8 @@ authRegNick.addEventListener('input', () => { authRegNick.value = sanitizeName(a
 authEmailSignIn.addEventListener('click', () => {
     const email = authEmail.value.trim();
     const pass = authPassword.value;
-    if (!email || !pass) { showStatus(authEmailStatus,'Fill in all fields', true); return; }
-    showStatus(authEmailStatus,'Signing in...', false);
+    if (!email || !pass) { showStatus(authEmailStatus,i18n[currentLang].fillAllFields, true); return; }
+    showStatus(authEmailStatus,i18n[currentLang].signingIn, false);
     upgradeFromAnonymous(() => auth.signInWithEmailAndPassword(email, pass))
         .then(() => { authOverlay.classList.remove('active'); clearStatus(authEmailStatus); })
         .catch(e => showStatus(authEmailStatus,e.message, true));
@@ -689,14 +715,14 @@ authEmailRegister.addEventListener('click', () => {
     const email = authEmail.value.trim();
     const pass = authPassword.value;
     const nick = sanitizeName(authRegNick.value.trim());
-    if (!email || !pass) { showStatus(authEmailStatus,'Fill in all fields', true); return; }
-    if (pass.length < 6) { showStatus(authEmailStatus,'Password must be at least 6 characters', true); return; }
+    if (!email || !pass) { showStatus(authEmailStatus,i18n[currentLang].fillAllFields, true); return; }
+    if (pass.length < 6) { showStatus(authEmailStatus,i18n[currentLang].passMin6, true); return; }
     if (nick && isValidName(nick)) {
         savedName = nick;
         setCookie('snakeNick', savedName);
         playerNameInput.value = savedName;
     }
-    showStatus(authEmailStatus,'Creating account...', false);
+    showStatus(authEmailStatus,i18n[currentLang].creatingAccount, false);
     upgradeFromAnonymous(() => auth.createUserWithEmailAndPassword(email, pass))
         .then(() => { authOverlay.classList.remove('active'); clearStatus(authEmailStatus); })
         .catch(e => showStatus(authEmailStatus,e.message, true));
@@ -704,18 +730,18 @@ authEmailRegister.addEventListener('click', () => {
 
 // === SOCIAL AUTH ===
 function handleSocialAuth(provider) {
-	showStatus(authStatus, 'Signing in...', false);
+	showStatus(authStatus, i18n[currentLang].signingIn, false);
 	upgradeFromAnonymous(() => auth.signInWithPopup(provider))
 		.then(() => { authOverlay.classList.remove('active'); clearStatus(authStatus); })
 		.catch(e => {
 			if (e.code === 'auth/account-exists-with-different-credential') {
 				const email = e.email;
-				const labels = { password: 'Email+Password', 'google.com': 'Google', 'github.com': 'GitHub' };
+				const labels = { password: i18n[currentLang].providerEmailPassword, 'google.com': i18n[currentLang].providerGoogle, 'github.com': i18n[currentLang].providerGithub };
 				auth.fetchSignInMethodsForEmail(email).then(methods => {
 					const method = methods.find(m => labels[m]);
-					showStatus(authStatus, method ? `Email "${email}" already registered. Sign in with ${labels[method]}.` : `Email "${email}" already registered with another method.`, true);
+					showStatus(authStatus, method ? i18n[currentLang].accountExists + labels[method] + '.' : i18n[currentLang].accountExistsFallback, true);
 				}).catch(() => {
-					showStatus(authStatus, 'An account with this email already exists. Try a different sign-in method.', true);
+					showStatus(authStatus, i18n[currentLang].accountExistsFallback, true);
 				});
 			} else {
 				showStatus(authStatus, e.message, true);
@@ -775,7 +801,7 @@ async function saveScoreToLeaderboard() {
     const now = Date.now();
     if (now - lastScoreSaveTime < 2000) return;
     lastScoreSaveTime = now;
-    const displayName = savedName && savedName !== 'Refyrd.dev' ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
+    const displayName = savedName && savedName !== 'Refyrd.dev' ? savedName : i18n[currentLang].anonymous;
     try {
         const docRef = db.collection(LEADERBOARD_COLLECTION).doc(authUid);
         const existing = await docRef.get();
@@ -804,7 +830,7 @@ async function loadLeaderboard() {
             .orderBy('score', 'desc')
             .limit(lbLimit)
             .get();
-        setLbStatus('online', 'Online');
+        setLbStatus('online', i18n[currentLang].online);
         if (snapshot.empty) {
             leaderboardList.innerHTML = `<div class="lb-empty">${i18n[currentLang].lbNoScores}</div>`;
             return;
@@ -816,7 +842,7 @@ async function loadLeaderboard() {
             const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
             html += `<div class="lb-entry">
                 <span class="lb-rank">${medal || rank}</span>
-                <span class="lb-name">${escapeHtml(d.name && d.name.trim() ? d.name : (currentLang === 'en' ? 'Anonymous' : 'Аноним'))}</span>
+                <span class="lb-name">${escapeHtml(d.name && d.name.trim() ? d.name : i18n[currentLang].anonymous)}</span>
                 <span class="lb-score">${d.score || 0}</span>
             </div>`;
             rank++;
@@ -824,14 +850,18 @@ async function loadLeaderboard() {
         leaderboardList.innerHTML = html;
         if (!window._lbHeightFixed) {
             const lb = document.getElementById('leaderboard');
-            if (lb && window.getComputedStyle(lb).position === 'fixed') {
+            if (lb) {
                 window._lbHeightFixed = true;
-                lb.style.height = lb.offsetHeight + 'px';
+                if (window.getComputedStyle(lb).position === 'fixed') {
+                    lb.style.height = lb.offsetHeight + 'px';
+                } else if (lb.offsetHeight > 0) {
+                    lb.style.height = Math.min(lb.offsetHeight, window.innerHeight * 0.6) + 'px';
+                }
             }
         }
     } catch (e) {
         console.warn('Firebase load error:', e);
-        setLbStatus('error', `Error: ${e.message}`);
+        setLbStatus('error', i18n[currentLang].errorPrefix + e.message);
         leaderboardList.innerHTML = `<div class="lb-empty">${i18n[currentLang].lbOffline}</div>`;
     }
 }
@@ -897,7 +927,7 @@ async function loadComments(entry) {
 			const ct = d.time ? new Date(d.time.seconds * 1000).toLocaleDateString() : '';
 			const isOwner = authUid && d.uid === authUid;
 			html += `<div class="fb-comment" data-cid="${doc.id}">
-				<span class="fb-comment-name">${escapeHtml(d.name || 'Anonymous')}</span>
+				<span class="fb-comment-name">${escapeHtml(d.name || i18n[currentLang].anonymous)}</span>
 				<span class="fb-comment-msg">${escapeHtml(d.message)}</span>
 				<span class="fb-time">${ct}</span>
 				${isOwner ? '<button class="fb-comment-edit">✎</button><button class="fb-comment-del">✕</button>' : ''}
@@ -917,7 +947,7 @@ async function submitComment(entry) {
 	const input = entry.querySelector('.fb-comment-input');
 	const msg = input.value.trim();
 	if (!msg || msg.length < 1) return;
-	const name = (authUid && savedName && isValidName(savedName)) ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
+	const name = (authUid && savedName && isValidName(savedName)) ? savedName : i18n[currentLang].anonymous;
 	const uid = authUid || '';
 	const list = entry.querySelector('.fb-comments-list');
 	const statsBtn = entry.querySelector('.fb-comment-stats');
@@ -1070,7 +1100,7 @@ async function loadFeedback() {
 					<button class="fb-dislike${userVote === 'dislike' ? ' active' : ''}">👎 <span>${dislikes}</span></button>
 				</div>
 				<button class="fb-comment-stats" data-count="${d.commentCount ?? 0}"${d.commentCount ? '' : ' style="display:none"'}>${formatCommentCount(d.commentCount ?? 0)}</button>
-				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
+				<div class="fb-time">${escapeHtml(d.name || i18n[currentLang].anonymous)} · ${time}</div>
 				<div class="fb-comments" style="display:none">
 					<div class="fb-comments-header"><button class="fb-comments-close">✕</button></div>
 					<div class="fb-comments-list"></div>
@@ -1348,7 +1378,7 @@ let particles = [];
 let glows = []; 
 
 function updateHighScoreDisplay() {
-    const displayName = savedName && savedName.trim() ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
+    const displayName = savedName && savedName.trim() ? savedName : i18n[currentLang].anonymous;
     const nameDisplay = ` (${displayName})`;
     menuHighScoreText.innerText = `${i18n[currentLang].bestScore}${bestScore}${nameDisplay}`;
     if (lastScore > 0) {
@@ -1417,7 +1447,7 @@ playerNameInput.addEventListener('input', () => {
         playerNameInput.disabled = true;
         savedName = '';
         playerNameInput.value = '';
-        playerNameInput.placeholder = currentLang === 'en' ? 'DEV MODE' : 'ДЕВ РЕЖИМ';
+        playerNameInput.placeholder = i18n[currentLang].devMode;
     }
 });
 
@@ -1739,20 +1769,25 @@ gameContainer.addEventListener('touchstart', e => {
 }, { passive: true });
 
 gameContainer.addEventListener('touchmove', e => {
-    if (isRunning) e.preventDefault();
+    if (!isRunning) return;
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const diffX = touch.screenX - touchStartX;
+    const diffY = touch.screenY - touchStartY;
+    if (Math.max(Math.abs(diffX), Math.abs(diffY)) < 30) return;
+    const dirX = Math.abs(diffX) > Math.abs(diffY) ? (diffX > 0 ? 1 : -1) : 0;
+    const dirY = Math.abs(diffY) > Math.abs(diffX) ? (diffY > 0 ? 1 : -1) : 0;
+    if (dirX) changeDirection(dirX, 0);
+    else if (dirY) changeDirection(0, dirY);
+    touchStartX = touch.screenX;
+    touchStartY = touch.screenY;
 }, { passive: false });
 
 gameContainer.addEventListener('touchend', e => {
     if (!isRunning) return;
-    
-    let touchEndX = e.changedTouches[0].screenX;
-    let touchEndY = e.changedTouches[0].screenY;
-    
-    let diffX = touchEndX - touchStartX;
-    let diffY = touchEndY - touchStartY;
-    
+    const diffX = e.changedTouches[0].screenX - touchStartX;
+    const diffY = e.changedTouches[0].screenY - touchStartY;
     if (Math.max(Math.abs(diffX), Math.abs(diffY)) < 30) return;
-
     if (Math.abs(diffX) > Math.abs(diffY)) {
         if (diffX > 0) changeDirection(1, 0); 
         else changeDirection(-1, 0); 
@@ -1760,6 +1795,8 @@ gameContainer.addEventListener('touchend', e => {
         if (diffY > 0) changeDirection(0, 1); 
         else changeDirection(0, -1);
     }
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
 }, { passive: true });
 
 // === BUTTON EVENTS ===
