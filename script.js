@@ -963,6 +963,7 @@ async function loadFeedback() {
 				<div class="fb-text${long ? ' collapsed' : ''}">${msg}</div>
 				<div class="fb-expand-row">
 					${long ? '<button class="fb-expand">' + i18n[currentLang].fbShowMore + '</button>' : ''}
+					${long ? '<span class="fb-sep">·</span>' : ''}
 					<button class="fb-reply-btn">${i18n[currentLang].fbReply}</button>
 				</div>
 				<div class="fb-actions">
@@ -972,7 +973,7 @@ async function loadFeedback() {
 				<button class="fb-comment-stats" style="display:none">0</button>
 				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
 				<div class="fb-comments" style="display:none">
-					<div class="fb-comments-header"><span>${escapeHtml(d.name || 'Anonymous')} · ${time}</span><button class="fb-comments-close">✕</button></div>
+					<div class="fb-comments-header"><button class="fb-comments-close">✕</button></div>
 					<div class="fb-comments-list"></div>
 					<div class="fb-comment-form">
 						<input class="fb-comment-input" placeholder="${i18n[currentLang].fbWriteComment}">
