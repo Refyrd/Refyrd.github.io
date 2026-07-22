@@ -842,6 +842,7 @@ lbShowMore.addEventListener('click', () => {
     lbLimit = lbShowAll ? 1000 : 10;
     lbShowMore.innerText = lbShowAll ? i18n[currentLang].lbShowTop : i18n[currentLang].lbShowAll;
     leaderboardList.innerHTML = `<div class="lb-loading">${i18n[currentLang].lbLoading}</div>`;
+    document.getElementById('leaderboard').classList.toggle('lb-show-all', lbShowAll);
     loadLeaderboard();
 });
 
@@ -919,25 +920,23 @@ async function voteFeedback(docId, type) {
 	if (!voteKey) return;
 	const ref = db.collection(Fb_COLLECTION).doc(docId);
 	try {
-		await db.runTransaction(async t => {
-			const doc = await t.get(ref);
-			if (!doc.exists) return;
-			const data = doc.data();
-			const voters = data.voters || {};
-			const prev = voters[voteKey] || '';
-			let likes = data.likes || 0;
-			let dislikes = data.dislikes || 0;
-			if (prev === type) {
-				if (type === 'like') likes--; else dislikes--;
-				voters[voteKey] = '';
-			} else {
-				if (prev === 'like') likes--;
-				else if (prev === 'dislike') dislikes--;
-				if (type === 'like') likes++; else dislikes++;
-				voters[voteKey] = type;
-			}
-			t.update(ref, { likes, dislikes, voters });
-		});
+		const doc = await ref.get();
+		if (!doc.exists) return;
+		const data = doc.data();
+		const voters = Object.assign({}, data.voters || {});
+		const prev = voters[voteKey] || '';
+		let likes = data.likes || 0;
+		let dislikes = data.dislikes || 0;
+		if (prev === type) {
+			if (type === 'like') likes--; else dislikes--;
+			voters[voteKey] = '';
+		} else {
+			if (prev === 'like' && likes > 0) likes--;
+			else if (prev === 'dislike' && dislikes > 0) dislikes--;
+			if (type === 'like') likes++; else dislikes++;
+			voters[voteKey] = type;
+		}
+		await ref.update({ likes, dislikes, voters });
 		loadFeedback();
 	} catch (e) { console.warn('Vote error:', e); }
 }
