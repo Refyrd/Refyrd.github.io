@@ -290,7 +290,8 @@ function applyLanguage() {
     if (authDivider) authDivider.textContent = i18n[currentLang].or;
     authEmailBack.innerHTML = '&larr; ' + i18n[currentLang].back;
     authLinkEmailBack.innerHTML = '&larr; ' + i18n[currentLang].back;
-    document.getElementById('lbStatusText').textContent = i18n[currentLang].connecting;
+    const lbStatusSpan = document.querySelector('#lbStatus span:last-child');
+    if (lbStatusSpan) lbStatusSpan.textContent = i18n[currentLang].online;
     // Update existing DOM elements with new language
     document.querySelectorAll('.fb-expand').forEach(el => {
         const entry = el.closest('.fb-entry');
@@ -319,6 +320,8 @@ langToggle.addEventListener('click', () => {
     setCookie('snakeLang', currentLang);
 applyLanguage();
 updateNicknameInputVisibility();
+loadLeaderboard();
+loadFeedback();
 });
 
 
