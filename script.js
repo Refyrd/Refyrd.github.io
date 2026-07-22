@@ -868,7 +868,6 @@ async function loadLeaderboard() {
             rank++;
         });
         leaderboardList.innerHTML = html;
-        window._lbCachedHtml = html;
         if (!window._lbHeightFixed) {
             const lb = document.getElementById('leaderboard');
             if (lb) {
