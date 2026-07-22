@@ -1140,6 +1140,7 @@ async function loadFeedback() {
 			feedbackIds.forEach(id => {
 				const entry = fbList.querySelector(`.fb-entry[data-id="${id}"]`);
 				if (!entry) return;
+				if (_recentVotes[id]) return;
 				const likeBtn = entry.querySelector('.fb-like');
 				const dislikeBtn = entry.querySelector('.fb-dislike');
 				if (fbVotes[id]) {
@@ -1244,13 +1245,18 @@ document.addEventListener('keydown', (e) => {
 });
 
 const _votingLock = {};
+const _recentVotes = {}; // docId → timestamp of last in-progress vote
 async function voteFeedback(docId, type) {
 	const voteKey = authUid;
 	if (!voteKey) return;
 	if (_votingLock[docId]) return;
 	_votingLock[docId] = true;
+	// Clean stale locks (older than 30s)
+	const now = Date.now();
+	Object.keys(_recentVotes).forEach(k => { if (now - _recentVotes[k] > 30000) delete _recentVotes[k]; });
+	_recentVotes[docId] = now;
 	const entry = document.querySelector(`.fb-entry[data-id="${docId}"]`);
-	if (!entry) { _votingLock[docId] = false; return; }
+	if (!entry) { _votingLock[docId] = false; delete _recentVotes[docId]; return; }
 	const likeBtn = entry.querySelector('.fb-like');
 	const dislikeBtn = entry.querySelector('.fb-dislike');
 	const likeCount = likeBtn.querySelector('span');
@@ -1306,6 +1312,7 @@ async function voteFeedback(docId, type) {
 		localStorage.setItem('fbVotes', JSON.stringify(cache));
 	}
 	_votingLock[docId] = false;
+	delete _recentVotes[docId];
 }
 
 loadFeedback();
