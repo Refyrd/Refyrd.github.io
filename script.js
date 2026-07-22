@@ -895,7 +895,13 @@ async function loadComments(entry) {
 		snap.forEach(doc => {
 			const d = doc.data();
 			const ct = d.time ? new Date(d.time.seconds * 1000).toLocaleDateString() : '';
-			html += `<div class="fb-comment"><span class="fb-comment-name">${escapeHtml(d.name || 'Anonymous')}</span> ${escapeHtml(d.message)} <span class="fb-time">${ct}</span></div>`;
+			const isOwner = authUid && d.uid === authUid;
+			html += `<div class="fb-comment" data-cid="${doc.id}">
+				<span class="fb-comment-name">${escapeHtml(d.name || 'Anonymous')}</span>
+				<span class="fb-comment-msg">${escapeHtml(d.message)}</span>
+				<span class="fb-time">${ct}</span>
+				${isOwner ? '<button class="fb-comment-edit">✎</button><button class="fb-comment-del">✕</button>' : ''}
+			</div>`;
 			count++;
 		});
 		list.innerHTML = html;
@@ -912,15 +918,55 @@ async function submitComment(entry) {
 	const msg = input.value.trim();
 	if (!msg || msg.length < 1) return;
 	const name = (authUid && savedName && isValidName(savedName)) ? savedName : (currentLang === 'en' ? 'Anonymous' : 'Аноним');
+	const uid = authUid || '';
+	const list = entry.querySelector('.fb-comments-list');
+	const statsBtn = entry.querySelector('.fb-comment-stats');
+
+	// Optimistic: add comment immediately
+	const tempId = '_' + Date.now();
+	const emptyMsg = list.querySelector('.lb-empty');
+	if (emptyMsg) emptyMsg.remove();
+	const escName = escapeHtml(name);
+	const escMsg = escapeHtml(msg);
+	list.insertAdjacentHTML('beforeend',
+		`<div class="fb-comment fb-comment-pending" data-cid="${tempId}">
+			<span class="fb-comment-name">${escName}</span>
+			<span class="fb-comment-msg">${escMsg}</span>
+			${uid ? '<button class="fb-comment-edit">✎</button><button class="fb-comment-del">✕</button>' : ''}
+		</div>`
+	);
 	input.value = '';
 	input.disabled = true;
+
+	// Update count optimistically
+	const cur = parseInt(statsBtn.dataset.count) || 0;
+	const newCount = cur + 1;
+	statsBtn.dataset.count = newCount;
+	statsBtn.textContent = formatCommentCount(newCount);
+	statsBtn.style.display = '';
+
 	try {
-		await db.collection(Fb_COLLECTION).doc(docId).collection('comments').add({
-			name, message: msg,
+		const ref = await db.collection(Fb_COLLECTION).doc(docId).collection('comments').add({
+			name, message: msg, uid,
 			time: firebase.firestore.FieldValue.serverTimestamp()
 		});
-		loadComments(entry);
-	} catch (_) {}
+		// Replace temp ID with real ID
+		const tc = list.querySelector(`[data-cid="${tempId}"]`);
+		if (tc) tc.dataset.cid = ref.id;
+		// Update comment count on feedback doc
+		await db.collection(Fb_COLLECTION).doc(docId).update({
+			commentCount: firebase.firestore.FieldValue.increment(1)
+		});
+	} catch (_) {
+		// Remove optimistic comment on failure
+		const tc = list.querySelector(`[data-cid="${tempId}"]`);
+		if (tc) tc.remove();
+		const cur2 = parseInt(statsBtn.dataset.count) || 1;
+		const newCount2 = cur2 - 1;
+		statsBtn.dataset.count = newCount2;
+		statsBtn.textContent = formatCommentCount(newCount2);
+		if (newCount2 <= 0) statsBtn.style.display = 'none';
+	}
 	input.disabled = false;
 }
 
@@ -931,6 +977,62 @@ function formatCommentCount(n) {
 		return n + ' ответов';
 	}
 	return n + ' ' + (n === 1 ? 'reply' : 'replies');
+}
+
+async function deleteComment(entry, cid) {
+	if (!cid) return;
+	const docId = entry.dataset.id;
+	const commentEl = entry.querySelector(`[data-cid="${cid}"]`);
+	if (commentEl) commentEl.remove();
+	const statsBtn = entry.querySelector('.fb-comment-stats');
+	const cur = parseInt(statsBtn.dataset.count) || 1;
+	const newCount = cur - 1;
+	statsBtn.dataset.count = newCount;
+	statsBtn.textContent = formatCommentCount(newCount);
+	if (newCount <= 0) statsBtn.style.display = 'none';
+	try {
+		await db.collection(Fb_COLLECTION).doc(docId).collection('comments').doc(cid).delete();
+		await db.collection(Fb_COLLECTION).doc(docId).update({
+			commentCount: firebase.firestore.FieldValue.increment(-1)
+		});
+	} catch (_) {}
+}
+
+function startEditComment(entry, commentEl) {
+	const msgEl = commentEl.querySelector('.fb-comment-msg');
+	if (!msgEl) return;
+	const curText = msgEl.textContent;
+	const input = document.createElement('input');
+	input.className = 'fb-comment-edit-input';
+	input.value = curText;
+	input.maxLength = 500;
+	msgEl.replaceWith(input);
+	input.focus();
+	input.select();
+	const finish = async () => {
+		const newMsg = input.value.trim();
+		if (newMsg && newMsg !== curText) {
+			const cid = commentEl.dataset.cid;
+			if (cid) {
+				try {
+					await db.collection(Fb_COLLECTION).doc(entry.dataset.id).collection('comments').doc(cid).update({ message: newMsg });
+				} catch (_) {}
+			}
+			const newSpan = document.createElement('span');
+			newSpan.className = 'fb-comment-msg';
+			newSpan.textContent = newMsg;
+			input.replaceWith(newSpan);
+		} else if (!newMsg) {
+			const newSpan = document.createElement('span');
+			newSpan.className = 'fb-comment-msg';
+			newSpan.textContent = curText;
+			input.replaceWith(newSpan);
+		}
+	};
+	input.addEventListener('keydown', (e) => {
+		if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+	});
+	input.addEventListener('blur', finish);
 }
 
 async function loadFeedback() {
@@ -970,7 +1072,7 @@ async function loadFeedback() {
 					<button class="fb-like${userVote === 'like' ? ' active' : ''}">👍 <span>${likes}</span></button>
 					<button class="fb-dislike${userVote === 'dislike' ? ' active' : ''}">👎 <span>${dislikes}</span></button>
 				</div>
-				<button class="fb-comment-stats" style="display:none">0</button>
+				<button class="fb-comment-stats" data-count="${d.commentCount ?? 0}"${d.commentCount ? '' : ' style="display:none"'}>${formatCommentCount(d.commentCount ?? 0)}</button>
 				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
 				<div class="fb-comments" style="display:none">
 					<div class="fb-comments-header"><button class="fb-comments-close">✕</button></div>
@@ -1061,6 +1163,20 @@ fbList.addEventListener('click', (e) => {
 		const entry = sendBtn.closest('.fb-entry');
 		if (!entry) return;
 		submitComment(entry);
+		return;
+	}
+	const editBtn = e.target.closest('.fb-comment-edit');
+	if (editBtn) {
+		const comment = editBtn.closest('.fb-comment');
+		const entry = comment.closest('.fb-entry');
+		startEditComment(entry, comment);
+		return;
+	}
+	const delBtn = e.target.closest('.fb-comment-del');
+	if (delBtn) {
+		const comment = delBtn.closest('.fb-comment');
+		const entry = comment.closest('.fb-entry');
+		deleteComment(entry, comment.dataset.cid);
 		return;
 	}
 	const closeBtn = e.target.closest('.fb-comments-close');

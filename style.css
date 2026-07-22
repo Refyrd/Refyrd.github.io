@@ -244,7 +244,7 @@ body {
 .fb-entry .fb-expand:hover, .fb-entry .fb-reply-btn:hover { opacity: 1; }
 .fb-entry .fb-sep { opacity: 0.3; font-size: 10px; }
 .fb-entry .fb-time { font-size: 10px; opacity: 0.4; margin-top: 3px; }
-.fb-entry .fb-comment-stats { background: none; border: none; cursor: pointer; font-size: 10px; opacity: 0.5; padding: 2px 0; display: inline-flex; align-items: center; border-radius: 6px; }
+.fb-entry .fb-comment-stats { background: none; border: none; color: var(--md-sys-color-primary); font-size: 11px; cursor: pointer; opacity: 0.7; padding: 2px 0; display: inline-flex; align-items: center; }
 .fb-entry .fb-comment-stats:hover { opacity: 1; }
 .fb-entry .fb-comments { margin-top: 6px; border-top: 1px solid color-mix(in srgb, var(--md-sys-color-on-surface) 15%, transparent); padding-top: 4px; }
 .fb-entry .fb-comments-header { display: flex; justify-content: flex-end; margin-bottom: 4px; }
@@ -253,8 +253,14 @@ body {
 .fb-entry .fb-comments-list { max-height: 150px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 3px; }
 .fb-entry .fb-comments-list::-webkit-scrollbar { display: none; }
 .fb-entry .fb-comment { font-size: 11px; line-height: 1.3; padding: 2px 4px; border-radius: 4px; background: var(--md-sys-color-surface-container); opacity: 0.85; word-break: break-word; }
+.fb-entry .fb-comment.fb-comment-pending { opacity: 0.35; }
 .fb-entry .fb-comment .fb-comment-name { font-weight: 700; opacity: 0.6; }
 .fb-entry .fb-comment .fb-time { font-size: 9px; opacity: 0.3; float: right; }
+.fb-entry .fb-comment .fb-comment-del,
+.fb-entry .fb-comment .fb-comment-edit { background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.3; padding: 0 3px; line-height: 1; vertical-align: middle; color: var(--md-sys-color-on-surface); }
+.fb-entry .fb-comment .fb-comment-del:hover,
+.fb-entry .fb-comment .fb-comment-edit:hover { opacity: 0.8; }
+.fb-comment-edit-input { border: none; border-radius: 4px; background: var(--md-sys-color-surface); padding: 1px 4px; font-size: 11px; outline: none; font-family: inherit; color: var(--md-sys-color-on-surface); width: calc(100% - 40px); max-width: 200px; }
 .fb-entry .fb-comment-form { display: flex; gap: 4px; margin-top: 4px; }
 .fb-entry .fb-comment-input { flex: 1; border: none; border-radius: 6px; background: var(--md-sys-color-surface-container); padding: 4px 8px; font-size: 11px; outline: none; font-family: inherit; color: var(--md-sys-color-on-surface); min-width: 0; }
 .fb-entry .fb-comment-input::placeholder { opacity: 0.4; }
