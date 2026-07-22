@@ -404,10 +404,10 @@ body {
         flex-direction: column;
         padding: 14px 16px;
         margin-top: 12px;
-        flex: 1;
+        flex: 1 1 0;
         min-height: 200px;
+        max-height: 60vh;
         overflow: hidden;
-        max-height: none;
     }
     .leaderboard .lb-status {
         margin-top: 4px;
