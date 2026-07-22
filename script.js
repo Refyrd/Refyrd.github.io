@@ -1069,6 +1069,20 @@ fbList.addEventListener('click', (e) => {
 		if (section) section.style.display = 'none';
 	}
 });
+fbList.addEventListener('keydown', (e) => {
+	if (e.key === 'Enter') {
+		const input = e.target.closest('.fb-comment-input');
+		if (input) {
+			const entry = input.closest('.fb-entry');
+			if (entry) { submitComment(entry); }
+		}
+	}
+});
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'Escape') {
+		document.querySelectorAll('.fb-comments').forEach(s => s.style.display = 'none');
+	}
+});
 
 async function voteFeedback(docId, type) {
 	const voteKey = authUid;
