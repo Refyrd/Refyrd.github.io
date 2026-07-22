@@ -306,7 +306,7 @@ body {
 .lb-show-more { background: none; border: none; color: var(--md-sys-color-primary); font-size: 12px; font-weight: 600; cursor: pointer; padding: 8px 0 2px; opacity: 0.7; text-align: center; width: 100%; }
 .lb-show-more:hover { opacity: 1; }
 
-.leaderboard { left: 16px; height: min(480px, 75vh); }
+.leaderboard { left: 16px; }
 .leaderboard h3 { }
 
 .lb-entry {

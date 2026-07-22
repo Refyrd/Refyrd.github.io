@@ -821,6 +821,13 @@ async function loadLeaderboard() {
             rank++;
         });
         leaderboardList.innerHTML = html;
+        if (!window._lbHeightFixed) {
+            const lb = document.getElementById('leaderboard');
+            if (lb && window.getComputedStyle(lb).position === 'fixed') {
+                window._lbHeightFixed = true;
+                lb.style.height = lb.offsetHeight + 'px';
+            }
+        }
     } catch (e) {
         console.warn('Firebase load error:', e);
         setLbStatus('error', `Error: ${e.message}`);
@@ -887,14 +894,15 @@ async function loadFeedback() {
 				localStorage.setItem('anonVoteId', voteKey);
 			}
 		}
+		const feedbackIds = [];
+		snap.forEach(doc => feedbackIds.push(doc.id));
 		const userVotes = {};
-		try {
-			const voteSnap = await db.collectionGroup('votes').where('userId', '==', voteKey).get();
-			voteSnap.forEach(doc => {
-				const data = doc.data();
-				userVotes[data.feedbackId] = data.type;
-			});
-		} catch (_) {}
+		const voteSnaps = await Promise.all(
+			feedbackIds.map(id => db.collection(Fb_COLLECTION).doc(id).collection('votes').doc(voteKey).get())
+		);
+		voteSnaps.forEach((vs, i) => {
+			if (vs.exists) userVotes[feedbackIds[i]] = vs.data().type;
+		});
 		let html = '';
 		snap.forEach(doc => {
 			const d = doc.data();
@@ -946,27 +954,26 @@ async function voteFeedback(docId, type) {
 	const ref = db.collection(Fb_COLLECTION).doc(docId);
 	const voteRef = ref.collection('votes').doc(voteKey);
 	try {
-		await db.runTransaction(async (transaction) => {
-			const fbDoc = await transaction.get(ref);
-			if (!fbDoc.exists) return;
-			const voteDoc = await transaction.get(voteRef);
-			const existingType = voteDoc.exists ? voteDoc.data().type : '';
-			if (existingType === type) {
-				transaction.delete(voteRef);
-				transaction.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
-			} else {
-				transaction.set(voteRef, {
-					userId: voteKey,
-					type: type,
-					feedbackId: docId,
-					timestamp: firebase.firestore.FieldValue.serverTimestamp()
-				});
-				if (existingType) {
-					transaction.update(ref, { [existingType === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
-				}
-				transaction.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(1) });
+		const [fbDoc, voteDoc] = await Promise.all([ref.get(), voteRef.get()]);
+		if (!fbDoc.exists) return;
+		const existingType = voteDoc.exists ? voteDoc.data().type : '';
+		const batch = db.batch();
+		if (existingType === type) {
+			batch.delete(voteRef);
+			batch.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
+		} else {
+			batch.set(voteRef, {
+				userId: voteKey,
+				type: type,
+				feedbackId: docId,
+				timestamp: firebase.firestore.FieldValue.serverTimestamp()
+			});
+			if (existingType) {
+				batch.update(ref, { [existingType === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
 			}
-		});
+			batch.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(1) });
+		}
+		await batch.commit();
 		loadFeedback();
 	} catch (e) { console.warn('Vote error:', e); }
 }
