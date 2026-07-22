@@ -889,15 +889,12 @@ async function loadFeedback() {
 		}
 		const feedbackIds = [];
 		snap.forEach(doc => feedbackIds.push(doc.id));
+		// Instant UI from localStorage cache
 		const userVotes = {};
-		if (authUid) {
-			const voteResults = await Promise.allSettled(
-				feedbackIds.map(id => db.collection(Fb_COLLECTION).doc(id).collection('votes').doc(authUid).get())
-			);
-			voteResults.forEach((r, i) => {
-				if (r.status === 'fulfilled' && r.value.exists) userVotes[feedbackIds[i]] = r.value.data().type;
-			});
-		}
+		try {
+			const cached = JSON.parse(localStorage.getItem('fbVotes') || '{}');
+			Object.keys(cached).forEach(id => { if (feedbackIds.includes(id)) userVotes[id] = cached[id]; });
+		} catch (_) {}
 		let html = '';
 		snap.forEach(doc => {
 			const d = doc.data();
@@ -919,6 +916,31 @@ async function loadFeedback() {
 			</div>`;
 		});
 		fbList.innerHTML = html;
+		// Sync votes from Firestore in background, update DOM if differs from cache
+		if (authUid) {
+			const voteResults = await Promise.allSettled(
+				feedbackIds.map(id => db.collection(Fb_COLLECTION).doc(id).collection('votes').doc(authUid).get())
+			);
+			const fbVotes = {};
+			voteResults.forEach((r, i) => {
+				if (r.status === 'fulfilled' && r.value.exists) fbVotes[feedbackIds[i]] = r.value.data().type;
+			});
+			feedbackIds.forEach(id => {
+				const entry = fbList.querySelector(`.fb-entry[data-id="${id}"]`);
+				if (!entry) return;
+				const likeBtn = entry.querySelector('.fb-like');
+				const dislikeBtn = entry.querySelector('.fb-dislike');
+				if (fbVotes[id]) {
+					likeBtn.classList.toggle('active', fbVotes[id] === 'like');
+					dislikeBtn.classList.toggle('active', fbVotes[id] === 'dislike');
+				} else if (userVotes[id]) {
+					likeBtn.classList.remove('active');
+					dislikeBtn.classList.remove('active');
+				}
+			});
+			// Update cache
+			try { localStorage.setItem('fbVotes', JSON.stringify(fbVotes)); } catch (_) {}
+		}
 	} catch (e) {
 		fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;
 	}
@@ -946,6 +968,34 @@ fbList.addEventListener('click', (e) => {
 async function voteFeedback(docId, type) {
 	const voteKey = authUid;
 	if (!voteKey) return;
+	const entry = document.querySelector(`.fb-entry[data-id="${docId}"]`);
+	if (!entry) return;
+	const likeBtn = entry.querySelector('.fb-like');
+	const dislikeBtn = entry.querySelector('.fb-dislike');
+	const likeCount = likeBtn.querySelector('span');
+	const dislikeCount = dislikeBtn.querySelector('span');
+	const wasLiked = likeBtn.classList.contains('active');
+	const wasDisliked = dislikeBtn.classList.contains('active');
+	const prevLikes = parseInt(likeCount.textContent) || 0;
+	const prevDislikes = parseInt(dislikeCount.textContent) || 0;
+	// Optimistic DOM update (instant)
+	if (type === 'like') {
+		if (wasLiked) { likeBtn.classList.remove('active'); likeCount.textContent = prevLikes - 1; }
+		else { likeBtn.classList.add('active'); likeCount.textContent = prevLikes + 1;
+			if (wasDisliked) { dislikeBtn.classList.remove('active'); dislikeCount.textContent = prevDislikes - 1; } }
+	} else {
+		if (wasDisliked) { dislikeBtn.classList.remove('active'); dislikeCount.textContent = prevDislikes - 1; }
+		else { dislikeBtn.classList.add('active'); dislikeCount.textContent = prevDislikes + 1;
+			if (wasLiked) { likeBtn.classList.remove('active'); likeCount.textContent = prevLikes - 1; } }
+	}
+	// Update localStorage cache
+	const newVote = (wasLiked && type === 'like') || (wasDisliked && type === 'dislike') ? '' : type;
+	try {
+		const cache = JSON.parse(localStorage.getItem('fbVotes') || '{}');
+		if (newVote) cache[docId] = newVote; else delete cache[docId];
+		localStorage.setItem('fbVotes', JSON.stringify(cache));
+	} catch (_) {}
+	// Firestore write in background
 	const ref = db.collection(Fb_COLLECTION).doc(docId);
 	const voteRef = ref.collection('votes').doc(voteKey);
 	try {
@@ -958,19 +1008,28 @@ async function voteFeedback(docId, type) {
 			batch.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
 		} else {
 			batch.set(voteRef, {
-				userId: voteKey,
-				type: type,
-				feedbackId: docId,
+				userId: voteKey, type, feedbackId: docId,
 				timestamp: firebase.firestore.FieldValue.serverTimestamp()
 			});
-			if (existingType) {
-				batch.update(ref, { [existingType === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
-			}
+			if (existingType) batch.update(ref, { [existingType === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
 			batch.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(1) });
 		}
 		await batch.commit();
-		loadFeedback();
-	} catch (e) { console.warn('Vote error:', e); }
+		// Update cache with confirmed state
+		try {
+			const cache = JSON.parse(localStorage.getItem('fbVotes') || '{}');
+			if (existingType === type) delete cache[docId];
+			else cache[docId] = type;
+			localStorage.setItem('fbVotes', JSON.stringify(cache));
+		} catch (_) {}
+	} catch (e) {
+		// Revert UI on failure
+		likeBtn.classList.toggle('active', wasLiked);
+		dislikeBtn.classList.toggle('active', wasDisliked);
+		likeCount.textContent = prevLikes;
+		dislikeCount.textContent = prevDislikes;
+		console.warn('Vote error:', e);
+	}
 }
 
 loadFeedback();
