@@ -952,7 +952,7 @@ async function submitComment(entry) {
 		});
 		// Replace temp ID with real ID
 		const tc = list.querySelector(`[data-cid="${tempId}"]`);
-		if (tc) tc.dataset.cid = ref.id;
+		if (tc) { tc.dataset.cid = ref.id; tc.classList.remove('fb-comment-pending'); }
 		// Update comment count on feedback doc
 		await db.collection(Fb_COLLECTION).doc(docId).update({
 			commentCount: firebase.firestore.FieldValue.increment(1)
