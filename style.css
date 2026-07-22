@@ -242,6 +242,19 @@ body {
 .fb-entry .fb-expand { background: none; border: none; color: var(--md-sys-color-primary); font-size: 11px; cursor: pointer; opacity: 0.7; padding: 2px 0; }
 .fb-entry .fb-expand:hover { opacity: 1; }
 .fb-entry .fb-time { font-size: 10px; opacity: 0.4; margin-top: 3px; }
+.fb-entry .fb-comment-btn { background: none; border: none; cursor: pointer; font-size: 11px; opacity: 0.5; padding: 2px 4px; display: inline-flex; align-items: center; gap: 2px; border-radius: 6px; margin-left: auto; }
+.fb-entry .fb-comment-btn:hover { opacity: 1; }
+.fb-entry .fb-comments { margin-top: 6px; border-top: 1px solid; border-color: var(--md-sys-color-on-surface); opacity: 0.15; padding-top: 4px; }
+.fb-entry .fb-comments-list { max-height: 150px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 3px; }
+.fb-entry .fb-comments-list::-webkit-scrollbar { display: none; }
+.fb-entry .fb-comment { font-size: 11px; line-height: 1.3; padding: 2px 4px; border-radius: 4px; background: var(--md-sys-color-surface-container); opacity: 0.85; word-break: break-word; }
+.fb-entry .fb-comment .fb-comment-name { font-weight: 700; opacity: 0.6; }
+.fb-entry .fb-comment .fb-time { font-size: 9px; opacity: 0.3; float: right; }
+.fb-entry .fb-comment-form { display: flex; gap: 4px; margin-top: 4px; }
+.fb-entry .fb-comment-input { flex: 1; border: none; border-radius: 6px; background: var(--md-sys-color-surface-container); padding: 4px 8px; font-size: 11px; outline: none; font-family: inherit; color: var(--md-sys-color-on-surface); min-width: 0; }
+.fb-entry .fb-comment-input::placeholder { opacity: 0.4; }
+.fb-entry .fb-comment-send { background: none; border: none; color: var(--md-sys-color-primary); font-size: 11px; font-weight: 600; cursor: pointer; padding: 4px 6px; border-radius: 6px; flex-shrink: 0; opacity: 0.7; }
+.fb-entry .fb-comment-send:hover { opacity: 1; background: var(--md-sys-color-primary-container); }
 .lb-show-all .lb-entry .lb-name { font-size: 11px; }
 .lb-show-all .lb-entry .lb-score { font-size: 11px; }
 .lb-show-all .lb-entry { padding: 4px 6px; }
