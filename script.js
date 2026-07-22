@@ -887,7 +887,7 @@ async function loadComments(entry) {
 		const snap = await db.collection(Fb_COLLECTION).doc(docId).collection('comments').orderBy('time', 'asc').limit(20).get();
 		if (snap.empty) {
 			list.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbNoComments}</div>`;
-			statsBtn.textContent = '💬 0';
+			statsBtn.style.display = 'none';
 			return;
 		}
 		let html = '';
@@ -899,7 +899,8 @@ async function loadComments(entry) {
 			count++;
 		});
 		list.innerHTML = html;
-		statsBtn.textContent = '💬 ' + formatCommentCount(count);
+		statsBtn.textContent = formatCommentCount(count);
+		statsBtn.style.display = '';
 	} catch (_) {
 		list.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;
 	}
@@ -961,14 +962,14 @@ async function loadFeedback() {
 			html += `<div class="fb-entry" data-id="${id}">
 				<div class="fb-text${long ? ' collapsed' : ''}">${msg}</div>
 				<div class="fb-expand-row">
-					${long ? '<button class="fb-expand">Show more</button>' : '<span></span>'}
+					${long ? '<button class="fb-expand">' + i18n[currentLang].fbShowMore + '</button>' : ''}
 					<button class="fb-reply-btn">${i18n[currentLang].fbReply}</button>
 				</div>
 				<div class="fb-actions">
 					<button class="fb-like${userVote === 'like' ? ' active' : ''}">👍 <span>${likes}</span></button>
 					<button class="fb-dislike${userVote === 'dislike' ? ' active' : ''}">👎 <span>${dislikes}</span></button>
 				</div>
-				<button class="fb-comment-stats">💬 0</button>
+				<button class="fb-comment-stats" style="display:none">0</button>
 				<div class="fb-time">${escapeHtml(d.name || 'Anonymous')} · ${time}</div>
 				<div class="fb-comments" style="display:none">
 					<div class="fb-comments-list"></div>
@@ -1013,7 +1014,9 @@ async function loadFeedback() {
 fbList.addEventListener('click', (e) => {
 	const expandBtn = e.target.closest('.fb-expand');
 	if (expandBtn) {
-		const textEl = expandBtn.previousElementSibling;
+		const entry = expandBtn.closest('.fb-entry');
+		if (!entry) return;
+		const textEl = entry.querySelector('.fb-text');
 		textEl.classList.toggle('expanded');
 		textEl.classList.toggle('collapsed');
 		expandBtn.textContent = textEl.classList.contains('expanded') ? i18n[currentLang].fbShowLess : i18n[currentLang].fbShowMore;
