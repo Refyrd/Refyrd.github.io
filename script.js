@@ -887,15 +887,22 @@ async function loadFeedback() {
 				localStorage.setItem('anonVoteId', voteKey);
 			}
 		}
+		const userVotes = {};
+		try {
+			const voteSnap = await db.collectionGroup('votes').where('userId', '==', voteKey).get();
+			voteSnap.forEach(doc => {
+				const data = doc.data();
+				userVotes[data.feedbackId] = data.type;
+			});
+		} catch (_) {}
 		let html = '';
 		snap.forEach(doc => {
 			const d = doc.data();
 			const id = doc.id;
 			const time = d.time ? new Date(d.time.seconds * 1000).toLocaleDateString() : '';
-			const voters = d.voters || {};
-			const userVote = voters[voteKey] || '';
-			const likes = d.likes || 0;
-			const dislikes = d.dislikes || 0;
+			const userVote = userVotes[id] || '';
+			const likes = d.likes ?? d.likeCount ?? 0;
+			const dislikes = d.dislikes ?? d.dislikeCount ?? 0;
 			const msg = escapeHtml(d.message);
 			const long = msg.length > 100;
 			html += `<div class="fb-entry" data-id="${id}">
@@ -937,24 +944,29 @@ async function voteFeedback(docId, type) {
 	const voteKey = authUid || localStorage.getItem('anonVoteId');
 	if (!voteKey) return;
 	const ref = db.collection(Fb_COLLECTION).doc(docId);
+	const voteRef = ref.collection('votes').doc(voteKey);
 	try {
-		const doc = await ref.get();
-		if (!doc.exists) return;
-		const data = doc.data();
-		const voters = Object.assign({}, data.voters || {});
-		const prev = voters[voteKey] || '';
-		let likes = data.likes || 0;
-		let dislikes = data.dislikes || 0;
-		if (prev === type) {
-			if (type === 'like') likes--; else dislikes--;
-			voters[voteKey] = '';
-		} else {
-			if (prev === 'like' && likes > 0) likes--;
-			else if (prev === 'dislike' && dislikes > 0) dislikes--;
-			if (type === 'like') likes++; else dislikes++;
-			voters[voteKey] = type;
-		}
-		await ref.update({ likes, dislikes, voters });
+		await db.runTransaction(async (transaction) => {
+			const fbDoc = await transaction.get(ref);
+			if (!fbDoc.exists) return;
+			const voteDoc = await transaction.get(voteRef);
+			const existingType = voteDoc.exists ? voteDoc.data().type : '';
+			if (existingType === type) {
+				transaction.delete(voteRef);
+				transaction.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
+			} else {
+				transaction.set(voteRef, {
+					userId: voteKey,
+					type: type,
+					feedbackId: docId,
+					timestamp: firebase.firestore.FieldValue.serverTimestamp()
+				});
+				if (existingType) {
+					transaction.update(ref, { [existingType === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(-1) });
+				}
+				transaction.update(ref, { [type === 'like' ? 'likes' : 'dislikes']: firebase.firestore.FieldValue.increment(1) });
+			}
+		});
 		loadFeedback();
 	} catch (e) { console.warn('Vote error:', e); }
 }
