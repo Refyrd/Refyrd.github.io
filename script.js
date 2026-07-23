@@ -132,71 +132,71 @@ const profanityRu = [
 ];
 
 const profanityEn = [
-    'fuck', 'fck', 'fuk', 'fuk', 'shit', 'sh1t', 'sh!t',
+    'fuck', 'fck', 'fuk', 'shit', 'sh!t',
     'asshole', 'asshol', 'ashole', 'ashol',
     'bastard', 'bastrd',
-    'bitch', 'b1tch', 'biatch', 'btch',
+    'bitch', 'biatch', 'btch',
     'cunt', 'cnt',
-    'dick', 'd1ck', 'dck',
+    'dick', 'dck',
     'motherfucker', 'motherfuck', 'mothafuck', 'mf',
-    'nigga', 'nigger', 'n1gga', 'n1gger', 'nigg',
+    'nigga', 'nigger', 'nigg',
     'pussy', 'pusy', 'puss',
-    'slut', 'slut',
+    'slut',
     'whore', 'hor', 'hoar',
     'damn', 'dmn',
     'douche', 'douch',
     'prick', 'prck',
-    'cock', 'c0ck',
+    'cock',
     'sucker', 'suckr',
     'wanker', 'wank',
-    'twat', 'tw4t',
-    'fag', 'f4g', 'faggot', 'fagot',
-    'retard', 'retrd', 'r3tard',
-    'moron', 'm0ron',
-    'idiot', '1diot',
+    'twat',
+    'fag', 'faggot', 'fagot',
+    'retard', 'retrd',
+    'moron',
+    'idiot',
     'stupid', 'stpd',
     'loser', 'losr',
-    'crap', 'cr4p',
-    'bullshit', 'bullsh1t',
+    'crap',
+    'bullshit',
     'goddamn', 'goddmn',
     'holy', 'holyshit',
-    'sex', 's3x',
-    'porn', 'p0rn', 'porn',
-    'anal', '4nal',
-    'blowjob', 'bl0wjob', 'bj',
-    'cum', 'c0m',
-    'cock', 'c0ck',
-    'dildo', 'd1ldo',
+    'sex',
+    'porn',
+    'anal',
+    'blowjob', 'bj',
+    'cum',
+    'dildo',
     'erect',
-    'facial', 'fac1al',
+    'facial',
     'handjob',
-    'horny', 'h0rny',
+    'horny',
     'incest',
     'masturbat', 'mastrubat',
-    'naked', 'nak3d',
-    'nude', 'n00d',
-    'orgasm', '0rgasm',
-    'penis', 'pen1s', 'p3nis',
-    'tits', 't1ts', 'tts',
+    'naked',
+    'nude',
+    'orgasm',
+    'penis',
+    'tits', 'tts',
     'vagina', 'vagin',
-    'boob', 'b00b',
-    'ass', '4ss',
-    'hitler', 'h1tler',
-    'nazi', 'n4zi',
+    'boob',
+    'ass',
+    'hitler',
+    'nazi',
     'fascist',
-    'racist', 'rac1st',
+    'racist',
     'kkk', 'kluklux',
     'swastika',
     'terrorist',
-    'bomb', 'b0mb',
-    'kill', 'k1ll',
+    'bomb',
+    'kill',
     'murder', 'murdr',
     'suicide',
-    'hate', 'h4te',
+    'hate',
 ];
 
+const _leetMap = { '0':'o','1':'i','2':'z','3':'e','4':'a','5':'s','6':'g','7':'t','8':'b','9':'g' };
 const _profSet = new Set([...profanityRu, ...profanityEn].map(w => w.toLowerCase()));
-const _cleanToken = s => s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').toLowerCase();
+const _cleanToken = s => s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '').toLowerCase().replace(/[0-9]/g, c => _leetMap[c]);
 
 function hasProfanity(text) {
   return text.split(/\s+/).some(t => {
@@ -1785,18 +1785,36 @@ function changeDirection(newDx, newDy) {
     inputQueue.push({ dx: newDx, dy: newDy });
 }
 
+const _heldKeys = new Set();
 document.addEventListener('keydown', (e) => {
     if (document.activeElement === playerNameInput) {
         if (e.key === 'Enter') startGame();
         return;
     }
     if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight", " "].indexOf(e.code) > -1) e.preventDefault();
+    let ndx = 0, ndy = 0;
     switch(e.key) {
-        case 'ArrowLeft': case 'a': case 'A': case 'ф': case 'Ф': changeDirection(-1, 0); break;
-        case 'ArrowRight': case 'd': case 'D': case 'в': case 'В': changeDirection(1, 0); break;
-        case 'ArrowUp': case 'w': case 'W': case 'ц': case 'Ц': changeDirection(0, -1); break;
-        case 'ArrowDown': case 's': case 'S': case 'ы': case 'Ы': changeDirection(0, 1); break;
+        case 'ArrowLeft': case 'a': case 'A': case 'ф': case 'Ф': ndx = -1; break;
+        case 'ArrowRight': case 'd': case 'D': case 'в': case 'В': ndx = 1; break;
+        case 'ArrowUp': case 'w': case 'W': case 'ц': case 'Ц': ndy = -1; break;
+        case 'ArrowDown': case 's': case 'S': case 'ы': case 'Ы': ndy = 1; break;
     }
+    if (ndx === 0 && ndy === 0) return;
+    const key = `${ndx},${ndy}`;
+    if (_heldKeys.has(key)) return;
+    _heldKeys.add(key);
+    changeDirection(ndx, ndy);
+});
+document.addEventListener('keyup', (e) => {
+    let ndx = 0, ndy = 0;
+    switch(e.key) {
+        case 'ArrowLeft': case 'a': case 'A': case 'ф': case 'Ф': ndx = -1; break;
+        case 'ArrowRight': case 'd': case 'D': case 'в': case 'В': ndx = 1; break;
+        case 'ArrowUp': case 'w': case 'W': case 'ц': case 'Ц': ndy = -1; break;
+        case 'ArrowDown': case 's': case 'S': case 'ы': case 'Ы': ndy = 1; break;
+    }
+    if (ndx === 0 && ndy === 0) return;
+    _heldKeys.delete(`${ndx},${ndy}`);
 });
 
 // === TOUCH ===
