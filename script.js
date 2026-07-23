@@ -857,12 +857,15 @@ async function saveScoreToLeaderboard() {
     loadLeaderboard();
 }
 
+let _lbLangAtStart = '';
 async function loadLeaderboard() {
+    _lbLangAtStart = currentLang;
     try {
         const snapshot = await db.collection(LEADERBOARD_COLLECTION)
             .orderBy('score', 'desc')
             .limit(lbLimit)
             .get();
+        if (currentLang !== _lbLangAtStart) return;
         setLbStatus('online', i18n[currentLang].online);
         if (snapshot.empty) {
             leaderboardList.innerHTML = `<div class="lb-empty">${i18n[currentLang].lbNoScores}</div>`;
@@ -893,6 +896,7 @@ async function loadLeaderboard() {
             }
         }
     } catch (e) {
+        if (currentLang !== _lbLangAtStart) return;
         console.warn('Firebase load error:', e);
         setLbStatus('error', i18n[currentLang].errorPrefix + e.message);
         leaderboardList.innerHTML = `<div class="lb-empty">${i18n[currentLang].lbOffline}</div>`;
@@ -1095,10 +1099,13 @@ function startEditComment(entry, commentEl) {
 	input.addEventListener('blur', finish);
 }
 
+let _fbLangAtStart = '';
 async function loadFeedback(silent) {
+	_fbLangAtStart = currentLang;
 	if (!silent) fbList.innerHTML = `<div class="lb-loading">${i18n[currentLang].lbLoading}</div>`;
 	try {
 		const snap = await db.collection(Fb_COLLECTION).orderBy('time', 'desc').limit(50).get();
+		if (currentLang !== _fbLangAtStart) return;
 		if (snap.empty) {
 			fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbNoFeedback}</div>`;
 			return;
@@ -1181,6 +1188,7 @@ async function loadFeedback(silent) {
 			}
 		}
 	} catch (e) {
+		if (currentLang !== _fbLangAtStart) return;
 		fbList.innerHTML = `<div class="lb-empty">${i18n[currentLang].fbLoadFail}</div>`;
 	}
 }
