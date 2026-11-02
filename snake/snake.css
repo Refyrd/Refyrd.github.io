@@ -4,13 +4,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 32px 16px;
+  padding: 24px 16px;
   min-height: 100vh;
 }
 
 .game-layout {
   width: 100%;
-  max-width: 520px;
+  max-width: 480px;
   background-color: var(--surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 14px 18px;
   background-color: var(--surface-raised);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -33,10 +33,10 @@
 .nav-back-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   padding: 6px 10px;
   border-radius: 8px;
@@ -56,34 +56,48 @@
 .game-nav-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .game-nav-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 
 .game-nav-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--accent-primary);
   background-color: rgba(255, 159, 28, 0.12);
   border: 1px solid rgba(255, 159, 28, 0.25);
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 6px;
+}
+
+.debug-indicator {
+  font-size: 9px;
+  font-weight: 700;
+  color: #FF4D36;
+  background-color: rgba(255, 77, 54, 0.15);
+  border: 1px solid rgba(255, 77, 54, 0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.debug-indicator.hidden {
+  display: none;
 }
 
 /* Game Board Wrapper */
 .game-board-wrapper {
-  padding: 24px 20px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 /* Status Panel */
@@ -91,11 +105,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   background-color: var(--surface-sunken);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 10px;
+  padding: 10px 14px;
 }
 
 .score-box {
@@ -105,7 +119,7 @@
 }
 
 .score-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -114,7 +128,7 @@
 
 .score-digit {
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1;
@@ -149,6 +163,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Crucial: Prevent page scrolling on touch gestures inside canvas */
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.canvas-screen-box:active {
+  cursor: grabbing;
 }
 
 .canvas-screen-box.shake {
@@ -166,6 +188,7 @@
   height: 100%;
   display: block;
   outline: none;
+  touch-action: none;
 }
 
 #game-canvas:focus-visible {
@@ -176,13 +199,14 @@
 .game-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(10, 11, 14, 0.85);
+  background-color: rgba(10, 11, 14, 0.88);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 24px;
+  padding: 16px;
   opacity: 1;
   transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 20;
 }
 
 .game-overlay.hidden {
@@ -195,8 +219,8 @@
   background-color: var(--surface-card);
   border: 1px solid var(--border-strong);
   border-radius: 12px;
-  padding: 24px;
-  max-width: 300px;
+  padding: 22px;
+  max-width: 320px;
   width: 100%;
   text-align: center;
   display: flex;
@@ -223,53 +247,33 @@
   line-height: 1.4;
 }
 
-/* D-Pad for Mobile */
-.mobile-dpad-section {
-  display: none;
-  justify-content: center;
-  padding-top: 4px;
+/* Debug Dialog */
+.debug-dialog {
+  max-width: 340px;
+  gap: 14px;
 }
 
-.dpad-container {
-  display: grid;
-  grid-template-columns: repeat(3, 56px);
-  grid-template-rows: repeat(3, 56px);
+.debug-warning {
+  color: #FFA385;
+  font-size: 11px;
+  background-color: rgba(255, 77, 54, 0.08);
+  border: 1px solid rgba(255, 77, 54, 0.2);
+  padding: 6px 8px;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.debug-actions-grid {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
-.dpad-key {
-  background-color: var(--surface-sunken);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  color: var(--text-primary);
-  font-size: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 52px;
-  min-height: 52px;
-  cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
-  transition: background-color 0.1s ease, transform 0.08s ease;
+.debug-actions-grid .btn-ctrl {
+  min-height: 38px;
+  font-size: 12px;
+  padding: 6px 10px;
 }
-
-.dpad-key:active {
-  background-color: var(--accent-action);
-  color: #FFFFFF;
-  transform: scale(0.94);
-}
-
-.dpad-key:focus-visible {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
-}
-
-.dpad-up { grid-column: 2; grid-row: 1; }
-.dpad-left { grid-column: 1; grid-row: 2; }
-.dpad-pivot { grid-column: 2; grid-row: 2; background-color: transparent; border: none; cursor: default; }
-.dpad-right { grid-column: 3; grid-row: 2; }
-.dpad-down { grid-column: 2; grid-row: 3; }
 
 /* Controls Footer */
 .game-controls-footer {
@@ -281,8 +285,8 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 16px;
-  font-size: 12px;
+  gap: 12px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
@@ -295,19 +299,33 @@
 /* Mobile Breakpoint */
 @media (max-width: 600px) {
   .game-page-body {
-    padding: 12px 8px;
+    padding: 8px 6px;
+    align-items: center;
+  }
+
+  .game-layout {
+    border-radius: 12px;
+  }
+
+  .game-nav-header {
+    padding: 10px 14px;
   }
 
   .game-board-wrapper {
-    padding: 16px 14px;
-    gap: 16px;
+    padding: 12px;
+    gap: 12px;
   }
 
-  .mobile-dpad-section {
-    display: flex;
+  .game-status-panel {
+    padding: 8px 12px;
   }
 
-  .game-controls-footer {
-    display: none;
+  .score-digit {
+    font-size: 18px;
+  }
+
+  .controls-hint-row {
+    font-size: 10px;
+    gap: 8px;
   }
 }

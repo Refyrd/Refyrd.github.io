@@ -2,9 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Змейка // Refyrd Games</title>
-  <meta name="description" content="Классическая змейка с управлением на клавиатуре и сенсорных экранах.">
+  <meta name="description" content="Классическая змейка с управлением свайпами и клавиатурой.">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="snake.css">
 </head>
@@ -20,6 +20,7 @@
       <div class="game-nav-meta">
         <h1 class="game-nav-title">Змейка</h1>
         <span class="game-nav-badge">Классика</span>
+        <span id="debug-badge" class="debug-indicator hidden">ЧИТ-РЕЖИМ</span>
       </div>
 
       <div class="game-nav-actions">
@@ -44,7 +45,7 @@
         </div>
 
         <div class="game-quick-actions">
-          <button id="btn-pause" class="btn-ctrl" type="button">Пауза</button>
+          <button id="btn-pause" class="btn-ctrl" type="button" title="Пауза (кликните 10 раз для меню отладки)">Пауза</button>
           <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
         </div>
       </div>
@@ -53,7 +54,7 @@
       <div class="canvas-screen-box">
         <canvas id="game-canvas" width="400" height="400" aria-label="Поле игры змейка" tabindex="0"></canvas>
 
-        <!-- Overlay Dialog -->
+        <!-- Overlay Dialog (Pause / Game Over / Victory) -->
         <div id="game-overlay" class="game-overlay hidden" aria-live="polite">
           <div class="overlay-dialog">
             <h2 class="overlay-heading" id="overlay-heading">Пауза</h2>
@@ -61,25 +62,32 @@
             <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Продолжить</button>
           </div>
         </div>
-      </div>
 
-      <!-- Mobile On-screen D-Pad -->
-      <div class="mobile-dpad-section" aria-label="Кнопки управления для смартфонов">
-        <div class="dpad-container">
-          <button class="dpad-key dpad-up" id="dpad-up" type="button" aria-label="Вверх">▲</button>
-          <button class="dpad-key dpad-left" id="dpad-left" type="button" aria-label="Влево">◀</button>
-          <div class="dpad-key dpad-pivot" aria-hidden="true"></div>
-          <button class="dpad-key dpad-right" id="dpad-right" type="button" aria-label="Вправо">▶</button>
-          <button class="dpad-key dpad-down" id="dpad-down" type="button" aria-label="Вниз">▼</button>
+        <!-- Debug Menu Modal (10 clicks on Pause button) -->
+        <div id="debug-modal" class="game-overlay hidden" aria-live="polite">
+          <div class="overlay-dialog debug-dialog">
+            <h2 class="overlay-heading">Меню отладки</h2>
+            <p class="overlay-desc debug-warning">
+              Внимание: действия в меню отладки отключают сохранение счета в рекорды для текущей сессии.
+            </p>
+            <div class="debug-actions-grid">
+              <button id="dbg-add-length" class="btn-ctrl" type="button">+5 к длине змейки</button>
+              <button id="dbg-sound-eat" class="btn-ctrl" type="button">Тест звука (еда)</button>
+              <button id="dbg-sound-hit" class="btn-ctrl" type="button">Тест звука (удар)</button>
+              <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
+              <button id="dbg-gameover" class="btn-ctrl" type="button">Вызвать проигрыш</button>
+            </div>
+            <button id="dbg-close" class="btn-ctrl btn-primary-action" type="button">Закрыть меню</button>
+          </div>
         </div>
       </div>
 
       <!-- Controls Guide -->
       <footer class="game-controls-footer">
         <div class="controls-hint-row">
-          <span class="controls-hint-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> или <kbd>Стрелки</kbd> для движения</span>
+          <span class="controls-hint-item">Свайп пальцем или мышью для поворота</span>
+          <span class="controls-hint-item"><kbd>Стрелки</kbd> / <kbd>WASD</kbd></span>
           <span class="controls-hint-item"><kbd>Пробел</kbd> пауза</span>
-          <span class="controls-hint-item"><kbd>R</kbd> перезапуск</span>
         </div>
       </footer>
     </main>

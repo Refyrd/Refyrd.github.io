@@ -13,11 +13,16 @@
 - [x] Full keyboard navigation and visible focus outlines (WCAG AA)
 
 ## Games
-- [x] Snake (`/snake/`): Dedicated page, subtle micro-animations (breathing food, score bump, gentle shake), mobile D-pad and swipe controls
+- [x] Snake (`/snake/`): Dedicated page, subtle micro-animations (breathing food, score bump, gentle shake)
+- [x] Pure swipe/drag controls for touch and mouse with zero page scrolling (`touch-action: none`)
+- [x] Removed obsolete on-screen mobile D-pad buttons
+- [x] 10-click pause debug menu (+length, audio tests, win/loss triggers) with high score protection
+- [x] Victory screen and complete board clear detection
 - [ ] Game 2: TBD (slot 02)
 - [ ] Game 3: TBD (slot 03)
 
 ## Polish & Verification
+- [x] Mobile paddings and touch layout verification
 - [x] Verification of page paths, links, and responsive layouts
 - [x] Audio synthesizer on Web Audio API (toggleable, default off)
 - [ ] Next game implementation

@@ -1,6 +1,6 @@
 /**
  * Snake Mini-Game // Refyrd Games
- * Standalone game module with subtle micro-animations and responsive touch controls.
+ * Features swipe/drag touch and mouse navigation, victory state, and debug controls.
  */
 (function() {
   const canvas = document.getElementById('game-canvas');
@@ -16,13 +16,18 @@
   const overlayBtn = document.getElementById('overlay-btn');
   const soundToggle = document.getElementById('sound-toggle');
   const soundStatus = document.getElementById('sound-status');
+  const debugBadge = document.getElementById('debug-badge');
 
-  const dpadUp = document.getElementById('dpad-up');
-  const dpadDown = document.getElementById('dpad-down');
-  const dpadLeft = document.getElementById('dpad-left');
-  const dpadRight = document.getElementById('dpad-right');
+  // Debug Modal Elements
+  const debugModal = document.getElementById('debug-modal');
+  const dbgAddLength = document.getElementById('dbg-add-length');
+  const dbgSoundEat = document.getElementById('dbg-sound-eat');
+  const dbgSoundHit = document.getElementById('dbg-sound-hit');
+  const dbgWin = document.getElementById('dbg-win');
+  const dbgGameover = document.getElementById('dbg-gameover');
+  const dbgClose = document.getElementById('dbg-close');
 
-  // Sound Synthesizer via Web Audio API
+  // Audio Synthesizer
   let audioCtx = null;
   let isSoundOn = false;
 
@@ -58,6 +63,11 @@
       setTimeout(() => playTone(659.25, 0.08, 'triangle'), 60);
     } else if (name === 'hit') {
       playTone(130.81, 0.2, 'sawtooth');
+    } else if (name === 'win') {
+      playTone(523.25, 0.1, 'triangle');
+      setTimeout(() => playTone(659.25, 0.1, 'triangle'), 100);
+      setTimeout(() => playTone(783.99, 0.12, 'triangle'), 200);
+      setTimeout(() => playTone(1046.5, 0.25, 'triangle'), 300);
     } else if (name === 'click') {
       playTone(880, 0.03, 'sine');
     }
@@ -73,12 +83,18 @@
 
   // Game Engine & State
   const gridCount = 20;
+  const totalCells = gridCount * gridCount;
   const cellSize = canvas.width / gridCount;
 
-  let state = 'READY'; // READY, RUNNING, PAUSED, GAME_OVER
+  let state = 'READY'; // READY, RUNNING, PAUSED, GAME_OVER, VICTORY
   let score = 0;
   let bestScore = parseInt(localStorage.getItem('refyrd_snake_best') || '0', 10);
   bestDisplay.textContent = String(bestScore).padStart(3, '0');
+
+  // Cheats / Debug state tracker
+  let isDebugSession = false;
+  let pauseClicks = 0;
+  let pauseClickTimer = null;
 
   let snake = [];
   let direction = { x: 1, y: 0 };
@@ -89,12 +105,21 @@
   let lastTickTime = 0;
   let eatPulseTimer = 0;
 
+  function markDebugUsed() {
+    if (!isDebugSession) {
+      isDebugSession = true;
+      debugBadge.classList.remove('hidden');
+    }
+  }
+
   function resetGame() {
     score = 0;
     scoreDisplay.textContent = '000';
     direction = { x: 1, y: 0 };
     inputQueue = [];
     tickInterval = 110;
+    isDebugSession = false;
+    debugBadge.classList.add('hidden');
 
     const startX = 6;
     const startY = 10;
@@ -106,11 +131,15 @@
 
     spawnFood();
     state = 'READY';
-    showOverlay('Старт', 'Нажмите любую стрелку или кнопку ниже, чтобы начать игру.', 'Играть');
+    showOverlay('Старт', 'Смахните по экрану или используйте стрелки/WASD.', 'Начать игру');
     btnPause.textContent = 'Пауза';
   }
 
   function spawnFood() {
+    if (snake.length >= totalCells) {
+      triggerVictory();
+      return;
+    }
     let valid = false;
     while (!valid) {
       const rx = Math.floor(Math.random() * gridCount);
@@ -137,6 +166,7 @@
   function startGame() {
     state = 'RUNNING';
     hideOverlay();
+    debugModal.classList.add('hidden');
     btnPause.textContent = 'Пауза';
   }
 
@@ -166,13 +196,19 @@
     state = 'GAME_OVER';
     playSound('hit');
 
-    // Subtle screen shake
     screenBox.classList.remove('shake');
     void screenBox.offsetWidth;
     screenBox.classList.add('shake');
     setTimeout(() => screenBox.classList.remove('shake'), 200);
 
     showOverlay('Игра окончена', 'Змейка столкнулась со стеной или собственным хвостом.', 'Сыграть снова');
+    btnPause.textContent = 'Пауза';
+  }
+
+  function triggerVictory() {
+    state = 'VICTORY';
+    playSound('win');
+    showOverlay('Победа!', 'Поздравляем! Змейка заполнила игровое поле. Вы полностью прошли игру!', 'Играть заново');
     btnPause.textContent = 'Пауза';
   }
 
@@ -233,10 +269,16 @@
         animateScoreBump();
         playSound('eat');
 
-        if (score > bestScore) {
+        // Only save high score if debug/cheat mode was NOT used
+        if (!isDebugSession && score > bestScore) {
           bestScore = score;
           localStorage.setItem('refyrd_snake_best', bestScore.toString());
           bestDisplay.textContent = String(bestScore).padStart(3, '0');
+        }
+
+        if (snake.length >= totalCells) {
+          triggerVictory();
+          return;
         }
 
         tickInterval = Math.max(70, 110 - Math.floor(score / 50) * 4);
@@ -349,22 +391,73 @@
     requestAnimationFrame(gameLoop);
   }
 
-  // Event Listeners
+  // 10 Clicks on Pause to trigger Debug Menu
+  btnPause.addEventListener('click', () => {
+    initAudio();
+    playSound('click');
+
+    pauseClicks++;
+    clearTimeout(pauseClickTimer);
+    pauseClickTimer = setTimeout(() => {
+      pauseClicks = 0;
+    }, 2500);
+
+    if (pauseClicks >= 10) {
+      pauseClicks = 0;
+      pauseGame();
+      debugModal.classList.remove('hidden');
+      return;
+    }
+
+    togglePause();
+  });
+
+  // Debug Actions
+  dbgClose.addEventListener('click', () => {
+    debugModal.classList.add('hidden');
+  });
+
+  dbgAddLength.addEventListener('click', () => {
+    markDebugUsed();
+    const tail = snake[snake.length - 1];
+    for (let i = 0; i < 5; i++) {
+      snake.push({ x: tail.x, y: tail.y });
+    }
+    playSound('eat');
+  });
+
+  dbgSoundEat.addEventListener('click', () => {
+    initAudio();
+    playSound('eat');
+  });
+
+  dbgSoundHit.addEventListener('click', () => {
+    initAudio();
+    playSound('hit');
+  });
+
+  dbgWin.addEventListener('click', () => {
+    markDebugUsed();
+    debugModal.classList.add('hidden');
+    triggerVictory();
+  });
+
+  dbgGameover.addEventListener('click', () => {
+    markDebugUsed();
+    debugModal.classList.add('hidden');
+    triggerGameOver();
+  });
+
+  // Overlay Action Button
   overlayBtn.addEventListener('click', () => {
     initAudio();
     playSound('click');
     if (state === 'READY' || state === 'PAUSED') {
       startGame();
-    } else if (state === 'GAME_OVER') {
+    } else if (state === 'GAME_OVER' || state === 'VICTORY') {
       resetGame();
       startGame();
     }
-  });
-
-  btnPause.addEventListener('click', () => {
-    initAudio();
-    playSound('click');
-    togglePause();
   });
 
   btnRestart.addEventListener('click', () => {
@@ -374,6 +467,7 @@
     startGame();
   });
 
+  // Keyboard navigation
   window.addEventListener('keydown', (e) => {
     const key = e.key;
     if (key === 'ArrowUp' || key === 'w' || key === 'W' || key === 'Ц' || key === 'ц') {
@@ -400,46 +494,81 @@
     }
   });
 
-  function bindDpad(btn, dir) {
-    const handler = (e) => {
-      e.preventDefault();
-      initAudio();
-      setDirection(dir);
-    };
-    btn.addEventListener('touchstart', handler, { passive: false });
-    btn.addEventListener('mousedown', handler);
+  // Unified Pointer & Touch Swipe Drag Controller (Zero Page Scrolling)
+  let startX = 0;
+  let startY = 0;
+  let isPointerDown = false;
+  const minSwipeDistance = 16;
+
+  function handleGestureStart(x, y) {
+    initAudio();
+    startX = x;
+    startY = y;
+    isPointerDown = true;
   }
 
-  bindDpad(dpadUp, { x: 0, y: -1 });
-  bindDpad(dpadDown, { x: 0, y: 1 });
-  bindDpad(dpadLeft, { x: -1, y: 0 });
-  bindDpad(dpadRight, { x: 1, y: 0 });
+  function handleGestureMove(x, y, preventFn) {
+    if (!isPointerDown) return;
+    const dx = x - startX;
+    const dy = y - startY;
 
-  // Swipe controls on canvas
-  let touchX = 0;
-  let touchY = 0;
+    if (Math.abs(dx) >= minSwipeDistance || Math.abs(dy) >= minSwipeDistance) {
+      if (preventFn) preventFn();
 
-  canvas.addEventListener('touchstart', (e) => {
-    initAudio();
-    if (e.touches.length === 1) {
-      touchX = e.touches[0].clientX;
-      touchY = e.touches[0].clientY;
-    }
-  }, { passive: true });
-
-  canvas.addEventListener('touchend', (e) => {
-    if (e.changedTouches.length === 1) {
-      const dx = e.changedTouches[0].clientX - touchX;
-      const dy = e.changedTouches[0].clientY - touchY;
-      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 20) {
+      if (Math.abs(dx) > Math.abs(dy)) {
         setDirection({ x: dx > 0 ? 1 : -1, y: 0 });
-      } else if (Math.abs(dy) >= Math.abs(dx) && Math.abs(dy) > 20) {
+      } else {
         setDirection({ x: 0, y: dy > 0 ? 1 : -1 });
       }
+      startX = x;
+      startY = y;
     }
+  }
+
+  function handleGestureEnd() {
+    isPointerDown = false;
+  }
+
+  // Touch Events (passive: false is necessary to call preventDefault and stop scrolling)
+  screenBox.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      handleGestureStart(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+
+  screenBox.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+      e.preventDefault(); // Stop mobile screen scrolling completely
+      handleGestureMove(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault());
+    }
+  }, { passive: false });
+
+  screenBox.addEventListener('touchend', () => {
+    handleGestureEnd();
   }, { passive: true });
 
-  // Init
+  screenBox.addEventListener('touchcancel', () => {
+    handleGestureEnd();
+  }, { passive: true });
+
+  // Mouse Drag Events
+  screenBox.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+      handleGestureStart(e.clientX, e.clientY);
+    }
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isPointerDown) {
+      handleGestureMove(e.clientX, e.clientY, () => e.preventDefault());
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    handleGestureEnd();
+  });
+
+  // Start
   resetGame();
   requestAnimationFrame(gameLoop);
 })();
