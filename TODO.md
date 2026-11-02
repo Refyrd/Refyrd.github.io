@@ -8,17 +8,13 @@
 
 ## Core Platform & Architecture
 - [x] Redesign main hub (`index.html`) as dedicated game catalog with spacious, aligned layout
-- [x] Multi-page game architecture: games hosted on dedicated sub-paths (e.g. `refyrd.github.io/snake/`)
+- [x] Multi-page game architecture: games hosted on dedicated sub-paths
 - [x] Unified 8px modular spacing system and readable typography stack
 - [x] Full keyboard navigation and visible focus outlines (WCAG AA)
 
 ## Games
-- [x] Snake (`/snake/`): Dedicated page, subtle micro-animations (breathing food, score bump, gentle shake)
-- [x] Pure swipe/drag controls for touch and mouse with zero page scrolling (`touch-action: none`)
-- [x] Removed obsolete on-screen mobile D-pad buttons
-- [x] 10-click pause debug menu (+length, audio tests, win/loss triggers) with high score protection
-- [x] Victory screen and complete board clear detection
-- [ ] Game 2: TBD (slot 02)
+- [x] Snake (`/snake/`): Dedicated page, subtle micro-animations, pure touch swipe/drag, 10-click draggable debug menu
+- [x] Arkanoid (`/arkanoid/`): Dedicated page, angle-deflection physics, reinforced multi-hit bricks, particle sparks, lives system, draggable debug menu
 - [ ] Game 3: TBD (slot 03)
 
 ## Polish & Verification

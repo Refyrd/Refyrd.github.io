@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Арканоид // Refyrd Games</title>
+  <meta name="description" content="Классический арканоид с физикой отскоков, управлением пальцем, мышью и клавиатурой.">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="arkanoid.css">
+</head>
+<body class="game-page-body">
+  <div class="game-layout">
+    <!-- Top Navigation Bar -->
+    <header class="game-nav-header">
+      <a href="../" class="nav-back-link">
+        <span aria-hidden="true">←</span>
+        <span>Все игры</span>
+      </a>
+
+      <div class="game-nav-meta">
+        <h1 class="game-nav-title">Арканоид</h1>
+        <span class="game-nav-badge">Физика</span>
+        <span id="debug-badge" class="debug-indicator hidden">ЧИТ-РЕЖИМ</span>
+      </div>
+
+      <div class="game-nav-actions">
+        <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Звук" aria-pressed="false">
+          Звук: <span id="sound-status">выкл</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Board Container -->
+    <main class="game-board-wrapper">
+      <!-- Score & Status Panel -->
+      <div class="game-status-panel">
+        <div class="score-box">
+          <span class="score-label">Счет</span>
+          <span class="score-digit" id="score-display">000</span>
+        </div>
+
+        <div class="score-box">
+          <span class="score-label">Жизни</span>
+          <div class="lives-indicator" id="lives-display" aria-label="Осталось жизней">
+            <span class="life-pip active"></span>
+            <span class="life-pip active"></span>
+            <span class="life-pip active"></span>
+          </div>
+        </div>
+
+        <div class="score-box">
+          <span class="score-label">Рекорд</span>
+          <span class="score-digit highlight" id="best-display">000</span>
+        </div>
+
+        <div class="game-quick-actions">
+          <button id="btn-pause" class="btn-ctrl" type="button" title="Пауза (кликните 10 раз для меню отладки)">Пауза</button>
+          <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
+        </div>
+      </div>
+
+      <!-- Playfield Screen -->
+      <div class="canvas-screen-box">
+        <canvas id="game-canvas" width="400" height="460" aria-label="Игровое поле арканоида" tabindex="0"></canvas>
+
+        <!-- Overlay Dialog (Ready / Pause / Game Over / Victory) -->
+        <div id="game-overlay" class="game-overlay" aria-live="polite">
+          <div class="overlay-dialog">
+            <h2 class="overlay-heading" id="overlay-heading">Арканоид</h2>
+            <p class="overlay-desc" id="overlay-desc">Ведите пальцем или мышью по экрану, чтобы отбивать шарик.</p>
+            <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Запустить шар</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Draggable Debug Window (10 clicks on Pause button) -->
+      <div id="debug-modal" class="debug-window hidden" aria-live="polite">
+        <div class="debug-window-header" id="debug-drag-handle">
+          <div class="debug-window-title">
+            <span class="debug-drag-icon" aria-hidden="true">⠿</span>
+            <span>Меню отладки</span>
+          </div>
+          <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="debug-window-body">
+          <p class="overlay-desc debug-warning">
+            Действия в отладке отключают запись счета в рекорды.
+          </p>
+          <div class="debug-actions-grid">
+            <button id="dbg-add-life" class="btn-ctrl" type="button">+1 жизнь</button>
+            <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Оставить 2 блока</button>
+            <button id="dbg-sound-bounce" class="btn-ctrl" type="button">Тест звука (отскок)</button>
+            <button id="dbg-sound-break" class="btn-ctrl" type="button">Тест звука (разрушение)</button>
+            <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
+            <button id="dbg-gameover" class="btn-ctrl" type="button">Вызвать проигрыш</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Guide -->
+      <footer class="game-controls-footer">
+        <div class="controls-hint-row">
+          <span class="controls-hint-item">Ведите пальцем или мышью для ракетки</span>
+          <span class="controls-hint-item"><kbd>A</kbd><kbd>D</kbd> / <kbd>Стрелки</kbd></span>
+          <span class="controls-hint-item"><kbd>Пробел</kbd> запуск / пауза</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="arkanoid.js"></script>
+</body>
+</html>
