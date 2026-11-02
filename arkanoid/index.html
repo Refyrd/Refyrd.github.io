@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Арканоид // Refyrd Games</title>
-  <meta name="description" content="Классический арканоид с физикой отскоков, управлением пальцем, мышью и клавиатурой.">
+  <meta name="description" content="Арканоид с 60 уровнями, случайным режимом, бонусами и сохранением прогресса.">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="arkanoid.css">
 </head>
@@ -12,14 +12,20 @@
   <div class="game-layout">
     <!-- Top Navigation Bar -->
     <header class="game-nav-header">
-      <a href="../" class="nav-back-link">
-        <span aria-hidden="true">←</span>
-        <span>Все игры</span>
-      </a>
+      <div class="nav-left-group">
+        <a href="../" class="nav-back-link" id="link-to-hub">
+          <span aria-hidden="true">←</span>
+          <span>В хаб</span>
+        </a>
+        <button id="btn-to-levels" class="nav-back-link hidden" type="button">
+          <span aria-hidden="true">☰</span>
+          <span>Уровни</span>
+        </button>
+      </div>
 
       <div class="game-nav-meta">
-        <h1 class="game-nav-title">Арканоид</h1>
-        <span class="game-nav-badge">Физика</span>
+        <h1 class="game-nav-title" id="page-title">Арканоид</h1>
+        <span class="game-nav-badge" id="level-indicator">Каталог</span>
         <span id="debug-badge" class="debug-indicator hidden">ЧИТ-РЕЖИМ</span>
       </div>
 
@@ -30,13 +36,55 @@
       </div>
     </header>
 
-    <!-- Main Game Board Container -->
-    <main class="game-board-wrapper">
+    <!-- VIEW 1: Level Select Menu Screen -->
+    <section id="level-select-view" class="level-select-container" aria-label="Выбор уровней арканоида">
+      <div class="level-select-header">
+        <div class="mode-tabs">
+          <button id="tab-campaign" class="tab-btn active" type="button">Кампания (60 уровней)</button>
+          <button id="tab-random" class="tab-btn" type="button">Рандомный режим</button>
+        </div>
+        <p class="level-select-subtitle" id="mode-desc">
+          Выберите уровень для прохождения. Прогресс сохраняется автоматически на вашем устройстве.
+        </p>
+      </div>
+
+      <!-- Campaign Mode: 60 Levels Grid -->
+      <div id="campaign-panel" class="campaign-panel">
+        <div class="progress-stats-row">
+          <span id="progress-text">Пройдено: 0 / 60</span>
+          <span id="stars-text">Рекорд: 0</span>
+        </div>
+        <div class="levels-grid" id="levels-grid" role="list">
+          <!-- Populated by JavaScript (Levels 1 to 60) -->
+        </div>
+      </div>
+
+      <!-- Random Mode Panel -->
+      <div id="random-panel" class="random-panel hidden">
+        <div class="random-card">
+          <span class="random-badge">БЕСКОНЕЧНЫЙ РЕЖИМ</span>
+          <h2 class="random-title">Случайный уровень</h2>
+          <p class="random-desc">
+            Каждая новая игра создает уникальную симметричную комбинацию блоков различной прочности.
+          </p>
+          <button id="btn-start-random" class="btn-play" type="button">
+            <span>Запустить рандомный уровень</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: Active Gameplay Screen -->
+    <main id="game-view" class="game-board-wrapper hidden">
       <!-- Score & Status Panel -->
       <div class="game-status-panel">
         <div class="score-box">
           <span class="score-label">Счет</span>
-          <span class="score-digit" id="score-display">000</span>
+          <div class="score-row">
+            <span class="score-digit" id="score-display">000</span>
+            <span id="multiplier-badge" class="multiplier-badge hidden">x3</span>
+          </div>
         </div>
 
         <div class="score-box">
@@ -68,33 +116,20 @@
           <div class="overlay-dialog">
             <h2 class="overlay-heading" id="overlay-heading">Арканоид</h2>
             <p class="overlay-desc" id="overlay-desc">Ведите пальцем или мышью по экрану, чтобы отбивать шарик.</p>
-            <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Запустить шар</button>
+            <div class="overlay-buttons-group">
+              <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Запустить шар</button>
+              <button id="overlay-next-level-btn" class="btn-ctrl btn-accent hidden" type="button">Следующий уровень</button>
+              <button id="overlay-levels-btn" class="btn-ctrl hidden" type="button">К выбору уровней</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Draggable Debug Window (10 clicks on Pause button) -->
-      <div id="debug-modal" class="debug-window hidden" aria-live="polite">
-        <div class="debug-window-header" id="debug-drag-handle">
-          <div class="debug-window-title">
-            <span class="debug-drag-icon" aria-hidden="true">⠿</span>
-            <span>Меню отладки</span>
-          </div>
-          <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Закрыть">✕</button>
-        </div>
-        <div class="debug-window-body">
-          <p class="overlay-desc debug-warning">
-            Действия в отладке отключают запись счета в рекорды.
-          </p>
-          <div class="debug-actions-grid">
-            <button id="dbg-add-life" class="btn-ctrl" type="button">+1 жизнь</button>
-            <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Оставить 2 блока</button>
-            <button id="dbg-sound-bounce" class="btn-ctrl" type="button">Тест звука (отскок)</button>
-            <button id="dbg-sound-break" class="btn-ctrl" type="button">Тест звука (разрушение)</button>
-            <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
-            <button id="dbg-gameover" class="btn-ctrl" type="button">Вызвать проигрыш</button>
-          </div>
-        </div>
+      <!-- Active Powerups Bar -->
+      <div class="active-powerups-bar" id="active-powerups-bar">
+        <span id="badge-barrier" class="buff-chip hidden">БАРЬЕР: <b id="timer-barrier">12s</b></span>
+        <span id="badge-widen" class="buff-chip hidden">ШИРОКАЯ РАКЕТКА: <b id="timer-widen">18s</b></span>
+        <span id="badge-mult" class="buff-chip hidden">x3 ОЧКИ: <b id="timer-mult">15s</b></span>
       </div>
 
       <!-- Controls Guide -->
@@ -106,6 +141,31 @@
         </div>
       </footer>
     </main>
+
+    <!-- Draggable Debug Window (10 clicks on Pause button) -->
+    <div id="debug-modal" class="debug-window hidden" aria-live="polite">
+      <div class="debug-window-header" id="debug-drag-handle">
+        <div class="debug-window-title">
+          <span class="debug-drag-icon" aria-hidden="true">⠿</span>
+          <span>Меню отладки</span>
+        </div>
+        <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="debug-window-body">
+        <p class="overlay-desc debug-warning">
+          Действия в отладке отключают запись счета в рекорды.
+        </p>
+        <div class="debug-actions-grid">
+          <button id="dbg-unlock-all" class="btn-ctrl" type="button">Разблокировать все 60 уровней</button>
+          <button id="dbg-drop-multiball" class="btn-ctrl" type="button">Выдать +3 шара</button>
+          <button id="dbg-drop-barrier" class="btn-ctrl" type="button">Выдать нижний барьер</button>
+          <button id="dbg-drop-widen" class="btn-ctrl" type="button">Выдать расширение ракетки</button>
+          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Выдать x3 множитель</button>
+          <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Оставить 2 блока</button>
+          <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="arkanoid.js"></script>

@@ -16,7 +16,13 @@ A clean, responsive web hub for lightweight browser mini-games, hosted on GitHub
 
 ## Available Games
 1. **Snake (`/snake/`):** Classic grid snake with progressive speed scaling, subtle food breathing, tactile score bumps, touch/mouse swipe controls, complete board victory state, and local high score tracking.
-2. **Arkanoid (`/arkanoid/`):** Brick-breaker game with angle-deflection paddle physics, multi-hit reinforced blocks, particle burst effects, 3-life system, and draggable debug menu.
+2. **Arkanoid (`/arkanoid/`):**
+   - 60 unique levels with varied brick tiers (1-hit, 2-hit, 3-hit armored).
+   - Infinite Random Mode with procedural symmetric layouts.
+   - Slower, balanced ball speed for comfortable control.
+   - Falling power-ups (+3 balls, x3 score multiplier, paddle expander, rare bottom protective floor barrier).
+   - Dedicated level selection screen with local device progress tracking (`localStorage`).
+   - Draggable debug window with cheats and testing tools.
 3. **Slot 03:** Reserved for upcoming game.
 
 ## Project Structure
@@ -30,9 +36,9 @@ Refyrd.github.io/
 │   ├── snake.css         # Board layout and animations
 │   └── snake.js          # Snake game logic, audio synth, and swipe input
 ├── arkanoid/
-│   ├── index.html        # Dedicated Arkanoid game page
-│   ├── arkanoid.css      # Board layout, lives indicator, and animations
-│   └── arkanoid.js       # Arkanoid physics engine, particle effects, and controls
+│   ├── index.html        # Arkanoid level select & game view
+│   ├── arkanoid.css      # Board styles, level select grid, powerup chips
+│   └── arkanoid.js       # 60 levels generator, random mode, power-ups physics
 ├── TODO.md               # Task list and roadmap
 ├── README.md             # Primary documentation (English)
 └── README.ru.md          # Russian documentation

@@ -14,7 +14,13 @@
 
 ## Games
 - [x] Snake (`/snake/`): Dedicated page, subtle micro-animations, pure touch swipe/drag, 10-click draggable debug menu
-- [x] Arkanoid (`/arkanoid/`): Dedicated page, angle-deflection physics, reinforced multi-hit bricks, particle sparks, lives system, draggable debug menu
+- [x] Arkanoid (`/arkanoid/`):
+  - [x] 60-level campaign with distinct architectural patterns and brick tiers (1-hit, 2-hit, 3-hit)
+  - [x] Infinite Random mode with procedural mirrored brick generation
+  - [x] Balanced comfortable ball speed (reduced to 3.6)
+  - [x] Falling power-up drops: +3 multiball, x3 multiplier, widen paddle, rare floor barrier
+  - [x] Dedicated Level Select screen with progress saved in `localStorage`
+  - [x] 10-click draggable debug menu with level unlock and power-up spawn options
 - [ ] Game 3: TBD (slot 03)
 
 ## Polish & Verification
