@@ -35,6 +35,7 @@
   const bestDisplay = document.getElementById('best-display');
   const ballsCountBadge = document.getElementById('balls-count-badge');
   const livesDisplay = document.getElementById('lives-display');
+  const btnLevelsHud = document.getElementById('btn-levels-hud');
   const btnPause = document.getElementById('btn-pause');
   const btnRestart = document.getElementById('btn-restart');
   const overlay = document.getElementById('game-overlay');
@@ -136,16 +137,58 @@
     if (isSoundOn) playSound('click');
   });
 
+  // Safe Local Storage Handlers (gracefully handles blocked cookies / file:// mode)
+  function safeGetItem(key, fallback = null) {
+    try {
+      const val = localStorage.getItem(key);
+      return val !== null ? val : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function safeSetItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e) {}
+  }
+
   // Persistent Progress Storage
   const TOTAL_LEVELS = 60;
-  let unlockedLevel = parseInt(localStorage.getItem('refyrd_arkanoid_unlocked') || '1', 10);
-  let completedLevels = new Set(JSON.parse(localStorage.getItem('refyrd_arkanoid_completed') || '[]'));
-  let bestScore = parseInt(localStorage.getItem('refyrd_arkanoid_best') || '0', 10);
-  bestDisplay.textContent = String(bestScore).padStart(3, '0');
+  let unlockedLevel = 1;
+  try {
+    const val = parseInt(safeGetItem('refyrd_arkanoid_unlocked', '1') || '1', 10);
+    if (!isNaN(val) && val >= 1) unlockedLevel = val;
+  } catch (e) {
+    unlockedLevel = 1;
+  }
+
+  let completedLevels = new Set();
+  try {
+    const raw = safeGetItem('refyrd_arkanoid_completed', '[]');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) completedLevels = new Set(parsed);
+    }
+  } catch (e) {
+    completedLevels = new Set();
+  }
+
+  let bestScore = 0;
+  try {
+    const val = parseInt(safeGetItem('refyrd_arkanoid_best', '0') || '0', 10);
+    if (!isNaN(val) && val >= 0) bestScore = val;
+  } catch (e) {
+    bestScore = 0;
+  }
+
+  if (bestDisplay) {
+    bestDisplay.textContent = String(bestScore).padStart(3, '0');
+  }
 
   function saveProgress() {
-    localStorage.setItem('refyrd_arkanoid_unlocked', unlockedLevel.toString());
-    localStorage.setItem('refyrd_arkanoid_completed', JSON.stringify(Array.from(completedLevels)));
+    safeSetItem('refyrd_arkanoid_unlocked', unlockedLevel.toString());
+    safeSetItem('refyrd_arkanoid_completed', JSON.stringify(Array.from(completedLevels)));
   }
 
   // Brick Layout Dimensions: Dense Small Squares (20x16 Grid)
@@ -1054,12 +1097,14 @@
     isRandomMode = false;
     switchToGameView();
     resetLevel(false);
+    startGame();
   }
 
   function startRandomLevel() {
     isRandomMode = true;
     switchToGameView();
     resetLevel(false);
+    startGame();
   }
 
   function switchToGameView() {
@@ -1076,6 +1121,14 @@
     linkToHub.classList.remove('hidden');
     renderLevelsGrid();
     state = 'PAUSED';
+  }
+
+  if (btnLevelsHud) {
+    btnLevelsHud.addEventListener('click', () => {
+      initAudio();
+      playSound('click');
+      switchToLevelSelect();
+    });
   }
 
   btnToLevels.addEventListener('click', () => {

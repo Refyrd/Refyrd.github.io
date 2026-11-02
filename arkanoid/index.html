@@ -13,7 +13,7 @@
     <!-- Top Navigation Bar -->
     <header class="game-nav-header">
       <div class="nav-left-group">
-        <a href="../" class="nav-back-link" id="link-to-hub">
+        <a href="../index.html" class="nav-back-link" id="link-to-hub">
           <span aria-hidden="true">←</span>
           <span>В хаб</span>
         </a>
@@ -56,9 +56,12 @@
           </button>
         </div>
 
-        <div class="progress-stats-row">
-          <span id="progress-text">Пройдено: 0 / 60</span>
-          <span id="stars-text">Рекорд: 0</span>
+        <div class="levels-header-bar">
+          <h2 class="levels-grid-heading">Список всех 60 уровней</h2>
+          <div class="progress-stats-row">
+            <span id="progress-text">Пройдено: 0 / 60</span>
+            <span id="stars-text">Рекорд: 0</span>
+          </div>
         </div>
         <div class="levels-grid" id="levels-grid" role="list">
           <!-- Populated by JavaScript (Levels 1 to 60) -->
@@ -108,6 +111,7 @@
         </div>
 
         <div class="game-quick-actions">
+          <button id="btn-levels-hud" class="btn-ctrl" type="button" title="Вернуться к списку уровней">Уровни</button>
           <button id="btn-pause" class="btn-ctrl" type="button" title="Пауза (кликните 10 раз для меню отладки)">Пауза</button>
           <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
         </div>

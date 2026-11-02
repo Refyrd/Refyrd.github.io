@@ -179,6 +179,21 @@
   border: none;
 }
 
+.levels-header-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 8px;
+}
+
+.levels-grid-heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
 .progress-stats-row {
   display: flex;
   justify-content: space-between;
@@ -186,7 +201,6 @@
   font-size: 12px;
   font-family: var(--font-mono);
   color: var(--text-muted);
-  padding-bottom: 4px;
 }
 
 /* Levels Grid (60 items) */
