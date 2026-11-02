@@ -17,7 +17,7 @@
 - [x] Arkanoid (`/arkanoid/`):
   - [x] 60-level campaign with 18x14 square pixel-art patterns and brick tiers (1-hit, 2-hit, 3-hit)
   - [x] Unbreakable steel barriers with 1-block bottleneck choke points leading into internal chambers
-  - [x] Infinite Random mode with procedural mirrored brick generation and steel obstacles
+  - [x] Infinite Random mode with 20 geometric silhouettes, 10 color palettes, and balanced mid-tier difficulty
   - [x] Balanced comfortable ball speed (reduced to 3.6)
   - [x] Falling power-up drops: +3 multiball, x3 ball tripler (triples active balls), widen paddle, rare floor barrier
   - [x] Dedicated Level Select screen with progress saved in `localStorage`

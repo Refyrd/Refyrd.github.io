@@ -19,7 +19,7 @@ A clean, responsive web hub for lightweight browser mini-games, hosted on GitHub
 2. **Arkanoid (`/arkanoid/`):**
    - 18x14 grid of 18px square blocks forming distinct geometric patterns and pixel-art archetypes.
    - 60 handcrafted levels featuring multi-hit blocks (1-hit, 2-hit, 3-hit) and unbreakable steel barriers with 1-block bottleneck choke points leading into internal chambers.
-   - Infinite Random Mode with procedural symmetric layouts.
+   - Infinite Random Mode with 20 distinct geometric silhouettes, 10 color palettes, and balanced mid-tier difficulty.
    - Slower, balanced ball speed for comfortable control.
    - Falling power-ups (+3 balls, x3 ball multiplier tripling all balls on screen, paddle expander, rare bottom protective floor barrier).
    - Dedicated level selection screen with local device progress tracking (`localStorage`).
