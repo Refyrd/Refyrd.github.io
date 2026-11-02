@@ -166,7 +166,6 @@
   function startGame() {
     state = 'RUNNING';
     hideOverlay();
-    debugModal.classList.add('hidden');
     btnPause.textContent = 'Пауза';
   }
 
@@ -478,13 +477,11 @@
 
   dbgWin.addEventListener('click', () => {
     markDebugUsed();
-    debugModal.classList.add('hidden');
     triggerVictory();
   });
 
   dbgGameover.addEventListener('click', () => {
     markDebugUsed();
-    debugModal.classList.add('hidden');
     triggerGameOver();
   });
 
