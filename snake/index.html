@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Змейка // Refyrd Games</title>
-  <meta name="description" content="Классическая змейка с управлением свайпами и клавиатурой.">
+  <title>Snake // Refyrd Games</title>
+  <meta name="description" content="Classic snake game with responsive swipe and keyboard controls.">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="snake.css">
 </head>
@@ -14,18 +14,18 @@
     <header class="game-nav-header">
       <a href="../" class="nav-back-link">
         <span aria-hidden="true">←</span>
-        <span>Все игры</span>
+        <span>All Games</span>
       </a>
 
       <div class="game-nav-meta">
-        <h1 class="game-nav-title">Змейка</h1>
-        <span class="game-nav-badge">Классика</span>
-        <span id="debug-badge" class="debug-indicator hidden">ЧИТ-РЕЖИМ</span>
+        <h1 class="game-nav-title">Snake</h1>
+        <span class="game-nav-badge">Classic</span>
+        <span id="debug-badge" class="debug-indicator hidden">CHEAT ACTIVE</span>
       </div>
 
       <div class="game-nav-actions">
-        <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Звук" aria-pressed="false">
-          Звук: <span id="sound-status">выкл</span>
+        <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Sound" aria-pressed="false">
+          Sound: <span id="sound-status">off</span>
         </button>
       </div>
     </header>
@@ -35,31 +35,31 @@
       <!-- Score & Status Bar -->
       <div class="game-status-panel">
         <div class="score-box">
-          <span class="score-label">Счет</span>
+          <span class="score-label">Score</span>
           <span class="score-digit" id="score-display">000</span>
         </div>
 
         <div class="score-box">
-          <span class="score-label">Рекорд</span>
+          <span class="score-label">Best</span>
           <span class="score-digit highlight" id="best-display">000</span>
         </div>
 
         <div class="game-quick-actions">
-          <button id="btn-pause" class="btn-ctrl" type="button" title="Пауза (кликните 10 раз для меню отладки)">Пауза</button>
-          <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
+          <button id="btn-pause" class="btn-ctrl" type="button" title="Pause (click 10 times for debug menu)">Pause</button>
+          <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Restart</button>
         </div>
       </div>
 
       <!-- Playfield Screen -->
       <div class="canvas-screen-box">
-        <canvas id="game-canvas" width="400" height="400" aria-label="Поле игры змейка" tabindex="0"></canvas>
+        <canvas id="game-canvas" width="400" height="400" aria-label="Snake game playfield" tabindex="0"></canvas>
 
         <!-- Overlay Dialog (Pause / Game Over / Victory) -->
         <div id="game-overlay" class="game-overlay hidden" aria-live="polite">
           <div class="overlay-dialog">
-            <h2 class="overlay-heading" id="overlay-heading">Пауза</h2>
-            <p class="overlay-desc" id="overlay-desc">Нажмите Пробел или кнопку ниже, чтобы продолжить игру.</p>
-            <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Продолжить</button>
+            <h2 class="overlay-heading" id="overlay-heading">Paused</h2>
+            <p class="overlay-desc" id="overlay-desc">Press Space or the button below to resume the game.</p>
+            <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Resume</button>
           </div>
         </div>
       </div>
@@ -69,20 +69,20 @@
         <div class="debug-window-header" id="debug-drag-handle">
           <div class="debug-window-title">
             <span class="debug-drag-icon" aria-hidden="true">⠿</span>
-            <span>Меню отладки</span>
+            <span>Debug Menu</span>
           </div>
-          <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Закрыть">✕</button>
+          <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Close">✕</button>
         </div>
         <div class="debug-window-body">
           <p class="overlay-desc debug-warning">
-            Действия в отладке отключают запись счета в рекорды.
+            Actions in debug mode disable high score recording.
           </p>
           <div class="debug-actions-grid">
-            <button id="dbg-add-length" class="btn-ctrl" type="button">+5 к длине змейки</button>
-            <button id="dbg-sound-eat" class="btn-ctrl" type="button">Тест звука (еда)</button>
-            <button id="dbg-sound-hit" class="btn-ctrl" type="button">Тест звука (удар)</button>
-            <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
-            <button id="dbg-gameover" class="btn-ctrl" type="button">Вызвать проигрыш</button>
+            <button id="dbg-add-length" class="btn-ctrl" type="button">+5 Snake Length</button>
+            <button id="dbg-sound-eat" class="btn-ctrl" type="button">Test Sound (Eat)</button>
+            <button id="dbg-sound-hit" class="btn-ctrl" type="button">Test Sound (Hit)</button>
+            <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Trigger Victory</button>
+            <button id="dbg-gameover" class="btn-ctrl" type="button">Trigger Game Over</button>
           </div>
         </div>
       </div>
@@ -90,9 +90,9 @@
       <!-- Controls Guide -->
       <footer class="game-controls-footer">
         <div class="controls-hint-row">
-          <span class="controls-hint-item">Свайп пальцем или мышью для поворота</span>
-          <span class="controls-hint-item"><kbd>Стрелки</kbd> / <kbd>WASD</kbd></span>
-          <span class="controls-hint-item"><kbd>Пробел</kbd> пауза</span>
+          <span class="controls-hint-item">Swipe with touch or mouse to turn</span>
+          <span class="controls-hint-item"><kbd>Arrows</kbd> / <kbd>WASD</kbd></span>
+          <span class="controls-hint-item"><kbd>Space</kbd> pause</span>
         </div>
       </footer>
     </main>

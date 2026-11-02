@@ -77,7 +77,7 @@
     initAudio();
     isSoundOn = !isSoundOn;
     soundToggle.setAttribute('aria-pressed', isSoundOn ? 'true' : 'false');
-    soundStatus.textContent = isSoundOn ? 'вкл' : 'выкл';
+    soundStatus.textContent = isSoundOn ? 'on' : 'off';
     if (isSoundOn) playSound('click');
   });
 
@@ -131,8 +131,8 @@
 
     spawnFood();
     state = 'READY';
-    showOverlay('Старт', 'Смахните по экрану или используйте стрелки/WASD.', 'Начать игру');
-    btnPause.textContent = 'Пауза';
+    showOverlay('Ready', 'Swipe across the screen or use Arrows/WASD to steer.', 'Start Game');
+    btnPause.textContent = 'Pause';
   }
 
   function spawnFood() {
@@ -166,14 +166,14 @@
   function startGame() {
     state = 'RUNNING';
     hideOverlay();
-    btnPause.textContent = 'Пауза';
+    btnPause.textContent = 'Pause';
   }
 
   function pauseGame() {
     if (state === 'RUNNING') {
       state = 'PAUSED';
-      showOverlay('Пауза', 'Игра приостановлена. Нажмите Пробел или кнопку ниже.', 'Продолжить');
-      btnPause.textContent = 'Дальше';
+      showOverlay('Paused', 'Game paused. Press Space or tap the button below.', 'Resume');
+      btnPause.textContent = 'Resume';
     }
   }
 
@@ -181,7 +181,7 @@
     if (state === 'PAUSED') {
       state = 'RUNNING';
       hideOverlay();
-      btnPause.textContent = 'Пауза';
+      btnPause.textContent = 'Pause';
     }
   }
 
@@ -200,15 +200,15 @@
     screenBox.classList.add('shake');
     setTimeout(() => screenBox.classList.remove('shake'), 200);
 
-    showOverlay('Игра окончена', 'Змейка столкнулась со стеной или собственным хвостом.', 'Сыграть снова');
-    btnPause.textContent = 'Пауза';
+    showOverlay('Game Over', 'The snake crashed into a wall or its own tail.', 'Play Again');
+    btnPause.textContent = 'Pause';
   }
 
   function triggerVictory() {
     state = 'VICTORY';
     playSound('win');
-    showOverlay('Победа!', 'Поздравляем! Змейка заполнила игровое поле. Вы полностью прошли игру!', 'Играть заново');
-    btnPause.textContent = 'Пауза';
+    showOverlay('Victory!', 'Congratulations! The snake filled the entire board. You beat the game!', 'Play Again');
+    btnPause.textContent = 'Pause';
   }
 
   function showOverlay(heading, desc, btnText) {

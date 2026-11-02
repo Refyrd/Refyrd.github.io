@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Арканоид // Refyrd Games</title>
-  <meta name="description" content="Арканоид с 60 уровнями, случайным режимом, бонусами и сохранением прогресса.">
+  <title>Arkanoid // Refyrd Games</title>
+  <meta name="description" content="Arkanoid with 60 levels, random procedural mode, power-ups, and saved progress.">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="arkanoid.css">
 </head>
@@ -15,36 +15,36 @@
       <div class="nav-left-group">
         <a href="../" class="nav-back-link" id="link-to-hub">
           <span aria-hidden="true">←</span>
-          <span>В хаб</span>
+          <span>Hub</span>
         </a>
         <button id="btn-to-levels" class="nav-back-link hidden" type="button">
           <span aria-hidden="true">☰</span>
-          <span>Уровни</span>
+          <span>Levels</span>
         </button>
       </div>
 
       <div class="game-nav-meta">
-        <h1 class="game-nav-title" id="page-title">Арканоид</h1>
-        <span class="game-nav-badge" id="level-indicator">Каталог</span>
-        <span id="debug-badge" class="debug-indicator hidden">ЧИТ-РЕЖИМ</span>
+        <h1 class="game-nav-title" id="page-title">Arkanoid</h1>
+        <span class="game-nav-badge" id="level-indicator">Catalog</span>
+        <span id="debug-badge" class="debug-indicator hidden">CHEAT ACTIVE</span>
       </div>
 
       <div class="game-nav-actions">
-        <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Звук" aria-pressed="false">
-          Звук: <span id="sound-status">выкл</span>
+        <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Sound" aria-pressed="false">
+          Sound: <span id="sound-status">off</span>
         </button>
       </div>
     </header>
 
     <!-- VIEW 1: Level Select Menu Screen -->
-    <section id="level-select-view" class="level-select-container" aria-label="Выбор уровней арканоида">
+    <section id="level-select-view" class="level-select-container" aria-label="Arkanoid level select">
       <div class="level-select-header">
         <div class="mode-tabs">
-          <button id="tab-campaign" class="tab-btn active" type="button">Кампания (60 уровней)</button>
-          <button id="tab-random" class="tab-btn" type="button">Рандомный режим</button>
+          <button id="tab-campaign" class="tab-btn active" type="button">Campaign (60 Levels)</button>
+          <button id="tab-random" class="tab-btn" type="button">Random Mode</button>
         </div>
         <p class="level-select-subtitle" id="mode-desc">
-          Выберите уровень для прохождения. Прогресс сохраняется автоматически на вашем устройстве.
+          Select a level to play. Progress is saved automatically on your device.
         </p>
       </div>
 
@@ -52,13 +52,13 @@
       <div id="campaign-panel" class="campaign-panel">
         <div class="campaign-quick-launch">
           <button id="btn-play-campaign" class="btn-play btn-play-large" type="button">
-            <span id="play-campaign-text">▶ Начать игру (Уровень 1)</span>
+            <span id="play-campaign-text">▶ Start Game (Level 1)</span>
           </button>
         </div>
 
         <div class="progress-stats-row">
-          <span id="progress-text">Пройдено: 0 / 60</span>
-          <span id="stars-text">Рекорд: 0</span>
+          <span id="progress-text">Completed: 0 / 60</span>
+          <span id="stars-text">Best: 0</span>
         </div>
         <div class="levels-grid" id="levels-grid" role="list">
           <!-- Populated by JavaScript (Levels 1 to 60) -->
@@ -68,13 +68,13 @@
       <!-- Random Mode Panel -->
       <div id="random-panel" class="random-panel hidden">
         <div class="random-card">
-          <span class="random-badge">БЕСКОНЕЧНЫЙ РЕЖИМ</span>
-          <h2 class="random-title">Случайный уровень</h2>
+          <span class="random-badge">ENDLESS MODE</span>
+          <h2 class="random-title">Random Level</h2>
           <p class="random-desc">
-            Каждая новая игра создает фигурный симметричный уровень сбалансированной сложности на основе одного из 20 геометрических силуэтов и 10 цветовых палитр.
+            Every new game builds a structured symmetric level with balanced difficulty based on one of 20 geometric silhouettes and 10 color palettes.
           </p>
           <button id="btn-start-random" class="btn-play" type="button">
-            <span>Запустить рандомный уровень</span>
+            <span>Launch Random Level</span>
             <span aria-hidden="true">→</span>
           </button>
         </div>
@@ -86,7 +86,7 @@
       <!-- Score & Status Panel -->
       <div class="game-status-panel">
         <div class="score-box">
-          <span class="score-label">Счет</span>
+          <span class="score-label">Score</span>
           <div class="score-row">
             <span class="score-digit" id="score-display">000</span>
             <span id="multiplier-badge" class="multiplier-badge hidden">x3</span>
@@ -94,8 +94,8 @@
         </div>
 
         <div class="score-box">
-          <span class="score-label">Жизни</span>
-          <div class="lives-indicator" id="lives-display" aria-label="Осталось жизней">
+          <span class="score-label">Lives</span>
+          <div class="lives-indicator" id="lives-display" aria-label="Remaining lives">
             <span class="life-pip active"></span>
             <span class="life-pip active"></span>
             <span class="life-pip active"></span>
@@ -103,29 +103,29 @@
         </div>
 
         <div class="score-box">
-          <span class="score-label">Рекорд</span>
+          <span class="score-label">Best</span>
           <span class="score-digit highlight" id="best-display">000</span>
         </div>
 
         <div class="game-quick-actions">
-          <button id="btn-pause" class="btn-ctrl" type="button" title="Пауза (кликните 10 раз для меню отладки)">Пауза</button>
-          <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
+          <button id="btn-pause" class="btn-ctrl" type="button" title="Pause (click 10 times for debug menu)">Pause</button>
+          <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Restart</button>
         </div>
       </div>
 
       <!-- Playfield Screen -->
       <div class="canvas-screen-box">
-        <canvas id="game-canvas" width="400" height="460" aria-label="Игровое поле арканоида" tabindex="0"></canvas>
+        <canvas id="game-canvas" width="400" height="460" aria-label="Arkanoid game playfield" tabindex="0"></canvas>
 
         <!-- Overlay Dialog (Ready / Pause / Game Over / Victory) -->
         <div id="game-overlay" class="game-overlay hidden" aria-live="polite">
           <div class="overlay-dialog">
-            <h2 class="overlay-heading" id="overlay-heading">Арканоид</h2>
-            <p class="overlay-desc" id="overlay-desc">Ведите пальцем или мышью по экрану, чтобы отбивать шарик.</p>
+            <h2 class="overlay-heading" id="overlay-heading">Arkanoid</h2>
+            <p class="overlay-desc" id="overlay-desc">Drag with touch or mouse across the screen to bounce the ball.</p>
             <div class="overlay-buttons-group">
-              <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Запустить шар</button>
-              <button id="overlay-next-level-btn" class="btn-ctrl btn-accent hidden" type="button">Следующий уровень</button>
-              <button id="overlay-levels-btn" class="btn-ctrl hidden" type="button">К выбору уровней</button>
+              <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Launch Ball</button>
+              <button id="overlay-next-level-btn" class="btn-ctrl btn-accent hidden" type="button">Next Level</button>
+              <button id="overlay-levels-btn" class="btn-ctrl hidden" type="button">Level Select</button>
             </div>
           </div>
         </div>
@@ -133,17 +133,17 @@
 
       <!-- Active Powerups Bar -->
       <div class="active-powerups-bar" id="active-powerups-bar">
-        <span id="badge-barrier" class="buff-chip hidden">БАРЬЕР: <b id="timer-barrier">12s</b></span>
-        <span id="badge-widen" class="buff-chip hidden">ШИРОКАЯ РАКЕТКА: <b id="timer-widen">18s</b></span>
-        <span id="badge-mult" class="buff-chip hidden">x3 ОЧКИ: <b id="timer-mult">15s</b></span>
+        <span id="badge-barrier" class="buff-chip hidden">BARRIER: <b id="timer-barrier">12s</b></span>
+        <span id="badge-widen" class="buff-chip hidden">WIDE PADDLE: <b id="timer-widen">18s</b></span>
+        <span id="badge-mult" class="buff-chip hidden">x3 SCORE: <b id="timer-mult">15s</b></span>
       </div>
 
       <!-- Controls Guide -->
       <footer class="game-controls-footer">
         <div class="controls-hint-row">
-          <span class="controls-hint-item">Ведите пальцем или мышью для ракетки</span>
-          <span class="controls-hint-item"><kbd>A</kbd><kbd>D</kbd> / <kbd>Стрелки</kbd></span>
-          <span class="controls-hint-item"><kbd>Пробел</kbd> запуск / пауза</span>
+          <span class="controls-hint-item">Drag with finger or mouse to steer paddle</span>
+          <span class="controls-hint-item"><kbd>A</kbd><kbd>D</kbd> / <kbd>Arrows</kbd></span>
+          <span class="controls-hint-item"><kbd>Space</kbd> launch / pause</span>
         </div>
       </footer>
     </main>
@@ -153,22 +153,22 @@
       <div class="debug-window-header" id="debug-drag-handle">
         <div class="debug-window-title">
           <span class="debug-drag-icon" aria-hidden="true">⠿</span>
-          <span>Меню отладки</span>
+          <span>Debug Menu</span>
         </div>
-        <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Закрыть">✕</button>
+        <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Close">✕</button>
       </div>
       <div class="debug-window-body">
         <p class="overlay-desc debug-warning">
-          Действия в отладке отключают запись счета в рекорды.
+          Actions in debug mode disable high score recording.
         </p>
         <div class="debug-actions-grid">
-          <button id="dbg-unlock-all" class="btn-ctrl" type="button">Разблокировать все 60 уровней</button>
-          <button id="dbg-drop-multiball" class="btn-ctrl" type="button">Выдать +3 шара</button>
-          <button id="dbg-drop-barrier" class="btn-ctrl" type="button">Выдать нижний барьер</button>
-          <button id="dbg-drop-widen" class="btn-ctrl" type="button">Выдать расширение ракетки</button>
-          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Утроить шары (x3)</button>
-          <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Оставить 2 блока</button>
-          <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
+          <button id="dbg-unlock-all" class="btn-ctrl" type="button">Unlock all 60 levels</button>
+          <button id="dbg-drop-multiball" class="btn-ctrl" type="button">Spawn +3 Balls</button>
+          <button id="dbg-drop-barrier" class="btn-ctrl" type="button">Spawn Floor Barrier</button>
+          <button id="dbg-drop-widen" class="btn-ctrl" type="button">Spawn Paddle Expander</button>
+          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Triple Balls (x3)</button>
+          <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Leave 2 Bricks</button>
+          <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Trigger Victory</button>
         </div>
       </div>
     </div>

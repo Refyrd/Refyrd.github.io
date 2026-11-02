@@ -124,7 +124,7 @@
     initAudio();
     isSoundOn = !isSoundOn;
     soundToggle.setAttribute('aria-pressed', isSoundOn ? 'true' : 'false');
-    soundStatus.textContent = isSoundOn ? 'вкл' : 'выкл';
+    soundStatus.textContent = isSoundOn ? 'on' : 'off';
     if (isSoundOn) playSound('click');
   });
 
@@ -722,7 +722,7 @@
 
     if (roll < 0.03) { // 3% Floor Barrier (rare!)
       type = 'BARRIER';
-      label = 'ПОЛ';
+      label = 'FLOOR';
       color = '#FF4D36';
     } else if (roll < 0.09) { // 6% Multiply all balls by 3!
       type = 'MULTIPLIER';
@@ -730,7 +730,7 @@
       color = '#FFD700';
     } else if (roll < 0.16) { // 7% Widen
       type = 'WIDEN';
-      label = 'РАСШ';
+      label = 'WIDE';
       color = '#2E66FF';
     } else { // 6% Multiball (+3)
       type = 'MULTIBALL';
@@ -872,9 +872,9 @@
 
     state = 'READY';
     hideOverlay();
-    btnPause.textContent = 'Пауза';
+    btnPause.textContent = 'Pause';
 
-    levelIndicator.textContent = isRandomMode ? 'РАНДОМ' : `УРОВЕНЬ ${currentLevelNumber} / ${TOTAL_LEVELS}`;
+    levelIndicator.textContent = isRandomMode ? 'RANDOM' : `LEVEL ${currentLevelNumber} / ${TOTAL_LEVELS}`;
   }
 
   function resetBallOnPaddle() {
@@ -890,24 +890,24 @@
     if (state === 'READY' || state === 'PAUSED') {
       state = 'RUNNING';
       hideOverlay();
-      btnPause.textContent = 'Пауза';
+      btnPause.textContent = 'Pause';
     } else if (state === 'GAME_OVER') {
       resetLevel(false);
       state = 'RUNNING';
       hideOverlay();
-      btnPause.textContent = 'Пауза';
+      btnPause.textContent = 'Pause';
     } else if (state === 'VICTORY') {
       if (!isRandomMode && currentLevelNumber < TOTAL_LEVELS) {
         currentLevelNumber++;
         resetLevel(true);
         state = 'RUNNING';
         hideOverlay();
-        btnPause.textContent = 'Пауза';
+        btnPause.textContent = 'Pause';
       } else {
         resetLevel(false);
         state = 'RUNNING';
         hideOverlay();
-        btnPause.textContent = 'Пауза';
+        btnPause.textContent = 'Pause';
       }
     }
   }
@@ -915,8 +915,8 @@
   function pauseGame() {
     if (state === 'RUNNING') {
       state = 'PAUSED';
-      showOverlay('Пауза', 'Игра приостановлена. Нажмите Пробел или кнопку ниже.', 'Продолжить', false);
-      btnPause.textContent = 'Дальше';
+      showOverlay('Paused', 'Game paused. Press Space or tap the button below to resume.', 'Resume', false);
+      btnPause.textContent = 'Resume';
     }
   }
 
@@ -924,7 +924,7 @@
     if (state === 'PAUSED') {
       state = 'RUNNING';
       hideOverlay();
-      btnPause.textContent = 'Пауза';
+      btnPause.textContent = 'Pause';
     }
   }
 
@@ -950,14 +950,14 @@
       state = 'READY';
       resetBallOnPaddle();
       hideOverlay();
-      btnPause.textContent = 'Пауза';
+      btnPause.textContent = 'Pause';
     }
   }
 
   function triggerGameOver() {
     state = 'GAME_OVER';
-    showOverlay('Игра окончена', 'Вы исчерпали все жизни на этом уровне.', 'Сыграть снова', false, true);
-    btnPause.textContent = 'Пауза';
+    showOverlay('Game Over', 'You ran out of lives on this level.', 'Play Again', false, true);
+    btnPause.textContent = 'Pause';
   }
 
   function triggerVictory() {
@@ -975,15 +975,15 @@
 
     const hasNext = !isRandomMode && currentLevelNumber < TOTAL_LEVELS;
     showOverlay(
-      'Победа!',
+      'Victory!',
       hasNext 
-        ? `Уровень ${currentLevelNumber} успешно пройден! Готовы перейти к следующему?`
-        : 'Поздравляем! Все кирпичи разбиты!',
-      hasNext ? 'Следующий уровень' : 'Сыграть заново',
+        ? `Level ${currentLevelNumber} cleared! Ready to proceed to the next?`
+        : 'Congratulations! All bricks have been destroyed!',
+      hasNext ? 'Next Level' : 'Play Again',
       hasNext,
       true
     );
-    btnPause.textContent = 'Пауза';
+    btnPause.textContent = 'Pause';
   }
 
   function showOverlay(heading, desc, btnText, showNext = false, showLevels = false) {
@@ -1337,7 +1337,7 @@
       ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Нажмите Пробел или коснитесь экрана для запуска', canvas.width / 2, 290);
+      ctx.fillText('Press Space or tap screen to launch ball', canvas.width / 2, 290);
     }
   }
 
@@ -1366,10 +1366,10 @@
   // =========================================
   function renderLevelsGrid() {
     levelsGrid.innerHTML = '';
-    progressText.textContent = `Пройдено: ${completedLevels.size} / ${TOTAL_LEVELS}`;
-    starsText.textContent = `Рекорд: ${bestScore}`;
+    progressText.textContent = `Completed: ${completedLevels.size} / ${TOTAL_LEVELS}`;
+    starsText.textContent = `Best: ${bestScore}`;
     if (playCampaignText) {
-      playCampaignText.textContent = `▶ Начать игру (Уровень ${unlockedLevel})`;
+      playCampaignText.textContent = `▶ Start Game (Level ${unlockedLevel})`;
     }
 
     for (let i = 1; i <= TOTAL_LEVELS; i++) {
@@ -1377,7 +1377,7 @@
       btn.type = 'button';
       btn.className = 'level-btn';
       btn.textContent = i;
-      btn.setAttribute('aria-label', `Уровень ${i}`);
+      btn.setAttribute('aria-label', `Level ${i}`);
 
       const isCompleted = completedLevels.has(i);
       const isUnlocked = i <= unlockedLevel;
@@ -1458,7 +1458,7 @@
     tabRandom.classList.remove('active');
     campaignPanel.classList.remove('hidden');
     randomPanel.classList.add('hidden');
-    modeDesc.textContent = 'Выберите уровень для прохождения. Прогресс сохраняется автоматически на вашем устройстве.';
+    modeDesc.textContent = 'Select a level to play. Progress is saved automatically on your device.';
   });
 
   tabRandom.addEventListener('click', () => {
@@ -1466,7 +1466,7 @@
     tabCampaign.classList.remove('active');
     campaignPanel.classList.add('hidden');
     randomPanel.classList.remove('hidden');
-    modeDesc.textContent = 'Бесконечный режим с уникальными симметричными генерациями поля.';
+    modeDesc.textContent = 'Endless mode with unique symmetric field generations.';
   });
 
   btnStartRandom.addEventListener('click', () => {
