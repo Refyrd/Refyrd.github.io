@@ -368,19 +368,24 @@
   color: #FFD285;
 }
 
-.multiplier-badge {
-  font-size: 10px;
-  font-weight: 800;
-  color: #FFD285;
-  background-color: rgba(255, 159, 28, 0.2);
-  border: 1px solid var(--accent-primary);
+.balls-count-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #4ADE80;
+  background-color: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
   border-radius: 4px;
-  padding: 1px 4px;
+  padding: 1px 5px;
   line-height: 1;
+  transition: all var(--transition-fast);
 }
 
-.multiplier-badge.hidden {
-  display: none;
+.balls-count-badge.swarm {
+  color: #FFAF3D;
+  background-color: rgba(255, 159, 28, 0.2);
+  border-color: rgba(255, 159, 28, 0.5);
+  box-shadow: 0 0 8px rgba(255, 159, 28, 0.4);
 }
 
 /* Lives Pips */

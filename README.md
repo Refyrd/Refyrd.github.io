@@ -17,10 +17,12 @@ A clean, responsive web hub for lightweight browser mini-games, hosted on GitHub
 ## Available Games
 1. **Snake (`/snake/`):** Classic grid snake with progressive speed scaling, subtle food breathing, tactile score bumps, touch/mouse swipe controls, complete board victory state, and local high score tracking.
 2. **Arkanoid (`/arkanoid/`):**
+   - Dense 20x16 small squares grid with 15 archetypes featuring funnels, tunnels, and cavities for ricochet swarms.
    - 60 unique levels with varied brick tiers (1-hit, 2-hit, 3-hit armored).
    - Infinite Random Mode with procedural symmetric layouts.
-   - Slower, balanced ball speed for comfortable control.
-   - Falling power-ups (+3 balls, x3 score multiplier, paddle expander, rare bottom protective floor barrier).
+   - Slower, balanced ball speed (3.6 px/frame) for comfortable control.
+   - Falling power-ups (+3 balls, x3 ball multiplier cascade, paddle expander, rare bottom floor barrier).
+   - High performance spatial grid collision and sound throttling for ball swarms.
    - Dedicated level selection screen with local device progress tracking (`localStorage`).
    - Draggable debug window with cheats and testing tools.
 3. **Slot 03:** Reserved for upcoming game.

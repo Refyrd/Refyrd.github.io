@@ -89,7 +89,7 @@
           <span class="score-label">Счет</span>
           <div class="score-row">
             <span class="score-digit" id="score-display">000</span>
-            <span id="multiplier-badge" class="multiplier-badge hidden">x3</span>
+            <span id="balls-count-badge" class="balls-count-badge">● 1</span>
           </div>
         </div>
 
@@ -133,9 +133,8 @@
 
       <!-- Active Powerups Bar -->
       <div class="active-powerups-bar" id="active-powerups-bar">
-        <span id="badge-barrier" class="buff-chip hidden">БАРЬЕР: <b id="timer-barrier">12s</b></span>
+        <span id="badge-barrier" class="buff-chip hidden">НИЖНИЙ БАРЬЕР: <b id="timer-barrier">12s</b></span>
         <span id="badge-widen" class="buff-chip hidden">ШИРОКАЯ РАКЕТКА: <b id="timer-widen">18s</b></span>
-        <span id="badge-mult" class="buff-chip hidden">x3 ОЧКИ: <b id="timer-mult">15s</b></span>
       </div>
 
       <!-- Controls Guide -->
@@ -166,7 +165,7 @@
           <button id="dbg-drop-multiball" class="btn-ctrl" type="button">Выдать +3 шара</button>
           <button id="dbg-drop-barrier" class="btn-ctrl" type="button">Выдать нижний барьер</button>
           <button id="dbg-drop-widen" class="btn-ctrl" type="button">Выдать расширение ракетки</button>
-          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Выдать x3 множитель</button>
+          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Умножить шары (x3)</button>
           <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Оставить 2 блока</button>
           <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
         </div>
