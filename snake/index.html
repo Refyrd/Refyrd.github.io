@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Змейка // Refyrd Games</title>
+  <meta name="description" content="Классическая змейка с управлением на клавиатуре и сенсорных экранах.">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="snake.css">
+</head>
+<body class="game-page-body">
+  <div class="game-layout">
+    <!-- Top Navigation Bar -->
+    <header class="game-nav-header">
+      <a href="../" class="nav-back-link">
+        <span aria-hidden="true">←</span>
+        <span>Все игры</span>
+      </a>
+
+      <div class="game-nav-meta">
+        <h1 class="game-nav-title">Змейка</h1>
+        <span class="game-nav-badge">Классика</span>
+      </div>
+
+      <div class="game-nav-actions">
+        <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Звук" aria-pressed="false">
+          Звук: <span id="sound-status">выкл</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Board Container -->
+    <main class="game-board-wrapper">
+      <!-- Score & Status Bar -->
+      <div class="game-status-panel">
+        <div class="score-box">
+          <span class="score-label">Счет</span>
+          <span class="score-digit" id="score-display">000</span>
+        </div>
+
+        <div class="score-box">
+          <span class="score-label">Рекорд</span>
+          <span class="score-digit highlight" id="best-display">000</span>
+        </div>
+
+        <div class="game-quick-actions">
+          <button id="btn-pause" class="btn-ctrl" type="button">Пауза</button>
+          <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
+        </div>
+      </div>
+
+      <!-- Playfield Screen -->
+      <div class="canvas-screen-box">
+        <canvas id="game-canvas" width="400" height="400" aria-label="Поле игры змейка" tabindex="0"></canvas>
+
+        <!-- Overlay Dialog -->
+        <div id="game-overlay" class="game-overlay hidden" aria-live="polite">
+          <div class="overlay-dialog">
+            <h2 class="overlay-heading" id="overlay-heading">Пауза</h2>
+            <p class="overlay-desc" id="overlay-desc">Нажмите Пробел или кнопку ниже, чтобы продолжить игру.</p>
+            <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Продолжить</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile On-screen D-Pad -->
+      <div class="mobile-dpad-section" aria-label="Кнопки управления для смартфонов">
+        <div class="dpad-container">
+          <button class="dpad-key dpad-up" id="dpad-up" type="button" aria-label="Вверх">▲</button>
+          <button class="dpad-key dpad-left" id="dpad-left" type="button" aria-label="Влево">◀</button>
+          <div class="dpad-key dpad-pivot" aria-hidden="true"></div>
+          <button class="dpad-key dpad-right" id="dpad-right" type="button" aria-label="Вправо">▶</button>
+          <button class="dpad-key dpad-down" id="dpad-down" type="button" aria-label="Вниз">▼</button>
+        </div>
+      </div>
+
+      <!-- Controls Guide -->
+      <footer class="game-controls-footer">
+        <div class="controls-hint-row">
+          <span class="controls-hint-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> или <kbd>Стрелки</kbd> для движения</span>
+          <span class="controls-hint-item"><kbd>Пробел</kbd> пауза</span>
+          <span class="controls-hint-item"><kbd>R</kbd> перезапуск</span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="snake.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+/* Snake Page Specific Stylesheet */
+
+.game-page-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 16px;
+  min-height: 100vh;
+}
+
+.game-layout {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.game-nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background-color: var(--surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.nav-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.nav-back-link:hover {
+  color: var(--text-primary);
+  background-color: var(--surface-card);
+}
+
+.nav-back-link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.game-nav-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.game-nav-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.game-nav-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-primary);
+  background-color: rgba(255, 159, 28, 0.12);
+  border: 1px solid rgba(255, 159, 28, 0.25);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* Game Board Wrapper */
+.game-board-wrapper {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Status Panel */
+.game-status-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.score-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.score-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.score-digit {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.1s ease;
+}
+
+.score-digit.highlight {
+  color: var(--accent-primary);
+}
+
+.score-digit.score-bump {
+  transform: scale(1.15);
+  color: #FFD285;
+}
+
+.game-quick-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Canvas Screen Box */
+.canvas-screen-box {
+  position: relative;
+  background-color: #0A0B0E;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas-screen-box.shake {
+  animation: boardShake 0.18s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes boardShake {
+  15%, 85% { transform: translate3d(-2px, 0, 0); }
+  30%, 70% { transform: translate3d(3px, 0, 0); }
+  45%, 60% { transform: translate3d(-3px, 0, 0); }
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+}
+
+#game-canvas:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent-primary);
+}
+
+/* Overlay Dialog */
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(10, 11, 14, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  opacity: 1;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.game-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.overlay-dialog {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 300px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transform: translateY(0);
+  transition: transform 0.15s ease;
+}
+
+.game-overlay.hidden .overlay-dialog {
+  transform: translateY(8px);
+}
+
+.overlay-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.overlay-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* D-Pad for Mobile */
+.mobile-dpad-section {
+  display: none;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.dpad-container {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+}
+
+.dpad-key {
+  background-color: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 52px;
+  min-height: 52px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background-color 0.1s ease, transform 0.08s ease;
+}
+
+.dpad-key:active {
+  background-color: var(--accent-action);
+  color: #FFFFFF;
+  transform: scale(0.94);
+}
+
+.dpad-key:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.dpad-up { grid-column: 2; grid-row: 1; }
+.dpad-left { grid-column: 1; grid-row: 2; }
+.dpad-pivot { grid-column: 2; grid-row: 2; background-color: transparent; border: none; cursor: default; }
+.dpad-right { grid-column: 3; grid-row: 2; }
+.dpad-down { grid-column: 2; grid-row: 3; }
+
+/* Controls Footer */
+.game-controls-footer {
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.controls-hint-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.controls-hint-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 600px) {
+  .game-page-body {
+    padding: 12px 8px;
+  }
+
+  .game-board-wrapper {
+    padding: 16px 14px;
+    gap: 16px;
+  }
+
+  .mobile-dpad-section {
+    display: flex;
+  }
+
+  .game-controls-footer {
+    display: none;
+  }
+}

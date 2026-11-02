@@ -1,46 +1,43 @@
-# Browser Mini-Games Platform
+# Refyrd Games // Browser Mini-Games Platform
 
-A responsive, accessible web console for lightweight browser mini-games, hosted on GitHub Pages.
+A clean, responsive web hub for lightweight browser mini-games, hosted on GitHub Pages.
 
 [Русская версия (Russian version)](README.ru.md)
 
-## Design Identity
-The platform is crafted with a physical **Hardware Pocket Console** aesthetic (inspired by Teenage Engineering and Playdate). No generic SaaS templates, no bloated frameworks, zero blue-purple gradients, and zero dead controls.
+## Architecture
+- **Main Hub (`/`):** Clean, spacious game catalog showcasing available and upcoming games with consistent alignment and typography.
+- **Dedicated Game Pages (`/game-name/`):** Each game resides in its own isolated subfolder (e.g. `refyrd.github.io/snake/`), providing dedicated play space, full controls, and navigation back to the hub.
 
-## Features
-- **Pure Web Standards:** Built with modern semantic HTML5, modular CSS, and Vanilla JavaScript. Zero build steps, zero external dependencies.
-- **Cartridge Architecture:** Modular games system. Each game runs as an isolated cartridge module inside the console frame.
-- **Subtle Micro-Animations:** Breathing food pulse, tactile score bump, soft tile corners, and micro-screen shake on collision.
-- **Accessibility & Controls:** Full keyboard navigation (WASD, Arrow keys, Space, R), touch swipe, and an on-screen tactile D-pad for mobile devices (meeting the 44px tap target standard).
-- **Audio Feedback:** Built-in retro micro-synthesizer using Web Audio API (optional, muted by default with toggle).
-- **High Contrast:** Compliant with WCAG AA standards across all text and interactive states.
+## Design & Typography
+- Built on a strict 8px modular spacing scale.
+- Clear, modern system typography with zero distorted fonts and balanced whitespace.
+- Tactile interactions: buttons with real press feedback (`active: translateY(1px)`), custom focus rings (`2px solid #FF9F1C`), and WCAG AA contrast compliance.
 
 ## Available Games
-1. **Snake (Slot 01):** Smooth grid movement, food pulse micro-animation, collision physics, progressive speed scaling, and local storage high score tracking.
-2. **Slot 02:** Available for next game.
-3. **Slot 03:** Available for next game.
+1. **Snake (`/snake/`):** Classic grid snake with progressive speed scaling, subtle food breathing, tactile score bumps, mobile D-pad, swipe input, and local high score tracking.
+2. **Slot 02:** Reserved for upcoming game.
+3. **Slot 03:** Reserved for upcoming game.
 
 ## Project Structure
 ```text
 Refyrd.github.io/
-├── index.html            # Main console chassis and runtime
+├── index.html            # Main game catalog & hub
 ├── css/
-│   ├── main.css          # Hardware console theme, layout, and telemetry
-│   └── snake.css         # Snake-specific frame styling and animations
-├── js/
-│   ├── app.js            # Platform orchestrator, Web Audio synth, input handling
-│   └── games/
-│       └── snake.js      # Snake game engine module
-├── TODO.md               # Project roadmap and checklist
+│   └── main.css          # Core design system, shared grid, and typography
+├── snake/
+│   ├── index.html        # Dedicated Snake game page
+│   ├── snake.css         # Board layout and animations
+│   └── snake.js          # Snake game logic, audio synth, and touch input
+├── TODO.md               # Task list and roadmap
 ├── README.md             # Primary documentation (English)
 └── README.ru.md          # Russian documentation
 ```
 
 ## Local Development
-Run with any static server or open `index.html` directly in your browser:
+Run locally with any static web server:
 
 ```bash
-# Using Python built-in server
+# Using Python standard library
 python -m http.server 8000
 ```
 

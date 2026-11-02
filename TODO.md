@@ -4,21 +4,20 @@
 - [x] Configure `.gitignore` with `.AI/`, Windows 11 system files, and VS Code configs
 - [x] Initialize Git repository structure on branch `main`
 - [x] Create bilingual documentation (`README.md` and `README.ru.md`)
-- [x] Select final visual direction: Hardware Pocket Console (`.AI/DESIGN.md`)
+- [x] Select visual direction: Hardware Pocket Console (`.AI/DESIGN.md`)
 
-## Core Platform (GitHub Pages)
-- [x] Build base semantic HTML5 shell (`index.html`) with header, catalog, and footer
-- [x] Implement responsive CSS architecture (mobile-first, 44px min tap targets, no overflow)
-- [x] Ensure full keyboard navigation and focus management (WCAG AA compliance)
-- [x] Implement Hardware Console theme (`css/main.css`)
-- [x] Build cartridge dock and game runtime orchestrator (`js/app.js`)
+## Core Platform & Architecture
+- [x] Redesign main hub (`index.html`) as dedicated game catalog with spacious, aligned layout
+- [x] Multi-page game architecture: games hosted on dedicated sub-paths (e.g. `refyrd.github.io/snake/`)
+- [x] Unified 8px modular spacing system and readable typography stack
+- [x] Full keyboard navigation and visible focus outlines (WCAG AA)
 
-## Mini-Games
-- [x] Mini-game 1: Snake (Tactile, smooth micro-animations, score and best score persistence, mobile D-pad)
-- [ ] Mini-game 2: TBD
-- [ ] Mini-game 3: TBD
+## Games
+- [x] Snake (`/snake/`): Dedicated page, subtle micro-animations (breathing food, score bump, gentle shake), mobile D-pad and swipe controls
+- [ ] Game 2: TBD (slot 02)
+- [ ] Game 3: TBD (slot 03)
 
 ## Polish & Verification
-- [x] Accessibility audit (keyboard controls, contrast WCAG AA, ARIA roles and labels)
-- [x] Mobile & desktop layout verification (D-pad on touch, swipe gestures, responsive frame)
-- [ ] Next game additions and expanded cartridge lineup
+- [x] Verification of page paths, links, and responsive layouts
+- [x] Audio synthesizer on Web Audio API (toggleable, default off)
+- [ ] Next game implementation
