@@ -164,6 +164,21 @@
   line-height: 1.4;
 }
 
+.campaign-quick-launch {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.btn-play-large {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+}
+
 .progress-stats-row {
   display: flex;
   justify-content: space-between;

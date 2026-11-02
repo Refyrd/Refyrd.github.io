@@ -24,6 +24,8 @@
   const progressText = document.getElementById('progress-text');
   const starsText = document.getElementById('stars-text');
   const btnStartRandom = document.getElementById('btn-start-random');
+  const btnPlayCampaign = document.getElementById('btn-play-campaign');
+  const playCampaignText = document.getElementById('play-campaign-text');
 
   // DOM Elements - Gameplay HUD
   const canvas = document.getElementById('game-canvas');
@@ -439,8 +441,7 @@
     resetBallOnPaddle();
 
     state = 'READY';
-    const titleText = isRandomMode ? 'Рандомный уровень' : `Уровень ${currentLevelNumber}`;
-    showOverlay(titleText, 'Ведите пальцем или мышью по экрану для управления ракеткой.', 'Запустить шар', false);
+    hideOverlay();
     btnPause.textContent = 'Пауза';
 
     levelIndicator.textContent = isRandomMode ? 'РАНДОМ' : `УРОВЕНЬ ${currentLevelNumber} / ${TOTAL_LEVELS}`;
@@ -518,7 +519,7 @@
     } else {
       state = 'READY';
       resetBallOnPaddle();
-      showOverlay('Потеря шарика', `Осталось жизней: ${lives}. Нажмите кнопку для продолжения.`, 'Продолжить', false);
+      hideOverlay();
       btnPause.textContent = 'Пауза';
     }
   }
@@ -576,9 +577,11 @@
   }
 
   function checkRemainingBricks() {
+    if (!bricks || bricks.length === 0) return false;
     for (let r = 0; r < brickRows; r++) {
+      if (!bricks[r]) continue;
       for (let c = 0; c < brickCols; c++) {
-        if (bricks[r][c].hp > 0) return false;
+        if (bricks[r][c] && bricks[r][c].hp > 0) return false;
       }
     }
     return true;
@@ -707,58 +710,61 @@
 
       // Brick collision
       let hitBrick = false;
-      for (let r = 0; r < brickRows; r++) {
-        for (let c = 0; c < brickCols; c++) {
-          const brk = bricks[r][c];
-          if (brk.hp > 0) {
-            if (
-              b.x + b.radius > brk.x &&
-              b.x - b.radius < brk.x + brickWidth &&
-              b.y + b.radius > brk.y &&
-              b.y - b.radius < brk.y + brickHeight
-            ) {
-              const overlapLeft = (b.x + b.radius) - brk.x;
-              const overlapRight = (brk.x + brickWidth) - (b.x - b.radius);
-              const overlapTop = (b.y + b.radius) - brk.y;
-              const overlapBottom = (brk.y + brickHeight) - (b.y - b.radius);
+      if (bricks && bricks.length > 0) {
+        for (let r = 0; r < brickRows; r++) {
+          if (!bricks[r]) continue;
+          for (let c = 0; c < brickCols; c++) {
+            const brk = bricks[r][c];
+            if (brk && brk.hp > 0) {
+              if (
+                b.x + b.radius > brk.x &&
+                b.x - b.radius < brk.x + brickWidth &&
+                b.y + b.radius > brk.y &&
+                b.y - b.radius < brk.y + brickHeight
+              ) {
+                const overlapLeft = (b.x + b.radius) - brk.x;
+                const overlapRight = (brk.x + brickWidth) - (b.x - b.radius);
+                const overlapTop = (b.y + b.radius) - brk.y;
+                const overlapBottom = (brk.y + brickHeight) - (b.y - b.radius);
 
-              const minOverlapX = Math.min(overlapLeft, overlapRight);
-              const minOverlapY = Math.min(overlapTop, overlapBottom);
+                const minOverlapX = Math.min(overlapLeft, overlapRight);
+                const minOverlapY = Math.min(overlapTop, overlapBottom);
 
-              if (minOverlapX < minOverlapY) {
-                b.dx = -b.dx;
-              } else {
-                b.dy = -b.dy;
+                if (minOverlapX < minOverlapY) {
+                  b.dx = -b.dx;
+                } else {
+                  b.dy = -b.dy;
+                }
+
+                brk.hp--;
+                spawnParticles(b.x, b.y, brk.fill);
+
+                const multiplier = buffMultiplierTimer > 0 ? 3 : 1;
+                if (brk.hp <= 0) {
+                  score += brk.points * multiplier;
+                  playSound('break');
+                  trySpawnPowerup(brk.x + brickWidth / 2 - 14, brk.y);
+                } else {
+                  score += 5 * multiplier;
+                  playSound('hit');
+                }
+
+                scoreDisplay.textContent = String(score).padStart(3, '0');
+                animateScoreBump();
+
+                if (!isDebugSession && score > bestScore) {
+                  bestScore = score;
+                  localStorage.setItem('refyrd_arkanoid_best', bestScore.toString());
+                  bestDisplay.textContent = String(bestScore).padStart(3, '0');
+                }
+
+                hitBrick = true;
+                break;
               }
-
-              brk.hp--;
-              spawnParticles(b.x, b.y, brk.fill);
-
-              const multiplier = buffMultiplierTimer > 0 ? 3 : 1;
-              if (brk.hp <= 0) {
-                score += brk.points * multiplier;
-                playSound('break');
-                trySpawnPowerup(brk.x + brickWidth / 2 - 14, brk.y);
-              } else {
-                score += 5 * multiplier;
-                playSound('hit');
-              }
-
-              scoreDisplay.textContent = String(score).padStart(3, '0');
-              animateScoreBump();
-
-              if (!isDebugSession && score > bestScore) {
-                bestScore = score;
-                localStorage.setItem('refyrd_arkanoid_best', bestScore.toString());
-                bestDisplay.textContent = String(bestScore).padStart(3, '0');
-              }
-
-              hitBrick = true;
-              break;
             }
           }
+          if (hitBrick) break;
         }
-        if (hitBrick) break;
       }
     }
 
@@ -800,25 +806,28 @@
     }
 
     // Render Bricks
-    for (let r = 0; r < brickRows; r++) {
-      for (let c = 0; c < brickCols; c++) {
-        const b = bricks[r][c];
-        if (b.hp > 0) {
-          ctx.fillStyle = b.fill;
-          if (b.hp < b.maxHp) {
-            ctx.globalAlpha = 0.55; // Damaged state
-          } else {
+    if (bricks && bricks.length > 0) {
+      for (let r = 0; r < brickRows; r++) {
+        if (!bricks[r]) continue;
+        for (let c = 0; c < brickCols; c++) {
+          const b = bricks[r][c];
+          if (b && b.hp > 0) {
+            ctx.fillStyle = b.fill;
+            if (b.hp < b.maxHp) {
+              ctx.globalAlpha = 0.55; // Damaged state
+            } else {
+              ctx.globalAlpha = 1.0;
+            }
+
+            drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 3);
+            ctx.fill();
+
+            ctx.strokeStyle = b.border;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
             ctx.globalAlpha = 1.0;
           }
-
-          drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 3);
-          ctx.fill();
-
-          ctx.strokeStyle = b.border;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-
-          ctx.globalAlpha = 1.0;
         }
       }
     }
@@ -869,6 +878,15 @@
       ctx.arc(b.x - 1.5, b.y - 1.5, 1.5, 0, Math.PI * 2);
       ctx.fill();
     });
+
+    // Ready launch hint
+    if (state === 'READY') {
+      ctx.fillStyle = 'rgba(244, 245, 248, 0.75)';
+      ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Нажмите Пробел или коснитесь экрана для запуска', canvas.width / 2, 290);
+    }
   }
 
   function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -898,6 +916,9 @@
     levelsGrid.innerHTML = '';
     progressText.textContent = `Пройдено: ${completedLevels.size} / ${TOTAL_LEVELS}`;
     starsText.textContent = `Рекорд: ${bestScore}`;
+    if (playCampaignText) {
+      playCampaignText.textContent = `▶ Начать игру (Уровень ${unlockedLevel})`;
+    }
 
     for (let i = 1; i <= TOTAL_LEVELS; i++) {
       const btn = document.createElement('button');
@@ -1001,6 +1022,14 @@
     playSound('click');
     startRandomLevel();
   });
+
+  if (btnPlayCampaign) {
+    btnPlayCampaign.addEventListener('click', () => {
+      initAudio();
+      playSound('click');
+      openLevel(unlockedLevel || 1);
+    });
+  }
 
   // Input Handling: Pointer / Touch / Mouse on Canvas
   function updatePaddlePosition(clientX) {
@@ -1192,5 +1221,7 @@
 
   // Init Menu View & Game Loop
   renderLevelsGrid();
+  loadBricksForLevel();
+  resetBallOnPaddle();
   requestAnimationFrame(gameLoop);
 })();

@@ -50,6 +50,12 @@
 
       <!-- Campaign Mode: 60 Levels Grid -->
       <div id="campaign-panel" class="campaign-panel">
+        <div class="campaign-quick-launch">
+          <button id="btn-play-campaign" class="btn-play btn-play-large" type="button">
+            <span id="play-campaign-text">▶ Начать игру (Уровень 1)</span>
+          </button>
+        </div>
+
         <div class="progress-stats-row">
           <span id="progress-text">Пройдено: 0 / 60</span>
           <span id="stars-text">Рекорд: 0</span>
@@ -112,7 +118,7 @@
         <canvas id="game-canvas" width="400" height="460" aria-label="Игровое поле арканоида" tabindex="0"></canvas>
 
         <!-- Overlay Dialog (Ready / Pause / Game Over / Victory) -->
-        <div id="game-overlay" class="game-overlay" aria-live="polite">
+        <div id="game-overlay" class="game-overlay hidden" aria-live="polite">
           <div class="overlay-dialog">
             <h2 class="overlay-heading" id="overlay-heading">Арканоид</h2>
             <p class="overlay-desc" id="overlay-desc">Ведите пальцем или мышью по экрану, чтобы отбивать шарик.</p>
