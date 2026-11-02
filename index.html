@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refyrd Arcade Console // Портал мини-игр</title>
+  <meta name="description" content="Аппаратный портал браузерных мини-игр на GitHub Pages. Первая игра: тактильная Змейка.">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/snake.css">
+</head>
+<body>
+  <div class="console-wrapper">
+    <!-- Chassis Top / Status Header -->
+    <header class="console-header">
+      <div class="console-branding">
+        <span class="brand-model">REFYRD-01</span>
+        <span class="brand-sep" aria-hidden="true">//</span>
+        <span class="brand-status"><span class="status-led active" aria-hidden="true"></span>SYSTEM READY</span>
+      </div>
+
+      <div class="console-system-controls">
+        <button id="sound-toggle" class="btn-hardware" type="button" aria-label="Включить или отключить звук" aria-pressed="false">
+          <span class="btn-hardware-label">SOUND</span>
+          <span id="sound-indicator" class="telemetry-badge" aria-hidden="true">OFF</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Active Display Bay -->
+    <main class="console-display" id="active-viewport">
+      <section class="game-bay" aria-label="Игровая консоль">
+        <!-- Telemetry HUD -->
+        <div class="telemetry-bar">
+          <div class="game-meta">
+            <span class="slot-tag" id="current-slot">SLOT-01</span>
+            <h1 class="game-title" id="current-game-title">SNAKE</h1>
+          </div>
+
+          <div class="score-cluster">
+            <div class="telemetry-field">
+              <span class="field-label">SCORE</span>
+              <span class="field-value" id="score-display">000</span>
+            </div>
+            <div class="telemetry-field">
+              <span class="field-label">BEST</span>
+              <span class="field-value highlight" id="best-display">000</span>
+            </div>
+          </div>
+
+          <div class="bay-actions">
+            <button id="btn-pause" class="btn-hardware" type="button" aria-label="Пауза">
+              PAUSE
+            </button>
+            <button id="btn-restart" class="btn-hardware btn-primary" type="button" aria-label="Сброс игры">
+              RESET
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="screen-frame">
+          <canvas id="game-canvas" width="400" height="400" aria-label="Игровое поле змейки" tabindex="0"></canvas>
+          
+          <!-- State Overlay (Pause / Game Over / Ready) -->
+          <div id="game-overlay" class="game-overlay hidden" aria-live="polite">
+            <div class="overlay-card">
+              <span class="overlay-tag" id="overlay-tag">PAUSED</span>
+              <p class="overlay-message" id="overlay-message">Нажмите [SPACE] или кнопку ниже</p>
+              <button id="overlay-action-btn" class="btn-hardware btn-action" type="button">
+                ПРОДОЛЖИТЬ
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Touch / On-screen D-Pad for Mobile -->
+        <nav class="dpad-controller" aria-label="Управление джойстиком">
+          <div class="dpad-grid">
+            <button class="dpad-btn dpad-up" id="dpad-up" type="button" aria-label="Вверх">
+              <span aria-hidden="true">▲</span>
+            </button>
+            <button class="dpad-btn dpad-left" id="dpad-left" type="button" aria-label="Влево">
+              <span aria-hidden="true">◀</span>
+            </button>
+            <div class="dpad-center" aria-hidden="true"></div>
+            <button class="dpad-btn dpad-right" id="dpad-right" type="button" aria-label="Вправо">
+              <span aria-hidden="true">▶</span>
+            </button>
+            <button class="dpad-btn dpad-down" id="dpad-down" type="button" aria-label="Вниз">
+              <span aria-hidden="true">▼</span>
+            </button>
+          </div>
+        </nav>
+      </section>
+    </main>
+
+    <!-- Cartridge Deck (Selector of games) -->
+    <section class="cartridge-deck" aria-label="Слоты с играми">
+      <div class="deck-header">
+        <span class="deck-title">CARTRIDGE BAYS</span>
+        <span class="deck-count">1 / 4 SLOTS ACTIVE</span>
+      </div>
+
+      <div class="cartridge-list" role="tablist" aria-label="Список доступных картриджей">
+        <button class="cartridge-item active" role="tab" aria-selected="true" data-game="snake" id="tab-snake">
+          <span class="cartridge-slot">01</span>
+          <div class="cartridge-info">
+            <span class="cartridge-name">SNAKE // CLASSIC</span>
+            <span class="cartridge-status">INSERTED & READY</span>
+          </div>
+          <span class="cartridge-indicator" aria-hidden="true">●</span>
+        </button>
+
+        <button class="cartridge-item disabled" role="tab" aria-selected="false" aria-disabled="true" id="tab-slot2">
+          <span class="cartridge-slot">02</span>
+          <div class="cartridge-info">
+            <span class="cartridge-name">EMPTY SLOT</span>
+            <span class="cartridge-status">AVAILABLE FOR CARTRIDGE</span>
+          </div>
+          <span class="cartridge-indicator empty" aria-hidden="true">○</span>
+        </button>
+
+        <button class="cartridge-item disabled" role="tab" aria-selected="false" aria-disabled="true" id="tab-slot3">
+          <span class="cartridge-slot">03</span>
+          <div class="cartridge-info">
+            <span class="cartridge-name">EMPTY SLOT</span>
+            <span class="cartridge-status">AVAILABLE FOR CARTRIDGE</span>
+          </div>
+          <span class="cartridge-indicator empty" aria-hidden="true">○</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Console Footer with Key Guide -->
+    <footer class="console-footer">
+      <div class="key-guide">
+        <span class="key-item"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> Движение</span>
+        <span class="key-item"><kbd>SPACE</kbd> Пауза / Старт</span>
+        <span class="key-item"><kbd>R</kbd> Перезапуск</span>
+      </div>
+      <div class="footer-meta">
+        <a href="https://github.com/Refyrd/Refyrd.github.io" target="_blank" rel="noopener noreferrer" class="footer-link">
+          GitHub Repo
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/games/snake.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
