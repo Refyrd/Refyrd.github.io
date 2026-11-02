@@ -33,9 +33,8 @@
   const screenBox = document.querySelector('.canvas-screen-box');
   const scoreDisplay = document.getElementById('score-display');
   const bestDisplay = document.getElementById('best-display');
-  const ballsCountBadge = document.getElementById('balls-count-badge');
+  const multiplierBadge = document.getElementById('multiplier-badge');
   const livesDisplay = document.getElementById('lives-display');
-  const btnLevelsHud = document.getElementById('btn-levels-hud');
   const btnPause = document.getElementById('btn-pause');
   const btnRestart = document.getElementById('btn-restart');
   const overlay = document.getElementById('game-overlay');
@@ -50,6 +49,8 @@
   const timerBarrier = document.getElementById('timer-barrier');
   const badgeWiden = document.getElementById('badge-widen');
   const timerWiden = document.getElementById('timer-widen');
+  const badgeMult = document.getElementById('badge-mult');
+  const timerMult = document.getElementById('timer-mult');
 
   // Debug Modal Elements
   const debugModal = document.getElementById('debug-modal');
@@ -119,16 +120,6 @@
     }
   }
 
-  const lastSoundTimes = {};
-  function playThrottledSound(name, minIntervalMs = 25) {
-    const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-    if (lastSoundTimes[name] && now - lastSoundTimes[name] < minIntervalMs) {
-      return;
-    }
-    lastSoundTimes[name] = now;
-    playSound(name);
-  }
-
   soundToggle.addEventListener('click', () => {
     initAudio();
     isSoundOn = !isSoundOn;
@@ -137,213 +128,230 @@
     if (isSoundOn) playSound('click');
   });
 
-  // Safe Local Storage Handlers (gracefully handles blocked cookies / file:// mode)
-  function safeGetItem(key, fallback = null) {
-    try {
-      const val = localStorage.getItem(key);
-      return val !== null ? val : fallback;
-    } catch (e) {
-      return fallback;
-    }
-  }
-
-  function safeSetItem(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch (e) {}
-  }
-
   // Persistent Progress Storage
   const TOTAL_LEVELS = 60;
-  let unlockedLevel = 1;
-  try {
-    const val = parseInt(safeGetItem('refyrd_arkanoid_unlocked', '1') || '1', 10);
-    if (!isNaN(val) && val >= 1) unlockedLevel = val;
-  } catch (e) {
-    unlockedLevel = 1;
-  }
-
-  let completedLevels = new Set();
-  try {
-    const raw = safeGetItem('refyrd_arkanoid_completed', '[]');
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) completedLevels = new Set(parsed);
-    }
-  } catch (e) {
-    completedLevels = new Set();
-  }
-
-  let bestScore = 0;
-  try {
-    const val = parseInt(safeGetItem('refyrd_arkanoid_best', '0') || '0', 10);
-    if (!isNaN(val) && val >= 0) bestScore = val;
-  } catch (e) {
-    bestScore = 0;
-  }
-
-  if (bestDisplay) {
-    bestDisplay.textContent = String(bestScore).padStart(3, '0');
-  }
+  let unlockedLevel = parseInt(localStorage.getItem('refyrd_arkanoid_unlocked') || '1', 10);
+  let completedLevels = new Set(JSON.parse(localStorage.getItem('refyrd_arkanoid_completed') || '[]'));
+  let bestScore = parseInt(localStorage.getItem('refyrd_arkanoid_best') || '0', 10);
+  bestDisplay.textContent = String(bestScore).padStart(3, '0');
 
   function saveProgress() {
-    safeSetItem('refyrd_arkanoid_unlocked', unlockedLevel.toString());
-    safeSetItem('refyrd_arkanoid_completed', JSON.stringify(Array.from(completedLevels)));
+    localStorage.setItem('refyrd_arkanoid_unlocked', unlockedLevel.toString());
+    localStorage.setItem('refyrd_arkanoid_completed', JSON.stringify(Array.from(completedLevels)));
   }
 
-  // Brick Layout Dimensions: Dense Small Squares (20x16 Grid)
-  const brickRows = 16;
-  const brickCols = 20;
-  const brickWidth = 17;
-  const brickHeight = 17;
+  // Square Brick Layout Dimensions (18 cols x 14 rows)
+  const brickRows = 14;
+  const brickCols = 18;
+  const brickWidth = 18;
+  const brickHeight = 18;
   const brickGap = 2;
   const brickOffsetTop = 32;
-  const brickOffsetLeft = 11;
+  const brickOffsetLeft = 21; // (400 - (18*20 - 2)) / 2 = 21px centered
 
-  // Brick Color Definitions
+  // Brick Color & Type Definitions
   const BRICK_TYPES = {
-    1: { fill: '#22C55E', border: '#4ADE80', maxHp: 1, points: 10 }, // 1-hit Green
-    2: { fill: '#FF9F1C', border: '#FFAF3D', maxHp: 2, points: 25 }, // 2-hit Amber Orange
-    3: { fill: '#FF4D36', border: '#FF6B57', maxHp: 3, points: 50 }, // 3-hit Red Armored
-    4: { fill: '#2E66FF', border: '#60A5FA', maxHp: 1, points: 15 }, // 1-hit Blue
-    5: { fill: '#FFE047', border: '#FDE047', maxHp: 1, points: 15 }, // 1-hit Yellow
-    6: { fill: '#A855F7', border: '#C084FC', maxHp: 2, points: 30 }, // 2-hit Purple
-    7: { fill: '#06B6D4', border: '#22D3EE', maxHp: 1, points: 20 }, // 1-hit Cyan
-    8: { fill: '#EC4899', border: '#F472B6', maxHp: 1, points: 20 }  // 1-hit Pink
+    1: { fill: '#22C55E', border: '#4ADE80', maxHp: 1, points: 10 }, // 1-hit Emerald Green
+    2: { fill: '#FF9F1C', border: '#FFAF3D', maxHp: 2, points: 25 }, // 2-hit Amber Gold
+    3: { fill: '#FF4D36', border: '#FF6B57', maxHp: 3, points: 50 }, // 3-hit Crimson
+    4: { fill: '#2E66FF', border: '#60A5FA', maxHp: 1, points: 15 }, // 1-hit Cobalt Blue
+    5: { fill: '#FFE047', border: '#FDE047', maxHp: 1, points: 15 }, // 1-hit Lemon Yellow
+    6: { fill: '#A855F7', border: '#C084FC', maxHp: 2, points: 35 }, // 2-hit Purple Amethyst
+    9: { fill: '#475569', border: '#94A3B8', maxHp: Infinity, unbreakable: true, points: 0 } // Unbreakable Steel
   };
 
-  // 60 Procedural Handcrafted Patterns with Tunnels & Funnels
+  // 60 Handcrafted / Algorithmic Levels (18 cols x 14 rows)
   function generateLevelData(lvlNum) {
     const grid = [];
     for (let r = 0; r < brickRows; r++) grid[r] = new Array(brickCols).fill(0);
 
-    const archetype = (lvlNum - 1) % 15;
-    const tier = Math.floor((lvlNum - 1) / 15); // 0 to 3
+    const arch = (lvlNum - 1) % 15;
+    const tier = Math.floor((lvlNum - 1) / 10); // 0 to 5
+    const hasSteel = lvlNum >= 11; // Steel blocks unlock from level 11
 
-    const t3 = tier >= 2 ? 3 : (tier >= 1 ? 2 : 1);
-    const t2 = tier >= 1 ? 2 : (lvlNum % 2 === 0 ? 6 : 7);
-    const t1 = lvlNum % 3 === 0 ? 1 : (lvlNum % 3 === 1 ? 4 : 5);
-    const t4 = lvlNum % 2 === 0 ? 8 : 6;
+    const tArmored = tier >= 2 ? 3 : 2;
+    const tHard = tier >= 3 ? 6 : 2;
+    const tMid = lvlNum % 2 === 0 ? 4 : 5;
+    const tEasy = 1;
 
     for (let r = 0; r < brickRows; r++) {
       for (let c = 0; c < brickCols; c++) {
-        const symC = c < 10 ? c : 19 - c; // Horizontal symmetry (0 to 9)
-        let place = 0;
+        const symC = c < 9 ? c : 17 - c; // Horizontal symmetry (0..8)
+        let val = 0;
 
-        switch (archetype) {
-          case 0: // Attic Funnel: Ball enters slot and bounces in top cavity!
-            if (r === 0) place = t3;
-            else if (r <= 3) place = (symC >= 2 && symC <= 7) ? 0 : t1;
-            else if (r === 4) place = (symC === 8 || symC === 9) ? 0 : t2; // Slot at c=8,9,10,11
-            else if (r >= 6 && r <= 11 && symC >= 1) place = (r % 2 === 0) ? t1 : t4;
-            break;
-
-          case 1: // Double Bunker: Two hollow rooms with bottom escape
-            if ((r === 2 || r === 9) && symC >= 1 && symC <= 8) {
-              place = (r === 9 && (symC === 4 || symC === 5)) ? 0 : t2;
-            } else if ((symC === 1 || symC === 8) && r >= 2 && r <= 9) {
-              place = t2;
-            } else if (r >= 3 && r <= 8 && symC >= 2 && symC <= 7) {
-              place = t1;
+        switch (arch) {
+          case 0: // The Gate (Columns and arched top)
+            if ((symC in [1, 2] || symC === 1 || symC === 2) && r <= 10) {
+              val = r <= 2 ? tArmored : tEasy;
+            } else if (r <= 2 && symC <= 7) {
+              val = tMid;
             }
             break;
 
-          case 2: // Space Invader with hollow interior core
-            if (r === 1 && (symC === 3 || symC === 4)) place = t1;
-            else if (r === 2 && (symC === 2 || symC === 5)) place = t1;
-            else if (r === 3 && symC >= 2) place = t2;
-            else if (r === 4 && (symC === 1 || symC === 2 || symC >= 5)) place = t2;
-            else if (r === 5 || r === 6) place = (r === 5 && (symC === 3 || symC === 4)) ? 0 : t1;
-            else if (r === 7 && (symC === 2 || symC === 3 || symC === 6 || symC === 7)) place = t3;
-            else if (r >= 8 && r <= 10 && (symC === 1 || symC === 8)) place = t4;
-            break;
-
-          case 3: // Spiral Maze
-            if ((r === 0 || r === 13) && symC <= 9) place = t2;
-            else if ((symC === 0 || symC === 9) && r <= 13) place = t2;
-            else if ((r === 3 || r === 10) && symC >= 2 && symC <= 7) place = t1;
-            else if ((symC === 2 || symC === 7) && r >= 3 && r <= 10) place = t1;
-            else if (r >= 5 && r <= 8 && symC >= 4 && symC <= 5) place = t3;
-            break;
-
-          case 4: // Pinball Chutes
-            if (symC % 2 === 0 && r <= 12) place = (r === 0 || r === 12) ? t2 : t1;
-            break;
-
-          case 5: // The Vault: Enclosed safe with top chute
-            if ((r === 2 || r === 11) && symC >= 1 && symC <= 8) {
-              place = (r === 2 && (symC === 4 || symC === 5)) ? 0 : t3;
-            } else if ((symC === 1 || symC === 8) && r >= 2 && r <= 11) {
-              place = t3;
-            } else if (r >= 4 && r <= 9 && symC >= 3 && symC <= 6) {
-              place = t1;
+          case 1: // Butterfly Wings
+            if ((symC + r) % 3 === 0 && r <= 11 && symC <= 7) {
+              val = r < 5 ? tHard : tMid;
+            } else if (symC === 0 && r >= 3 && r <= 9) {
+              val = tArmored;
             }
             break;
 
-          case 6: // Hourglass with central throat
-            if (Math.abs(r - 6) >= symC * 0.7 && r <= 12) place = (r === 0 || r === 12) ? t3 : t2;
-            break;
-
-          case 7: // Pixel Heart
-            if ((r === 2 && (symC === 2 || symC === 3 || symC === 6 || symC === 7)) || (r === 3 && symC >= 1 && symC <= 8)) place = t4;
-            else if (r >= 4 && r <= 6 && symC <= 8) place = (r === 5 && symC <= 3) ? 0 : t1;
-            else if (r >= 7 && r <= 11 && symC <= (11 - r) * 1.5) place = t2;
-            break;
-
-          case 8: // Alternating Cascades
-            if (r <= 12 && (r % 3 === 0) && (r % 2 === 0 ? symC <= 7 : symC >= 2)) place = t1;
-            break;
-
-          case 9: // Castle Towers with alleys
-            if ((symC === 0 || symC === 1 || symC === 4 || symC === 5 || symC === 8 || symC === 9) && r <= 11) place = r <= 2 ? t3 : t2;
-            else if (r === 12) place = t1;
-            break;
-
-          case 10: // Donut Ring
-            const dist = Math.sqrt((r - 6) ** 2 + (symC - 4) ** 2);
-            if (dist >= 2.2 && dist <= 5.5) place = dist > 4.5 ? t3 : t1;
-            break;
-
-          case 11: // Funnel V
-            if (symC >= (10 - r) * 0.8 && r <= 12) place = symC >= 8 ? t2 : t1;
-            break;
-
-          case 12: // Diamond Gem
-            const diamondDist = Math.abs(r - 6) + Math.abs(symC - 4.5);
-            if (diamondDist <= 5.5) place = diamondDist <= 2.0 ? 0 : (diamondDist > 4.5 ? t3 : t1);
-            break;
-
-          case 13: // Crossroads with 4 chambers
-            if (r <= 12 && symC <= 8) {
-              if (r !== 6 && symC !== 4) place = (r === 0 || r === 12 || symC === 0 || symC === 8) ? t2 : t1;
+          case 2: // Space Invader
+            if (
+              (r === 1 && (symC === 2 || symC === 3)) ||
+              (r === 2 && symC >= 1 && symC <= 4) ||
+              (r === 3 && symC !== 3 && symC <= 5) ||
+              (r >= 4 && r <= 6 && symC <= 5) ||
+              (r === 7 && (symC === 1 || symC === 3)) ||
+              (r === 8 && (symC === 0 || symC === 4))
+            ) {
+              val = (r === 3 || r === 6) ? tArmored : tMid;
             }
             break;
 
-          default: // Honeycomb Swiss Cheese
-            if (r <= 12 && symC <= 9) {
-              place = ((r % 4 === 1 || r % 4 === 2) && (symC % 4 === 1 || symC % 4 === 2)) ? 0 : t1;
+          case 3: // Big Heart
+            if (
+              (r === 1 && symC >= 2 && symC <= 5) ||
+              (r === 2 && symC >= 1 && symC <= 6) ||
+              (r >= 3 && r <= 9 && symC <= Math.max(0, 8 - (r - 2)))
+            ) {
+              val = r <= 3 ? 3 : (r <= 6 ? 2 : 1);
+            }
+            break;
+
+          case 4: // Pixel Skull
+            if (r <= 8 && symC <= 6) {
+              if (r >= 4 && r <= 5 && (symC === 2 || symC === 3)) {
+                val = 0; // Eye socket
+              } else if (r === 8 && (symC === 1 || symC === 3 || symC === 5)) {
+                val = 0; // Teeth gap
+              } else {
+                val = r <= 3 ? tHard : tEasy;
+              }
+            }
+            break;
+
+          case 5: // Diamond Rings
+            const distD = Math.abs(r - 5) + Math.abs(symC - 4);
+            if (distD === 2 || distD === 4 || distD === 6) {
+              val = distD === 2 ? tArmored : (distD === 4 ? tHard : tMid);
+            }
+            break;
+
+          case 6: // Fortress with 1-block bottleneck
+            if (hasSteel && (r === 3 || symC === 7) && !(r === 3 && symC === 0)) {
+              val = 9; // Steel perimeter with a 1-block slit at center!
+            } else if (r > 3 && r < 10 && symC < 7) {
+              val = r < 6 ? tArmored : tEasy; // High value chamber inside
+            } else if (r < 3 && symC <= 6) {
+              val = tMid;
+            }
+            break;
+
+          case 7: // Hourglass & Steel Pillars
+            if ((symC === 0 || symC === 8) && r <= 11) {
+              val = (hasSteel && r >= 4 && r <= 7) ? 9 : tHard;
+            } else if (Math.abs(r - 5) >= symC && r <= 10) {
+              val = r <= 2 || r >= 8 ? tMid : tEasy;
+            }
+            break;
+
+          case 8: // Checkerboard Maze
+            if ((r + symC) % 2 === 0 && r <= 11 && symC <= 7) {
+              val = (hasSteel && (r === 5 || r === 6) && (symC === 2 || symC === 4)) ? 9 : tEasy;
+            }
+            break;
+
+          case 9: // The Vault (Steel box with 1-block entrance at bottom)
+            if (hasSteel) {
+              const isVaultWall = (r === 4 || r === 10 || symC === 7) && !(r === 10 && symC === 0);
+              if (isVaultWall) {
+                val = 9; // Unbreakable wall
+              } else if (r > 4 && r < 10 && symC < 7) {
+                val = 3; // Crimson treasure inside vault!
+              } else if (r < 4 && symC <= 7) {
+                val = tMid;
+              }
+            } else {
+              if (r <= 9 && symC <= 7) val = r < 4 ? tMid : tEasy;
+            }
+            break;
+
+          case 10: // Shield and Blade
+            if (symC === 0 && r <= 12) {
+              val = tArmored;
+            } else if (symC <= 6 && r >= 2 && r <= 8 && (symC + r) <= 10) {
+              val = symC <= 3 ? tHard : tEasy;
+            }
+            break;
+
+          case 11: // Twin Steel Bunkers (Heavy protective roofs)
+            if (hasSteel && r === 2 && symC >= 2 && symC <= 6) {
+              val = 9; // Steel roof
+            } else if (r >= 3 && r <= 7 && symC >= 2 && symC <= 5) {
+              val = r === 3 ? tArmored : tEasy;
+            } else if (r >= 9 && r <= 11 && symC <= 7) {
+              val = tMid;
+            }
+            break;
+
+          case 12: // Spiral Coils
+            const ring = Math.min(r, 13 - r, symC, 8 - symC);
+            if (ring % 2 === 0 && r <= 11) {
+              val = (hasSteel && ring === 2 && r > 3) ? 9 : tMid;
+            } else if (ring === 1) {
+              val = tEasy;
+            }
+            break;
+
+          case 13: // Sun Mandala
+            const distM = Math.abs(r - 6) + symC;
+            if ((distM === 3 || distM === 5 || distM === 7) && r <= 12) {
+              val = distM === 3 ? tArmored : tEasy;
+            }
+            break;
+
+          case 14: // The Obsidian Citadel (Boss Fortress)
+            if (hasSteel) {
+              const outerWall = (r === 1 || r === 11 || symC === 8) && !(r === 11 && (symC === 3 || symC === 4));
+              const innerWall = (r === 4 || r === 8 || symC === 4) && !(r === 4 && symC === 0);
+              if (outerWall || innerWall) {
+                val = 9; // Unbreakable fortress barriers
+              } else if (r > 4 && r < 8 && symC < 4) {
+                val = 3; // Dense 3-hit citadel core!
+              } else {
+                val = tHard;
+              }
+            } else {
+              if (r <= 10 && symC <= 7) val = tMid;
             }
             break;
         }
 
-        grid[r][c] = place;
+        grid[r][c] = val;
       }
     }
 
     return grid;
   }
 
-  // Random Mode Pattern Generator with Cavities & Tunnels
+  // Random Mode Pattern Generator (18 cols x 14 rows)
   function generateRandomLevelData() {
     const grid = [];
     for (let r = 0; r < brickRows; r++) {
       grid[r] = new Array(brickCols).fill(0);
-      for (let c = 0; c < 10; c++) {
-        // Mirrored horizontally with procedural pockets
-        if (r <= 12 && Math.random() > 0.28) {
-          const randType = Math.random() < 0.15 ? 3 : (Math.random() < 0.35 ? 2 : (Math.random() < 0.6 ? 1 : 4));
+      for (let c = 0; c < 9; c++) {
+        if (Math.random() > 0.32) {
+          const roll = Math.random();
+          let randType = 1;
+          if (roll < 0.08) randType = 9; // 8% chance of steel bunker block
+          else if (roll < 0.25) randType = 3; // 3-hit
+          else if (roll < 0.45) randType = 2; // 2-hit
+          else if (roll < 0.70) randType = 4; // blue
+          else randType = 5; // yellow
+
           grid[r][c] = randType;
-          grid[r][19 - c] = randType;
+          grid[r][17 - c] = randType; // Mirror horizontally
         }
       }
     }
@@ -397,18 +405,8 @@
 
   // Buff Timers
   let buffWidenTimer = 0;
+  let buffMultiplierTimer = 0;
   let buffBarrierTimer = 0;
-
-  function updateBallsBadge() {
-    if (ballsCountBadge) {
-      ballsCountBadge.textContent = '● ' + balls.length;
-      if (balls.length > 3) {
-        ballsCountBadge.classList.add('swarm');
-      } else {
-        ballsCountBadge.classList.remove('swarm');
-      }
-    }
-  }
 
   // Power-Up Type Rarity & Specs
   // ~22% total drop chance: MULTIBALL (8%), WIDEN (6%), X3 (6%), BARRIER (2%)
@@ -420,22 +418,22 @@
     let label = '+3';
     let color = '#22C55E';
 
-    if (roll < 0.02) { // 2% Barrier
+    if (roll < 0.03) { // 3% Floor Barrier (rare!)
       type = 'BARRIER';
       label = 'ПОЛ';
       color = '#FF4D36';
-    } else if (roll < 0.08) { // 6% Multiplier (x3 Balls)
+    } else if (roll < 0.09) { // 6% Multiply all balls by 3!
       type = 'MULTIPLIER';
-      label = 'x3';
-      color = '#FF9F1C';
-    } else if (roll < 0.14) { // 6% Widen Paddle
+      label = '×3';
+      color = '#FFD700';
+    } else if (roll < 0.16) { // 7% Widen
       type = 'WIDEN';
       label = 'РАСШ';
       color = '#2E66FF';
-    } else { // 8% Multiball (+3 Balls)
+    } else { // 6% Multiball (+3)
       type = 'MULTIBALL';
       label = '+3';
-      color = '#4ADE80';
+      color = '#22C55E';
     }
 
     powerups.push({
@@ -452,47 +450,38 @@
 
   function activatePowerup(type) {
     playSound('powerup');
-    const MAX_BALLS = 100;
-
     if (type === 'MULTIBALL') {
-      // +3 Balls: Spawns 3 extra balls spreading upward
-      const ref = balls[0] || { x: paddle.x + paddle.width / 2, y: paddle.y - 8, dx: 0, dy: -BASE_BALL_SPEED };
-      const spreadAngles = [-0.35, 0, 0.35];
-      for (let i = 0; i < 3; i++) {
-        if (balls.length >= MAX_BALLS) break;
-        const baseAngle = Math.atan2(ref.dy, ref.dx) || (-Math.PI / 2);
-        const a = baseAngle + spreadAngles[i] + (Math.random() - 0.5) * 0.12;
-        const spd = Math.sqrt(ref.dx * ref.dx + ref.dy * ref.dy) || BASE_BALL_SPEED;
-        balls.push(createBall(ref.x, ref.y, Math.cos(a) * spd, Math.sin(a) * spd));
+      // Spawn 2 extra balls from the first existing ball
+      if (balls.length > 0) {
+        const ref = balls[0];
+        balls.push(createBall(ref.x, ref.y, ref.dx * 0.85 + 1.2, -Math.abs(ref.dy)));
+        balls.push(createBall(ref.x, ref.y, ref.dx * 0.85 - 1.2, -Math.abs(ref.dy)));
       }
-      updateBallsBadge();
-    } else if (type === 'MULTIPLIER') {
-      // x3 Balls: Triples all active balls (each existing ball spawns 2 clones)
-      if (balls.length === 0) {
-        resetBallOnPaddle();
-      }
-      const currentList = [...balls];
-      for (const b of currentList) {
-        if (balls.length >= MAX_BALLS) break;
-        const spd = Math.sqrt(b.dx * b.dx + b.dy * b.dy) || BASE_BALL_SPEED;
-        const angle = Math.atan2(b.dy, b.dx);
-        const a1 = angle + 0.3 + (Math.random() - 0.5) * 0.12;
-        const a2 = angle - 0.3 + (Math.random() - 0.5) * 0.12;
-
-        balls.push(createBall(b.x, b.y, Math.cos(a1) * spd, Math.sin(a1) * spd));
-        if (balls.length < MAX_BALLS) {
-          balls.push(createBall(b.x, b.y, Math.cos(a2) * spd, Math.sin(a2) * spd));
-        }
-        spawnParticles(b.x, b.y, '#FF9F1C');
-      }
-      updateBallsBadge();
     } else if (type === 'WIDEN') {
       buffWidenTimer = 18 * 60; // 18 seconds at 60fps
       paddle.width = 114;
-      if (badgeWiden) badgeWiden.classList.remove('hidden');
+      badgeWiden.classList.remove('hidden');
+    } else if (type === 'MULTIPLIER') {
+      // Multiply current ball count by 3 (capped at 36 for 60fps physics stability)
+      const current = [...balls];
+      const maxBalls = 36;
+      current.forEach(b => {
+        if (balls.length < maxBalls) {
+          const speed = Math.hypot(b.dx, b.dy) || BASE_BALL_SPEED;
+          const a1 = Math.atan2(b.dy, b.dx) + 0.38;
+          const a2 = Math.atan2(b.dy, b.dx) - 0.38;
+          balls.push(createBall(b.x, b.y, Math.cos(a1) * speed, Math.sin(a1) * speed));
+          if (balls.length < maxBalls) {
+            balls.push(createBall(b.x, b.y, Math.cos(a2) * speed, Math.sin(a2) * speed));
+          }
+        }
+      });
+      score += 25;
+      scoreDisplay.textContent = String(score).padStart(3, '0');
+      animateScoreBump();
     } else if (type === 'BARRIER') {
       buffBarrierTimer = 12 * 60; // 12 seconds
-      if (badgeBarrier) badgeBarrier.classList.remove('hidden');
+      badgeBarrier.classList.remove('hidden');
     }
   }
 
@@ -545,6 +534,7 @@
             y: by,
             hp: cfg.maxHp,
             maxHp: cfg.maxHp,
+            unbreakable: Boolean(cfg.unbreakable),
             points: cfg.points,
             fill: cfg.fill,
             border: cfg.border
@@ -564,10 +554,13 @@
 
     // Reset buffs
     buffWidenTimer = 0;
+    buffMultiplierTimer = 0;
     buffBarrierTimer = 0;
     paddle.width = paddle.baseWidth;
-    if (badgeBarrier) badgeBarrier.classList.add('hidden');
-    if (badgeWiden) badgeWiden.classList.add('hidden');
+    multiplierBadge.classList.add('hidden');
+    badgeBarrier.classList.add('hidden');
+    badgeWiden.classList.add('hidden');
+    badgeMult.classList.add('hidden');
 
     powerups = [];
     particles = [];
@@ -589,7 +582,6 @@
     const dx = Math.cos(angle) * BASE_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
     const dy = -Math.abs(Math.sin(angle) * BASE_BALL_SPEED);
     balls.push(createBall(paddle.x + paddle.width / 2, paddle.y - 6, dx, dy));
-    updateBallsBadge();
   }
 
   function startGame() {
@@ -717,7 +709,8 @@
     for (let r = 0; r < brickRows; r++) {
       if (!bricks[r]) continue;
       for (let c = 0; c < brickCols; c++) {
-        if (bricks[r][c] && bricks[r][c].hp > 0) return false;
+        const brk = bricks[r][c];
+        if (brk && brk.hp > 0 && !brk.unbreakable) return false;
       }
     }
     return true;
@@ -738,18 +731,27 @@
     // Buff Timers Update
     if (buffWidenTimer > 0) {
       buffWidenTimer--;
-      if (timerWiden) timerWiden.textContent = Math.ceil(buffWidenTimer / 60) + 's';
+      timerWiden.textContent = Math.ceil(buffWidenTimer / 60) + 's';
       if (buffWidenTimer <= 0) {
         paddle.width = paddle.baseWidth;
-        if (badgeWiden) badgeWiden.classList.add('hidden');
+        badgeWiden.classList.add('hidden');
+      }
+    }
+
+    if (buffMultiplierTimer > 0) {
+      buffMultiplierTimer--;
+      timerMult.textContent = Math.ceil(buffMultiplierTimer / 60) + 's';
+      if (buffMultiplierTimer <= 0) {
+        multiplierBadge.classList.add('hidden');
+        badgeMult.classList.add('hidden');
       }
     }
 
     if (buffBarrierTimer > 0) {
       buffBarrierTimer--;
-      if (timerBarrier) timerBarrier.textContent = Math.ceil(buffBarrierTimer / 60) + 's';
+      timerBarrier.textContent = Math.ceil(buffBarrierTimer / 60) + 's';
       if (buffBarrierTimer <= 0) {
-        if (badgeBarrier) badgeBarrier.classList.add('hidden');
+        badgeBarrier.classList.add('hidden');
       }
     }
 
@@ -777,7 +779,6 @@
     }
 
     // Move and collide balls
-    let ballsLostCount = 0;
     for (let bi = balls.length - 1; bi >= 0; bi--) {
       const b = balls[bi];
       b.x += b.dx;
@@ -787,25 +788,25 @@
       if (b.x - b.radius <= 0) {
         b.x = b.radius;
         b.dx = Math.abs(b.dx);
-        playThrottledSound('wall', 30);
+        playSound('wall');
       } else if (b.x + b.radius >= canvas.width) {
         b.x = canvas.width - b.radius;
         b.dx = -Math.abs(b.dx);
-        playThrottledSound('wall', 30);
+        playSound('wall');
       }
 
       // Top wall
       if (b.y - b.radius <= 0) {
         b.y = b.radius;
         b.dy = Math.abs(b.dy);
-        playThrottledSound('wall', 30);
+        playSound('wall');
       }
 
       // Bottom barrier bounce
       if (buffBarrierTimer > 0 && b.y + b.radius >= canvas.height - 4 && b.dy > 0) {
         b.y = canvas.height - 4 - b.radius;
         b.dy = -Math.abs(b.dy);
-        playThrottledSound('paddle', 35);
+        playSound('paddle');
       }
 
       // Paddle collision
@@ -827,27 +828,21 @@
         b.dy = -totalSpeed * Math.cos(bounceAngle);
         b.y = paddle.y - b.radius - 1;
 
-        playThrottledSound('paddle', 35);
+        playSound('paddle');
       }
 
       // Out of bounds bottom
       if (b.y - b.radius > canvas.height) {
         balls.splice(bi, 1);
-        ballsLostCount++;
         continue;
       }
 
-      // Spatial Brick Collision Check
+      // Brick collision
       let hitBrick = false;
-      const minCol = Math.max(0, Math.floor((b.x - b.radius - brickOffsetLeft) / (brickWidth + brickGap)));
-      const maxCol = Math.min(brickCols - 1, Math.floor((b.x + b.radius - brickOffsetLeft) / (brickWidth + brickGap)));
-      const minRow = Math.max(0, Math.floor((b.y - b.radius - brickOffsetTop) / (brickHeight + brickGap)));
-      const maxRow = Math.min(brickRows - 1, Math.floor((b.y + b.radius - brickOffsetTop) / (brickHeight + brickGap)));
-
-      if (minRow <= maxRow && minCol <= maxCol && minRow < brickRows && minCol < brickCols && minRow >= 0 && minCol >= 0) {
-        for (let r = minRow; r <= maxRow; r++) {
+      if (bricks && bricks.length > 0) {
+        for (let r = 0; r < brickRows; r++) {
           if (!bricks[r]) continue;
-          for (let c = minCol; c <= maxCol; c++) {
+          for (let c = 0; c < brickCols; c++) {
             const brk = bricks[r][c];
             if (brk && brk.hp > 0) {
               if (
@@ -866,24 +861,28 @@
 
                 if (minOverlapX < minOverlapY) {
                   b.dx = -b.dx;
-                  if (overlapLeft < overlapRight) b.x = brk.x - b.radius;
-                  else b.x = brk.x + brickWidth + b.radius;
                 } else {
                   b.dy = -b.dy;
-                  if (overlapTop < overlapBottom) b.y = brk.y - b.radius;
-                  else b.y = brk.y + brickHeight + b.radius;
+                }
+
+                if (brk.unbreakable) {
+                  playSound('wall');
+                  spawnParticles(b.x, b.y, '#94A3B8');
+                  hitBrick = true;
+                  break;
                 }
 
                 brk.hp--;
                 spawnParticles(b.x, b.y, brk.fill);
 
+                const multiplier = buffMultiplierTimer > 0 ? 3 : 1;
                 if (brk.hp <= 0) {
-                  score += brk.points;
-                  playThrottledSound('break', 25);
+                  score += brk.points * multiplier;
+                  playSound('break');
                   trySpawnPowerup(brk.x + brickWidth / 2 - 14, brk.y);
                 } else {
-                  score += 5;
-                  playThrottledSound('hit', 30);
+                  score += 5 * multiplier;
+                  playSound('hit');
                 }
 
                 scoreDisplay.textContent = String(score).padStart(3, '0');
@@ -903,11 +902,6 @@
           if (hitBrick) break;
         }
       }
-    }
-
-    if (ballsLostCount > 0) {
-      updateBallsBadge();
-    }
     }
 
     // Check if all balls lost
@@ -954,21 +948,35 @@
         for (let c = 0; c < brickCols; c++) {
           const b = bricks[r][c];
           if (b && b.hp > 0) {
-            ctx.fillStyle = b.fill;
-            if (b.hp < b.maxHp) {
-              ctx.globalAlpha = 0.55; // Damaged state
+            if (b.unbreakable) {
+              ctx.fillStyle = '#475569';
+              drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 2);
+              ctx.fill();
+
+              ctx.strokeStyle = '#94A3B8';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+
+              // Metal center rivet
+              ctx.fillStyle = '#CBD5E1';
+              ctx.fillRect(b.x + brickWidth / 2 - 1.5, b.y + brickHeight / 2 - 1.5, 3, 3);
             } else {
+              ctx.fillStyle = b.fill;
+              if (b.hp < b.maxHp) {
+                ctx.globalAlpha = 0.55; // Damaged state
+              } else {
+                ctx.globalAlpha = 1.0;
+              }
+
+              drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 3);
+              ctx.fill();
+
+              ctx.strokeStyle = b.border;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+
               ctx.globalAlpha = 1.0;
             }
-
-            drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 3);
-            ctx.fill();
-
-            ctx.strokeStyle = b.border;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            ctx.globalAlpha = 1.0;
           }
         }
       }
@@ -1097,14 +1105,12 @@
     isRandomMode = false;
     switchToGameView();
     resetLevel(false);
-    startGame();
   }
 
   function startRandomLevel() {
     isRandomMode = true;
     switchToGameView();
     resetLevel(false);
-    startGame();
   }
 
   function switchToGameView() {
@@ -1121,14 +1127,6 @@
     linkToHub.classList.remove('hidden');
     renderLevelsGrid();
     state = 'PAUSED';
-  }
-
-  if (btnLevelsHud) {
-    btnLevelsHud.addEventListener('click', () => {
-      initAudio();
-      playSound('click');
-      switchToLevelSelect();
-    });
   }
 
   btnToLevels.addEventListener('click', () => {

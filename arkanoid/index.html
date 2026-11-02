@@ -13,7 +13,7 @@
     <!-- Top Navigation Bar -->
     <header class="game-nav-header">
       <div class="nav-left-group">
-        <a href="../index.html" class="nav-back-link" id="link-to-hub">
+        <a href="../" class="nav-back-link" id="link-to-hub">
           <span aria-hidden="true">←</span>
           <span>В хаб</span>
         </a>
@@ -56,12 +56,9 @@
           </button>
         </div>
 
-        <div class="levels-header-bar">
-          <h2 class="levels-grid-heading">Список всех 60 уровней</h2>
-          <div class="progress-stats-row">
-            <span id="progress-text">Пройдено: 0 / 60</span>
-            <span id="stars-text">Рекорд: 0</span>
-          </div>
+        <div class="progress-stats-row">
+          <span id="progress-text">Пройдено: 0 / 60</span>
+          <span id="stars-text">Рекорд: 0</span>
         </div>
         <div class="levels-grid" id="levels-grid" role="list">
           <!-- Populated by JavaScript (Levels 1 to 60) -->
@@ -92,7 +89,7 @@
           <span class="score-label">Счет</span>
           <div class="score-row">
             <span class="score-digit" id="score-display">000</span>
-            <span id="balls-count-badge" class="balls-count-badge">● 1</span>
+            <span id="multiplier-badge" class="multiplier-badge hidden">x3</span>
           </div>
         </div>
 
@@ -111,7 +108,6 @@
         </div>
 
         <div class="game-quick-actions">
-          <button id="btn-levels-hud" class="btn-ctrl" type="button" title="Вернуться к списку уровней">Уровни</button>
           <button id="btn-pause" class="btn-ctrl" type="button" title="Пауза (кликните 10 раз для меню отладки)">Пауза</button>
           <button id="btn-restart" class="btn-ctrl btn-accent" type="button">Заново</button>
         </div>
@@ -137,8 +133,9 @@
 
       <!-- Active Powerups Bar -->
       <div class="active-powerups-bar" id="active-powerups-bar">
-        <span id="badge-barrier" class="buff-chip hidden">НИЖНИЙ БАРЬЕР: <b id="timer-barrier">12s</b></span>
+        <span id="badge-barrier" class="buff-chip hidden">БАРЬЕР: <b id="timer-barrier">12s</b></span>
         <span id="badge-widen" class="buff-chip hidden">ШИРОКАЯ РАКЕТКА: <b id="timer-widen">18s</b></span>
+        <span id="badge-mult" class="buff-chip hidden">x3 ОЧКИ: <b id="timer-mult">15s</b></span>
       </div>
 
       <!-- Controls Guide -->
@@ -169,7 +166,7 @@
           <button id="dbg-drop-multiball" class="btn-ctrl" type="button">Выдать +3 шара</button>
           <button id="dbg-drop-barrier" class="btn-ctrl" type="button">Выдать нижний барьер</button>
           <button id="dbg-drop-widen" class="btn-ctrl" type="button">Выдать расширение ракетки</button>
-          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Умножить шары (x3)</button>
+          <button id="dbg-drop-x3" class="btn-ctrl" type="button">Утроить шары (x3)</button>
           <button id="dbg-clear-bricks" class="btn-ctrl" type="button">Оставить 2 блока</button>
           <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
         </div>
