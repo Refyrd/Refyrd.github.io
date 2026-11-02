@@ -417,6 +417,46 @@
     debugModal.classList.add('hidden');
   });
 
+  // Draggable Debug Window Controller
+  const debugHandle = document.getElementById('debug-drag-handle');
+  let isDraggingDebug = false;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  debugHandle.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('#dbg-close')) return;
+    isDraggingDebug = true;
+    try { debugHandle.setPointerCapture(e.pointerId); } catch (err) {}
+    const rect = debugModal.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+  });
+
+  debugHandle.addEventListener('pointermove', (e) => {
+    if (!isDraggingDebug) return;
+    const winWidth = window.innerWidth;
+    const winHeight = window.innerHeight;
+    const modalWidth = debugModal.offsetWidth;
+    const modalHeight = debugModal.offsetHeight;
+
+    const newX = Math.max(8, Math.min(winWidth - modalWidth - 8, e.clientX - dragOffsetX));
+    const newY = Math.max(8, Math.min(winHeight - modalHeight - 8, e.clientY - dragOffsetY));
+
+    debugModal.style.left = `${newX}px`;
+    debugModal.style.top = `${newY}px`;
+    debugModal.style.transform = 'none';
+  });
+
+  function stopDragDebug(e) {
+    if (isDraggingDebug) {
+      isDraggingDebug = false;
+      try { debugHandle.releasePointerCapture(e.pointerId); } catch (err) {}
+    }
+  }
+
+  debugHandle.addEventListener('pointerup', stopDragDebug);
+  debugHandle.addEventListener('pointercancel', stopDragDebug);
+
   dbgAddLength.addEventListener('click', () => {
     markDebugUsed();
     const tail = snake[snake.length - 1];

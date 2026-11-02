@@ -247,10 +247,82 @@
   line-height: 1.4;
 }
 
-/* Debug Dialog */
-.debug-dialog {
-  max-width: 340px;
-  gap: 14px;
+/* Draggable Debug Window */
+.debug-window {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(340px, calc(100vw - 24px));
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.debug-window.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.debug-window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background-color: var(--surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.debug-window-header:active {
+  cursor: grabbing;
+}
+
+.debug-window-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.debug-drag-icon {
+  font-size: 14px;
+  color: var(--text-muted);
+  letter-spacing: -2px;
+}
+
+.debug-close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 15px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.debug-close-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--surface-card);
+}
+
+.debug-window-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .debug-warning {

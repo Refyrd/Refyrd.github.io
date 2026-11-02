@@ -62,22 +62,27 @@
             <button id="overlay-btn" class="btn-ctrl btn-primary-action" type="button">Продолжить</button>
           </div>
         </div>
+      </div>
 
-        <!-- Debug Menu Modal (10 clicks on Pause button) -->
-        <div id="debug-modal" class="game-overlay hidden" aria-live="polite">
-          <div class="overlay-dialog debug-dialog">
-            <h2 class="overlay-heading">Меню отладки</h2>
-            <p class="overlay-desc debug-warning">
-              Внимание: действия в меню отладки отключают сохранение счета в рекорды для текущей сессии.
-            </p>
-            <div class="debug-actions-grid">
-              <button id="dbg-add-length" class="btn-ctrl" type="button">+5 к длине змейки</button>
-              <button id="dbg-sound-eat" class="btn-ctrl" type="button">Тест звука (еда)</button>
-              <button id="dbg-sound-hit" class="btn-ctrl" type="button">Тест звука (удар)</button>
-              <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
-              <button id="dbg-gameover" class="btn-ctrl" type="button">Вызвать проигрыш</button>
-            </div>
-            <button id="dbg-close" class="btn-ctrl btn-primary-action" type="button">Закрыть меню</button>
+      <!-- Draggable Debug Window (10 clicks on Pause button) -->
+      <div id="debug-modal" class="debug-window hidden" aria-live="polite">
+        <div class="debug-window-header" id="debug-drag-handle">
+          <div class="debug-window-title">
+            <span class="debug-drag-icon" aria-hidden="true">⠿</span>
+            <span>Меню отладки</span>
+          </div>
+          <button id="dbg-close" class="debug-close-btn" type="button" aria-label="Закрыть">✕</button>
+        </div>
+        <div class="debug-window-body">
+          <p class="overlay-desc debug-warning">
+            Действия в отладке отключают запись счета в рекорды.
+          </p>
+          <div class="debug-actions-grid">
+            <button id="dbg-add-length" class="btn-ctrl" type="button">+5 к длине змейки</button>
+            <button id="dbg-sound-eat" class="btn-ctrl" type="button">Тест звука (еда)</button>
+            <button id="dbg-sound-hit" class="btn-ctrl" type="button">Тест звука (удар)</button>
+            <button id="dbg-win" class="btn-ctrl btn-accent" type="button">Вызвать победу</button>
+            <button id="dbg-gameover" class="btn-ctrl" type="button">Вызвать проигрыш</button>
           </div>
         </div>
       </div>
