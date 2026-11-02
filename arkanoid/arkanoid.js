@@ -335,26 +335,159 @@
     return grid;
   }
 
-  // Random Mode Pattern Generator (18 cols x 14 rows)
+  // Random Mode Pattern Generator (18 cols x 14 rows, balanced difficulty 20-30 with distinct silhouettes)
   function generateRandomLevelData() {
     const grid = [];
-    for (let r = 0; r < brickRows; r++) {
-      grid[r] = new Array(brickCols).fill(0);
-      for (let c = 0; c < 9; c++) {
-        if (Math.random() > 0.32) {
-          const roll = Math.random();
-          let randType = 1;
-          if (roll < 0.08) randType = 9; // 8% chance of steel bunker block
-          else if (roll < 0.25) randType = 3; // 3-hit
-          else if (roll < 0.45) randType = 2; // 2-hit
-          else if (roll < 0.70) randType = 4; // blue
-          else randType = 5; // yellow
+    for (let r = 0; r < brickRows; r++) grid[r] = new Array(brickCols).fill(0);
 
-          grid[r][c] = randType;
-          grid[r][17 - c] = randType; // Mirror horizontally
+    const archetype = Math.floor(Math.random() * 8);
+    const theme = Math.floor(Math.random() * 5);
+
+    // Cohesive color palettes matching levels 20-30 difficulty (mostly 1-hit and 2-hit, few 3-hit)
+    const palettes = [
+      { primary: 1, accent: 2, core: 3 }, // Emerald & Gold
+      { primary: 4, accent: 2, core: 6 }, // Cobalt & Gold
+      { primary: 5, accent: 6, core: 3 }, // Lemon & Amethyst
+      { primary: 4, accent: 1, core: 2 }, // Neon Cyan & Green
+      { primary: 1, accent: 5, core: 2 }  // Jade & Sun
+    ];
+    const pal = palettes[theme];
+    const includeSteel = Math.random() < 0.30;
+
+    for (let r = 1; r < 10; r++) {
+      for (let symC = 0; symC < 9; symC++) {
+        let filled = false;
+        let isCore = false;
+        let isAccent = false;
+        let isSteel = false;
+
+        switch (archetype) {
+          case 0: // Castle / Bastion
+            if (r === 1) {
+              filled = (symC === 1 || symC === 3 || symC === 5);
+            } else if (r === 2 || r === 3) {
+              filled = symC <= 6;
+              isAccent = (symC === 5 || symC === 6);
+            } else if (r >= 4 && r <= 7) {
+              if (symC === 0 && r >= 6) {
+                filled = false; // Central gate entrance
+              } else {
+                filled = symC <= 5;
+                isCore = symC <= 1 && r <= 5;
+                isSteel = includeSteel && r === 4 && (symC === 3 || symC === 4);
+              }
+            } else if (r === 8) {
+              filled = symC >= 1 && symC <= 4;
+            }
+            break;
+
+          case 1: // Wings / Starfighter
+            const wingSpan = Math.min(7, 7 - Math.abs(r - 5));
+            if (symC <= wingSpan) {
+              if ((r === 2 || r === 3) && symC <= 1) {
+                filled = true;
+                isCore = true;
+              } else if (r >= 3 && r <= 7) {
+                filled = ((r + symC) % 2 === 0) || symC === 0 || symC === wingSpan;
+                isAccent = symC === wingSpan;
+                isCore = symC === 0;
+                isSteel = includeSteel && r === 5 && symC === wingSpan;
+              } else if (r === 8) {
+                filled = symC === 0 || symC === 2 || symC === 3;
+              }
+            }
+            break;
+
+          case 2: // Diamond Gem
+            const distD = Math.abs(r - 5) + symC;
+            if (distD <= 6 && r >= 2 && r <= 8) {
+              filled = true;
+              isCore = distD <= 2;
+              isAccent = (distD === 4 || distD === 5);
+              isSteel = includeSteel && distD === 6 && r === 5;
+            }
+            break;
+
+          case 3: // Crown
+            if (r === 1) {
+              filled = (symC === 0 || symC === 3 || symC === 6);
+            } else if (r === 2) {
+              filled = (symC === 0 || symC === 1 || symC === 3 || symC === 4 || symC === 6);
+            } else if (r >= 3 && r <= 5) {
+              filled = symC <= 6;
+              isCore = (symC === 0 || symC === 3);
+              isAccent = (symC === 2 || symC === 5);
+            } else if (r >= 6 && r <= 7) {
+              filled = symC <= 5;
+              isAccent = r === 7;
+              isSteel = includeSteel && r === 6 && (symC === 1 || symC === 2);
+            }
+            break;
+
+          case 4: // Heroic Shield
+            if (r === 2) {
+              filled = symC >= 1 && symC <= 5;
+              isSteel = includeSteel && (symC === 1 || symC === 2);
+            } else if (r >= 3 && r <= 5) {
+              filled = symC <= 6;
+              isCore = symC <= 1;
+              isAccent = symC >= 4;
+            } else if (r >= 6 && r <= 8) {
+              const maxC = Math.max(0, 5 - (r - 5) * 2);
+              filled = symC <= maxC;
+              isAccent = symC === maxC;
+            }
+            break;
+
+          case 5: // Archway / Stargate
+            const isArch = (r === 2 && symC <= 5) || ((symC === 4 || symC === 5) && r >= 2 && r <= 8);
+            const isInner = (r >= 3 && r <= 6 && symC <= 2);
+            if (isArch) {
+              filled = true;
+              isSteel = includeSteel && r === 2 && (symC === 1 || symC === 2);
+              isAccent = true;
+            } else if (isInner) {
+              filled = (r + symC) % 2 === 0;
+              isCore = (r === 4 || r === 5);
+            }
+            break;
+
+          case 6: // Ziggurat / Stepped Pyramid
+            const maxP = Math.max(0, 6 - (r - 2));
+            if (r >= 2 && r <= 8 && symC <= maxP) {
+              filled = true;
+              isCore = r <= 3 && symC <= 1;
+              isAccent = symC === maxP || (r + symC) % 2 === 0;
+            }
+            break;
+
+          case 7: // Honeycomb / Hexagon
+            const distH = Math.max(Math.abs(r - 5), symC, Math.floor((Math.abs(r - 5) + symC) / 2));
+            if (distH <= 4 && r >= 2 && r <= 8 && symC <= 6) {
+              if ((r + symC) % 2 === 0) {
+                filled = true;
+                isCore = distH <= 1;
+                isAccent = distH === 3;
+                isSteel = includeSteel && (r === 4 || r === 5) && symC === 5;
+              }
+            }
+            break;
+        }
+
+        if (filled) {
+          let cellType = pal.primary;
+          if (isSteel) cellType = 9;
+          else if (isCore) cellType = pal.core;
+          else if (isAccent) cellType = pal.accent;
+
+          const cLeft = 8 - symC;
+          const cRight = 9 + symC;
+          grid[r][cLeft] = cellType;
+          grid[r][cRight] = cellType;
         }
       }
     }
+
     return grid;
   }
 
