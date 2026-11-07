@@ -13,11 +13,24 @@
   --color-canvas: #ffffff;           /* Pure white canvas */
   --color-canvas-parchment: #f5f5f7; /* Signature Apple off-white parchment */
   --color-surface-pearl: #fafafc;    /* Pearl surface for secondary buttons */
+  --color-surface-hover: #f0f0f2;    /* Button hover surface */
   --color-surface-tile-1: #272729;   /* Near-black product tile */
   --color-surface-tile-2: #2a2a2c;   /* Slightly lighter dark tile */
   --color-surface-tile-3: #252527;   /* Bottom stack dark tile */
   --color-surface-black: #000000;    /* Pure black (global nav, video frames) */
   --color-surface-chip-translucent: rgba(210, 210, 215, 0.64);
+  --color-card-disabled-bg: #fafafc;
+  --color-frosted-nav: rgba(245, 245, 247, 0.88);
+  --color-badge-bg: rgba(0, 102, 204, 0.08);
+  --color-badge-border: rgba(0, 102, 204, 0.2);
+  --color-nav-hover: rgba(0, 102, 204, 0.08);
+  --color-tab-bg: #e5e5ea;
+  --color-tab-active-bg: #ffffff;
+  --color-tab-active-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  --color-pip-inactive: #e5e5ea;
+  --color-pip-border: #d1d1d6;
+  --color-pip-active: #ff3b30;
+  --color-pip-glow: rgba(255, 59, 48, 0.35);
 
   /* Colors: Typography & Ink */
   --color-ink: #1d1d1f;              /* Near-black ink for headlines & body */
@@ -30,6 +43,7 @@
   /* Colors: Hairlines & Dividers */
   --color-divider-soft: #f0f0f0;     /* Soft ring divider */
   --color-hairline: #e0e0e0;         /* 1px hairline border on utility cards */
+  --color-hairline-hover: #d2d2d7;   /* Clean light hover border */
   --color-hairline-subtle: rgba(0, 0, 0, 0.08);
 
   /* Shapes & Radii */
@@ -73,11 +87,24 @@
   --color-canvas: #1c1c1e;           /* Apple Dark Card / Surface */
   --color-canvas-parchment: #000000; /* Pure black backdrop */
   --color-surface-pearl: #2c2c2e;    /* Dark pearl button */
+  --color-surface-hover: #3a3a3c;    /* Clean dark hover state */
   --color-surface-tile-1: #272729;   /* Near-black product tile */
   --color-surface-tile-2: #2a2a2c;
   --color-surface-tile-3: #252527;
   --color-surface-black: #000000;
   --color-surface-chip-translucent: rgba(255, 255, 255, 0.16);
+  --color-card-disabled-bg: #151516; /* Clean dark disabled card background */
+  --color-frosted-nav: rgba(28, 28, 30, 0.88); /* Frosted dark subnav header */
+  --color-badge-bg: rgba(41, 151, 255, 0.15);
+  --color-badge-border: rgba(41, 151, 255, 0.3);
+  --color-nav-hover: rgba(41, 151, 255, 0.15);
+  --color-tab-bg: #2c2c2e;
+  --color-tab-active-bg: #3a3a3c;
+  --color-tab-active-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --color-pip-inactive: #2c2c2e;
+  --color-pip-border: #3a3a3c;
+  --color-pip-active: #ff453a;
+  --color-pip-glow: rgba(255, 69, 58, 0.5);
 
   --color-ink: #ffffff;
   --color-body: #f5f5f7;
@@ -88,6 +115,7 @@
 
   --color-divider-soft: #2c2c2e;
   --color-hairline: #38383a;
+  --color-hairline-hover: #545458;   /* Clean dark hover border */
   --color-hairline-subtle: rgba(255, 255, 255, 0.12);
 
   --shadow-product: 0 8px 32px rgba(0, 0, 0, 0.7);
@@ -320,13 +348,13 @@ body {
 }
 
 .game-card:hover:not(.card-disabled) {
-  border-color: #d2d2d7;
+  border-color: var(--color-hairline-hover);
   box-shadow: var(--shadow-card-hover);
 }
 
 .card-disabled {
-  background-color: #fafafc;
-  opacity: 0.7;
+  background-color: var(--color-card-disabled-bg);
+  opacity: 0.65;
   border-style: dashed;
 }
 
@@ -470,8 +498,9 @@ body {
 }
 
 .btn-ctrl:hover:not(:disabled) {
-  background-color: #f0f0f2;
-  border-color: #d2d2d7;
+  background-color: var(--color-surface-hover);
+  border-color: var(--color-hairline-hover);
+  color: var(--color-ink);
 }
 
 .btn-ctrl:active:not(:disabled) {

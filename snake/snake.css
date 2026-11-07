@@ -37,7 +37,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 18px;
-  background-color: rgba(245, 245, 247, 0.88);
+  background-color: var(--color-frosted-nav);
   backdrop-filter: var(--backdrop-frosted);
   -webkit-backdrop-filter: var(--backdrop-frosted);
   border-bottom: 1px solid var(--color-hairline);
@@ -58,7 +58,7 @@
 }
 
 .nav-back-link:hover {
-  background-color: rgba(0, 102, 204, 0.08);
+  background-color: var(--color-nav-hover);
 }
 
 .nav-back-link:focus-visible {
@@ -86,8 +86,8 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-primary);
-  background-color: rgba(0, 102, 204, 0.08);
-  border: 1px solid rgba(0, 102, 204, 0.2);
+  background-color: var(--color-badge-bg);
+  border: 1px solid var(--color-badge-border);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
 }
@@ -335,7 +335,7 @@
 
 .debug-close-btn:hover {
   color: var(--color-ink);
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--color-surface-hover);
 }
 
 .debug-window-body {
