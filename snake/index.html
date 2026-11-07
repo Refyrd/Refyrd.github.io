@@ -7,6 +7,7 @@
   <meta name="description" content="Classic snake game with responsive swipe and keyboard controls.">
   <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="snake.css">
+  <script src="../js/theme.js"></script>
 </head>
 <body class="game-page-body">
   <!-- Apple Global Nav Bar (44px) -->
@@ -19,6 +20,12 @@
         <li><a href="../snake/" class="global-nav-link">Snake</a></li>
         <li><a href="../arkanoid/" class="global-nav-link">Arkanoid</a></li>
         <li><a href="https://github.com/Refyrd/Refyrd.github.io" target="_blank" rel="noopener noreferrer" class="global-nav-link">GitHub</a></li>
+        <li>
+          <button class="nav-theme-btn" type="button" aria-label="Toggle dark mode">
+            <span id="theme-icon" aria-hidden="true">◐</span>
+            <span id="theme-text">Dark</span>
+          </button>
+        </li>
       </ul>
     </div>
   </nav>
@@ -39,6 +46,10 @@
       </div>
 
       <div class="game-nav-actions">
+        <button id="theme-toggle" class="btn-ctrl" type="button" aria-label="Toggle theme">
+          <span id="theme-icon" aria-hidden="true">◐</span>
+          <span id="theme-text">Dark</span>
+        </button>
         <button id="sound-toggle" class="btn-ctrl" type="button" aria-label="Sound" aria-pressed="false">
           Sound: <span id="sound-status">off</span>
         </button>

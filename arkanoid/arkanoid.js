@@ -140,14 +140,14 @@
     localStorage.setItem('refyrd_arkanoid_completed', JSON.stringify(Array.from(completedLevels)));
   }
 
-  // Square Brick Layout Dimensions (18 cols x 14 rows)
-  const brickRows = 14;
-  const brickCols = 18;
-  const brickWidth = 18;
-  const brickHeight = 18;
+  // Dense Square Brick Layout Dimensions (24 cols x 18 rows)
+  const brickRows = 18;
+  const brickCols = 24;
+  const brickWidth = 14;
+  const brickHeight = 12;
   const brickGap = 2;
-  const brickOffsetTop = 32;
-  const brickOffsetLeft = 21; // (400 - (18*20 - 2)) / 2 = 21px centered
+  const brickOffsetTop = 28;
+  const brickOffsetLeft = 9; // (400 - (24 * 16 - 2)) / 2 = 9px centered
 
   // Brick Color & Type Definitions (Apple System Palette)
   const BRICK_TYPES = {
@@ -160,7 +160,7 @@
     9: { fill: '#3A3A3C', border: '#48484A', maxHp: Infinity, unbreakable: true, points: 0 } // Unbreakable Dark Steel
   };
 
-  // 60 Handcrafted / Algorithmic Levels (18 cols x 14 rows)
+  // 60 Handcrafted / Algorithmic Levels (24 cols x 18 rows)
   function generateLevelData(lvlNum) {
     const grid = [];
     for (let r = 0; r < brickRows; r++) grid[r] = new Array(brickCols).fill(0);
@@ -176,154 +176,156 @@
 
     for (let r = 0; r < brickRows; r++) {
       for (let c = 0; c < brickCols; c++) {
-        const symC = c < 9 ? c : 17 - c; // Horizontal symmetry (0..8)
+        const symC = c < 12 ? c : 23 - c; // Horizontal symmetry (0..11)
         let val = 0;
 
         switch (arch) {
-          case 0: // The Gate (Columns and arched top)
-            if ((symC in [1, 2] || symC === 1 || symC === 2) && r <= 10) {
-              val = r <= 2 ? tArmored : tEasy;
-            } else if (r <= 2 && symC <= 7) {
+          case 0: // The Grand Gate
+            if ((symC === 2 || symC === 3 || symC === 4 || symC === 10 || symC === 11) && r <= 14) {
+              val = r <= 3 ? tArmored : tEasy;
+            } else if (r <= 3 && symC <= 11) {
               val = tMid;
             }
             break;
 
           case 1: // Butterfly Wings
-            if ((symC + r) % 3 === 0 && r <= 11 && symC <= 7) {
-              val = r < 5 ? tHard : tMid;
-            } else if (symC === 0 && r >= 3 && r <= 9) {
+            if ((symC + r) % 3 === 0 && r <= 15 && symC <= 11) {
+              val = r < 6 ? tHard : tMid;
+            } else if ((symC === 0 || symC === 1) && r >= 3 && r <= 12) {
               val = tArmored;
             }
             break;
 
           case 2: // Space Invader
             if (
-              (r === 1 && (symC === 2 || symC === 3)) ||
-              (r === 2 && symC >= 1 && symC <= 4) ||
-              (r === 3 && symC !== 3 && symC <= 5) ||
-              (r >= 4 && r <= 6 && symC <= 5) ||
-              (r === 7 && (symC === 1 || symC === 3)) ||
-              (r === 8 && (symC === 0 || symC === 4))
+              (r === 1 && (symC === 3 || symC === 4)) ||
+              (r === 2 && symC >= 2 && symC <= 6) ||
+              (r === 3 && symC !== 4 && symC !== 5 && symC <= 8) ||
+              (r >= 4 && r <= 8 && symC <= 8) ||
+              (r === 9 && (symC === 2 || symC === 5)) ||
+              (r === 10 && (symC === 1 || symC === 6))
             ) {
-              val = (r === 3 || r === 6) ? tArmored : tMid;
+              val = (r === 4 || r === 8) ? tArmored : tMid;
             }
             break;
 
-          case 3: // Big Heart
+          case 3: // Pixel Heart
             if (
-              (r === 1 && symC >= 2 && symC <= 5) ||
-              (r === 2 && symC >= 1 && symC <= 6) ||
-              (r >= 3 && r <= 9 && symC <= Math.max(0, 8 - (r - 2)))
+              (r >= 1 && r <= 2 && symC >= 2 && symC <= 8) ||
+              (r === 3 && symC >= 1 && symC <= 10) ||
+              (r >= 4 && r <= 13 && symC <= Math.max(0, 11 - (r - 3)))
             ) {
-              val = r <= 3 ? 3 : (r <= 6 ? 2 : 1);
+              val = r <= 5 ? 3 : (r <= 9 ? 2 : 1);
             }
             break;
 
           case 4: // Pixel Skull
-            if (r <= 8 && symC <= 6) {
-              if (r >= 4 && r <= 5 && (symC === 2 || symC === 3)) {
+            if (r <= 12 && symC <= 9) {
+              if (r >= 5 && r <= 7 && (symC === 3 || symC === 4)) {
                 val = 0; // Eye socket
-              } else if (r === 8 && (symC === 1 || symC === 3 || symC === 5)) {
+              } else if (r === 12 && (symC === 1 || symC === 4 || symC === 7)) {
                 val = 0; // Teeth gap
               } else {
-                val = r <= 3 ? tHard : tEasy;
+                val = r <= 4 ? tHard : tEasy;
               }
             }
             break;
 
           case 5: // Diamond Rings
-            const distD = Math.abs(r - 5) + Math.abs(symC - 4);
-            if (distD === 2 || distD === 4 || distD === 6) {
+            const distD = Math.abs(r - 7) + Math.abs(symC - 6);
+            if (distD === 2 || distD === 4 || distD === 6 || distD === 8) {
               val = distD === 2 ? tArmored : (distD === 4 ? tHard : tMid);
             }
             break;
 
-          case 6: // Fortress with 1-block bottleneck
-            if (hasSteel && (r === 3 || symC === 7) && !(r === 3 && symC === 0)) {
-              val = 9; // Steel perimeter with a 1-block slit at center!
-            } else if (r > 3 && r < 10 && symC < 7) {
-              val = r < 6 ? tArmored : tEasy; // High value chamber inside
-            } else if (r < 3 && symC <= 6) {
+          case 6: // Fortress with Bottleneck
+            if (hasSteel && (r === 4 || symC === 10) && !(r === 4 && (symC === 0 || symC === 1))) {
+              val = 9; // Steel outer perimeter with 2-block bottleneck
+            } else if (r > 4 && r < 13 && symC < 10) {
+              val = r < 8 ? tArmored : tEasy;
+            } else if (r < 4 && symC <= 10) {
               val = tMid;
             }
             break;
 
-          case 7: // Hourglass & Steel Pillars
-            if ((symC === 0 || symC === 8) && r <= 11) {
-              val = (hasSteel && r >= 4 && r <= 7) ? 9 : tHard;
-            } else if (Math.abs(r - 5) >= symC && r <= 10) {
-              val = r <= 2 || r >= 8 ? tMid : tEasy;
+          case 7: // Hourglass Pillars
+            if ((symC === 0 || symC === 1 || symC === 10 || symC === 11) && r <= 14) {
+              val = (hasSteel && r >= 5 && r <= 9) ? 9 : tHard;
+            } else if (Math.abs(r - 7) >= Math.floor(symC / 2) && r <= 13) {
+              val = (r <= 3 || r >= 11) ? tMid : tEasy;
             }
             break;
 
           case 8: // Checkerboard Maze
-            if ((r + symC) % 2 === 0 && r <= 11 && symC <= 7) {
-              val = (hasSteel && (r === 5 || r === 6) && (symC === 2 || symC === 4)) ? 9 : tEasy;
+            if ((r + symC) % 2 === 0 && r <= 14 && symC <= 11) {
+              val = (hasSteel && (r === 6 || r === 7) && (symC === 3 || symC === 6)) ? 9 : tEasy;
             }
             break;
 
-          case 9: // The Vault (Steel box with 1-block entrance at bottom)
+          case 9: // Vault Bunker
             if (hasSteel) {
-              const isVaultWall = (r === 4 || r === 10 || symC === 7) && !(r === 10 && symC === 0);
-              if (isVaultWall) {
-                val = 9; // Unbreakable wall
-              } else if (r > 4 && r < 10 && symC < 7) {
-                val = 3; // Crimson treasure inside vault!
-              } else if (r < 4 && symC <= 7) {
+              const isVault = (r === 5 || r === 13 || symC === 10) && !(r === 13 && (symC === 0 || symC === 1));
+              if (isVault) {
+                val = 9;
+              } else if (r > 5 && r < 13 && symC < 10) {
+                val = 3; // Treasure
+              } else if (r < 5 && symC <= 11) {
                 val = tMid;
               }
             } else {
-              if (r <= 9 && symC <= 7) val = r < 4 ? tMid : tEasy;
+              if (r <= 12 && symC <= 11) {
+                val = r < 5 ? tMid : tEasy;
+              }
             }
             break;
 
           case 10: // Shield and Blade
-            if (symC === 0 && r <= 12) {
+            if ((symC === 0 || symC === 1) && r <= 15) {
               val = tArmored;
-            } else if (symC <= 6 && r >= 2 && r <= 8 && (symC + r) <= 10) {
-              val = symC <= 3 ? tHard : tEasy;
+            } else if (symC <= 9 && r >= 3 && r <= 11 && (symC + r) <= 14) {
+              val = symC <= 4 ? tHard : tEasy;
             }
             break;
 
-          case 11: // Twin Steel Bunkers (Heavy protective roofs)
-            if (hasSteel && r === 2 && symC >= 2 && symC <= 6) {
-              val = 9; // Steel roof
-            } else if (r >= 3 && r <= 7 && symC >= 2 && symC <= 5) {
-              val = r === 3 ? tArmored : tEasy;
-            } else if (r >= 9 && r <= 11 && symC <= 7) {
+          case 11: // Twin Steel Bunkers
+            if (hasSteel && r === 3 && symC >= 3 && symC <= 9) {
+              val = 9;
+            } else if (r >= 4 && r <= 9 && symC >= 3 && symC <= 8) {
+              val = r === 4 ? tArmored : tEasy;
+            } else if (r >= 11 && r <= 14 && symC <= 10) {
               val = tMid;
             }
             break;
 
-          case 12: // Spiral Coils
-            const ring = Math.min(r, 13 - r, symC, 8 - symC);
-            if (ring % 2 === 0 && r <= 11) {
-              val = (hasSteel && ring === 2 && r > 3) ? 9 : tMid;
+          case 12: // Spiral Concentric Coils
+            const ring = Math.min(r, 17 - r, symC, 11 - symC);
+            if (ring % 2 === 0 && r <= 15) {
+              val = (hasSteel && ring === 2 && r > 4) ? 9 : tMid;
             } else if (ring === 1) {
               val = tEasy;
             }
             break;
 
           case 13: // Sun Mandala
-            const distM = Math.abs(r - 6) + symC;
-            if ((distM === 3 || distM === 5 || distM === 7) && r <= 12) {
-              val = distM === 3 ? tArmored : tEasy;
+            const distM = Math.abs(r - 8) + symC;
+            if ((distM === 4 || distM === 6 || distM === 8 || distM === 10) && r <= 15) {
+              val = distM === 4 ? tArmored : tEasy;
             }
             break;
 
-          case 14: // The Obsidian Citadel (Boss Fortress)
+          case 14: // Obsidian Citadel (Boss Fortress)
             if (hasSteel) {
-              const outerWall = (r === 1 || r === 11 || symC === 8) && !(r === 11 && (symC === 3 || symC === 4));
-              const innerWall = (r === 4 || r === 8 || symC === 4) && !(r === 4 && symC === 0);
-              if (outerWall || innerWall) {
-                val = 9; // Unbreakable fortress barriers
-              } else if (r > 4 && r < 8 && symC < 4) {
-                val = 3; // Dense 3-hit citadel core!
+              const outer = (r === 2 || r === 14 || symC === 11) && !(r === 14 && (symC === 4 || symC === 5));
+              const inner = (r === 5 || r === 10 || symC === 5) && !(r === 5 && (symC === 0 || symC === 1));
+              if (outer || inner) {
+                val = 9;
+              } else if (r > 5 && r < 10 && symC < 5) {
+                val = 3;
               } else {
                 val = tHard;
               }
             } else {
-              if (r <= 10 && symC <= 7) val = tMid;
+              if (r <= 13 && symC <= 10) val = tMid;
             }
             break;
         }
@@ -335,7 +337,7 @@
     return grid;
   }
 
-  // Random Mode Pattern Generator (18 cols x 14 rows, 20 distinct geometric silhouettes, 10 palettes, balanced difficulty 20-30)
+  // Random Mode Pattern Generator (24 cols x 18 rows, 20 distinct geometric silhouettes, 10 palettes, balanced difficulty 20-30)
   function generateRandomLevelData() {
     const grid = [];
     for (let r = 0; r < brickRows; r++) grid[r] = new Array(brickCols).fill(0);
@@ -360,271 +362,240 @@
     const pal = palettes[theme];
     const includeSteel = Math.random() < 0.28;
 
-    for (let r = 1; r < 10; r++) {
-      for (let symC = 0; symC < 9; symC++) {
+    for (let r = 1; r < 14; r++) { // Rows 1 to 13 (leaving 14..17 completely clear)
+      for (let symC = 0; symC < 12; symC++) { // 0 (center) to 11 (outer edge)
         let filled = false;
         let isCore = false;
         let isAccent = false;
         let isSteel = false;
 
         switch (archetype) {
-          case 0: // Castle / Bastion
-            if (r === 1) {
-              filled = (symC === 1 || symC === 3 || symC === 5);
-            } else if (r === 2 || r === 3) {
-              filled = symC <= 6;
-              isAccent = (symC === 5 || symC === 6);
-            } else if (r >= 4 && r <= 7) {
-              if (symC === 0 && r >= 6) {
-                filled = false; // Central gate entrance
-              } else {
-                filled = symC <= 5;
-                isCore = symC <= 1 && r <= 5;
-                isSteel = includeSteel && r === 4 && (symC === 3 || symC === 4);
+          case 0: // Castle
+            if (r === 1) filled = (symC === 1 || symC === 4 || symC === 7 || symC === 10);
+            else if (r === 2 || r === 3) { filled = symC <= 9; isAccent = (symC === 8 || symC === 9); }
+            else if (r >= 4 && r <= 9) {
+              if (symC === 0 && r >= 8) filled = false;
+              else {
+                filled = symC <= 8;
+                isCore = symC <= 2 && r <= 6;
+                isSteel = includeSteel && r === 5 && (symC === 5 || symC === 6);
               }
-            } else if (r === 8) {
-              filled = symC >= 1 && symC <= 4;
-            }
+            } else if (r === 10 || r === 11) filled = (symC >= 2 && symC <= 6);
             break;
 
           case 1: // Wings / Starfighter
-            const wingSpan = Math.min(7, 7 - Math.abs(r - 5));
+            const wingSpan = Math.min(11, 11 - Math.abs(r - 7));
             if (symC <= wingSpan) {
-              if ((r === 2 || r === 3) && symC <= 1) {
-                filled = true;
-                isCore = true;
-              } else if (r >= 3 && r <= 7) {
+              if ((r === 2 || r === 3 || r === 4) && symC <= 2) { filled = true; isCore = true; }
+              else if (r >= 4 && r <= 10) {
                 filled = ((r + symC) % 2 === 0) || symC === 0 || symC === wingSpan;
-                isAccent = symC === wingSpan;
-                isCore = symC === 0;
-                isSteel = includeSteel && r === 5 && symC === wingSpan;
-              } else if (r === 8) {
-                filled = symC === 0 || symC === 2 || symC === 3;
-              }
+                isAccent = (symC === wingSpan);
+                isCore = (symC === 0);
+                isSteel = includeSteel && r === 7 && symC === wingSpan;
+              } else if (r === 11 || r === 12) filled = (symC === 0 || symC === 3 || symC === 4 || symC === 5);
             }
             break;
 
           case 2: // Diamond Gem
-            const distD = Math.abs(r - 5) + symC;
-            if (distD <= 6 && r >= 2 && r <= 8) {
+            const dist = Math.abs(r - 7) + symC;
+            if (dist <= 9 && r >= 2 && r <= 12) {
               filled = true;
-              isCore = distD <= 2;
-              isAccent = (distD === 4 || distD === 5);
-              isSteel = includeSteel && distD === 6 && r === 5;
+              isCore = dist <= 3;
+              isAccent = (dist === 6 || dist === 7);
+              isSteel = includeSteel && dist === 9 && (r === 6 || r === 7);
             }
             break;
 
           case 3: // Crown
-            if (r === 1) {
-              filled = (symC === 0 || symC === 3 || symC === 6);
-            } else if (r === 2) {
-              filled = (symC === 0 || symC === 1 || symC === 3 || symC === 4 || symC === 6);
-            } else if (r >= 3 && r <= 5) {
-              filled = symC <= 6;
-              isCore = (symC === 0 || symC === 3);
-              isAccent = (symC === 2 || symC === 5);
-            } else if (r >= 6 && r <= 7) {
-              filled = symC <= 5;
-              isAccent = r === 7;
-              isSteel = includeSteel && r === 6 && (symC === 1 || symC === 2);
+            if (r === 1) filled = (symC === 0 || symC === 4 || symC === 8);
+            else if (r === 2) filled = (symC === 0 || symC === 1 || symC === 4 || symC === 5 || symC === 8 || symC === 9);
+            else if (r >= 3 && r <= 7) {
+              filled = symC <= 9;
+              isCore = (symC === 0 || symC === 4);
+              isAccent = (symC === 3 || symC === 7);
+            } else if (r >= 8 && r <= 10) {
+              filled = symC <= 8;
+              isAccent = (r === 10);
+              isSteel = includeSteel && r === 8 && (symC === 2 || symC === 3);
             }
             break;
 
           case 4: // Heroic Shield
-            if (r === 2) {
-              filled = symC >= 1 && symC <= 5;
-              isSteel = includeSteel && (symC === 1 || symC === 2);
-            } else if (r >= 3 && r <= 5) {
-              filled = symC <= 6;
-              isCore = symC <= 1;
-              isAccent = symC >= 4;
-            } else if (r >= 6 && r <= 8) {
-              const maxC = Math.max(0, 5 - (r - 5) * 2);
+            if (r === 2) { filled = symC >= 1 && symC <= 8; isSteel = includeSteel && (symC === 1 || symC === 2); }
+            else if (r >= 3 && r <= 7) { filled = symC <= 9; isCore = symC <= 2; isAccent = symC >= 6; }
+            else if (r >= 8 && r <= 12) {
+              const maxC = Math.max(0, 9 - (r - 7) * 2);
               filled = symC <= maxC;
-              isAccent = symC === maxC;
+              isAccent = (symC === maxC);
             }
             break;
 
           case 5: // Archway / Stargate
-            const isArch = (r === 2 && symC <= 5) || ((symC === 4 || symC === 5) && r >= 2 && r <= 8);
-            const isInner = (r >= 3 && r <= 6 && symC <= 2);
+            const isArch = (r === 2 && symC <= 8) || ((symC === 6 || symC === 7) && r >= 2 && r <= 11);
+            const isInner = (r >= 4 && r <= 9 && symC <= 3);
             if (isArch) {
               filled = true;
-              isSteel = includeSteel && r === 2 && (symC === 1 || symC === 2);
+              isSteel = includeSteel && r === 2 && (symC === 2 || symC === 3);
               isAccent = true;
             } else if (isInner) {
               filled = (r + symC) % 2 === 0;
-              isCore = (r === 4 || r === 5);
+              isCore = (r === 6 || r === 7);
             }
             break;
 
-          case 6: // Ziggurat / Stepped Pyramid
-            const maxP = Math.max(0, 6 - (r - 2));
-            if (r >= 2 && r <= 8 && symC <= maxP) {
+          case 6: // Ziggurat
+            const maxP = Math.max(0, 9 - (r - 2));
+            if (r >= 2 && r <= 11 && symC <= maxP) {
               filled = true;
-              isCore = r <= 3 && symC <= 1;
-              isAccent = symC === maxP || (r + symC) % 2 === 0;
+              isCore = r <= 4 && symC <= 2;
+              isAccent = (symC === maxP || (r + symC) % 2 === 0);
             }
             break;
 
-          case 7: // Honeycomb / Hexagon
-            const distH = Math.max(Math.abs(r - 5), symC, Math.floor((Math.abs(r - 5) + symC) / 2));
-            if (distH <= 4 && r >= 2 && r <= 8 && symC <= 6) {
+          case 7: // Honeycomb
+            const distH = Math.max(Math.abs(r - 7), symC, Math.floor((Math.abs(r - 7) + symC) / 2));
+            if (distH <= 6 && r >= 2 && r <= 12 && symC <= 9) {
               if ((r + symC) % 2 === 0) {
                 filled = true;
-                isCore = distH <= 1;
-                isAccent = distH === 3;
-                isSteel = includeSteel && (r === 4 || r === 5) && symC === 5;
+                isCore = distH <= 2;
+                isAccent = distH === 5;
+                isSteel = includeSteel && (r === 6 || r === 7) && symC === 8;
               }
             }
             break;
 
           case 8: // Hourglass
-            const waist = Math.abs(r - 5) + 1;
-            if (r >= 2 && r <= 8 && symC <= waist + 1) {
+            const waist = Math.abs(r - 7) + 1;
+            if (r >= 2 && r <= 12 && symC <= waist + 2) {
               filled = true;
-              isCore = (r === 5 && symC <= 1);
-              isAccent = (symC === waist + 1 || r === 2 || r === 8);
-              isSteel = includeSteel && (r === 2 || r === 8) && symC === waist + 1;
+              isCore = (r === 7 && symC <= 2);
+              isAccent = (symC === waist + 2 || r === 2 || r === 12);
+              isSteel = includeSteel && (r === 2 || r === 12) && symC === waist + 2;
             }
             break;
 
           case 9: // Space Invader
             if (
-              (r === 2 && (symC === 2 || symC === 3)) ||
-              (r === 3 && (symC <= 2 || symC === 4)) ||
-              (r === 4 && symC <= 5) ||
-              (r === 5 && (symC <= 1 || (symC >= 3 && symC <= 5))) ||
-              (r === 6 && symC <= 4) ||
-              (r === 7 && (symC === 1 || symC === 4)) ||
-              (r === 8 && (symC === 0 || symC === 5))
+              (r === 2 && (symC === 3 || symC === 4)) ||
+              (r === 3 && (symC <= 3 || symC === 6 || symC === 7)) ||
+              (r >= 4 && r <= 6 && symC <= 8) ||
+              (r === 7 && (symC <= 2 || (symC >= 5 && symC <= 8))) ||
+              (r === 8 && symC <= 6) ||
+              ((r === 9 || r === 10) && (symC === 1 || symC === 2 || symC === 6 || symC === 7))
             ) {
               filled = true;
-              isCore = (r === 4 || r === 5) && symC <= 1;
-              isAccent = (r === 7 || r === 8 || symC === 5);
-              isSteel = includeSteel && r === 2 && (symC === 2 || symC === 3);
-            }
-            break;
-
-          case 10: // Trident / Poseidon Fork
-            if (r === 2) {
-              filled = (symC === 0 || symC === 3 || symC === 6);
-              isSteel = includeSteel && (symC === 3 || symC === 6);
-            } else if (r === 3 || r === 4) {
-              filled = (symC === 0 || symC === 3 || symC === 6);
-              isAccent = (symC === 3 || symC === 6);
-            } else if (r === 5) {
-              filled = symC <= 6;
-              isCore = symC === 0;
-            } else if (r >= 6 && r <= 8) {
-              filled = symC <= 1;
-              isCore = r === 6;
-            }
-            break;
-
-          case 11: // Pixel Heart
-            if (
-              (r === 2 && symC >= 1 && symC <= 4) ||
-              (r === 3 && symC <= 5) ||
-              (r === 4 && symC <= 6) ||
-              (r === 5 && symC <= 5) ||
-              (r === 6 && symC <= 4) ||
-              (r === 7 && symC <= 2) ||
-              (r === 8 && symC === 0)
-            ) {
-              filled = true;
-              isCore = (r === 3 || r === 4) && symC <= 2;
-              isAccent = (r === 2 || (r === 4 && symC === 6));
-              isSteel = includeSteel && r === 2 && (symC === 1 || symC === 4);
-            }
-            break;
-
-          case 12: // Twin Fortified Towers
-            const isTower = (symC >= 2 && symC <= 4) && (r >= 2 && r <= 8);
-            const isBridge = (r === 4 && symC <= 2);
-            if (isTower || isBridge) {
-              filled = true;
-              isCore = isBridge;
-              isAccent = (r === 2 || symC === 4);
+              isCore = (r >= 4 && r <= 6 && symC <= 2);
+              isAccent = (r >= 9 || symC === 8);
               isSteel = includeSteel && r === 2 && (symC === 3 || symC === 4);
             }
             break;
 
-          case 13: // Radar / Concentric Rings
-            const ringDist = Math.max(Math.abs(r - 2), symC);
-            if ((ringDist === 2 || ringDist === 4 || ringDist === 6) && r >= 2 && r <= 8 && symC <= 7) {
+          case 10: // Trident
+            if (r === 2) { filled = (symC === 0 || symC === 4 || symC === 8); isSteel = includeSteel && (symC === 4 || symC === 8); }
+            else if (r === 3 || r === 4 || r === 5) { filled = (symC === 0 || symC === 4 || symC === 8); isAccent = (symC === 4 || symC === 8); }
+            else if (r === 6) { filled = symC <= 9; isCore = (symC === 0); }
+            else if (r >= 7 && r <= 12) { filled = symC <= 1; isCore = (r === 7); }
+            break;
+
+          case 11: // Pixel Heart
+            if (
+              (r === 2 && symC >= 2 && symC <= 6) ||
+              ((r === 3 || r === 4) && symC <= 8) ||
+              (r >= 5 && r <= 12 && symC <= Math.max(0, 9 - (r - 4)))
+            ) {
               filled = true;
-              isCore = ringDist === 2;
-              isAccent = ringDist === 6;
-              isSteel = includeSteel && ringDist === 6 && r === 2 && (symC === 4 || symC === 5);
+              isCore = (r >= 3 && r <= 6 && symC <= 3);
+              isAccent = (r === 2 || symC === 8);
+              isSteel = includeSteel && r === 2 && (symC === 2 || symC === 5);
             }
             break;
 
-          case 14: // Cross / Templar Emblem
-            const isVert = symC <= 1 && r >= 2 && r <= 8;
-            const isHoriz = (r === 4 || r === 5) && symC <= 6;
+          case 12: // Twin Fortified Towers
+            const isTower = (symC >= 3 && symC <= 6) && (r >= 2 && r <= 11);
+            const isBridge = (r === 5 || r === 6) && (symC <= 3);
+            if (isTower || isBridge) {
+              filled = true;
+              isCore = isBridge;
+              isAccent = (r === 2 || symC === 6);
+              isSteel = includeSteel && r === 2 && (symC === 4 || symC === 5);
+            }
+            break;
+
+          case 13: // Radar Rings
+            const ringDist = Math.max(Math.abs(r - 2), symC);
+            if ((ringDist === 3 || ringDist === 6 || ringDist === 9) && r >= 2 && r <= 11 && symC <= 10) {
+              filled = true;
+              isCore = ringDist === 3;
+              isAccent = ringDist === 9;
+              isSteel = includeSteel && ringDist === 9 && r === 2 && (symC === 6 || symC === 7);
+            }
+            break;
+
+          case 14: // Cross
+            const isVert = (symC <= 2 && r >= 2 && r <= 12);
+            const isHoriz = (r === 6 || r === 7) && symC <= 9;
             if (isVert || isHoriz) {
               filled = true;
-              isCore = symC <= 1 && (r === 4 || r === 5);
-              isAccent = symC >= 5 || r === 2 || r === 8;
-              isSteel = includeSteel && symC === 6 && (r === 4 || r === 5);
+              isCore = symC <= 2 && (r === 6 || r === 7);
+              isAccent = (symC >= 8 || r === 2 || r === 12);
+              isSteel = includeSteel && symC === 9 && (r === 6 || r === 7);
             }
             break;
 
-          case 15: // UFO / Flying Saucer
+          case 15: // UFO
             if (
-              (r === 2 && symC <= 2) ||
-              (r === 3 && symC <= 3) ||
-              (r === 4 && symC <= 7) ||
-              (r === 5 && symC <= 6) ||
-              ((r === 6 || r === 7) && (symC === 1 || symC === 2))
+              ((r === 2 || r === 3) && symC <= 3) ||
+              (r === 4 && symC <= 5) ||
+              (r === 5 && symC <= 10) ||
+              (r === 6 && symC <= 9) ||
+              ((r >= 7 && r <= 9) && (symC === 1 || symC === 2 || symC === 3))
             ) {
               filled = true;
               isCore = (r === 2 || r === 3);
-              isAccent = (r === 4 && symC >= 5);
-              isSteel = includeSteel && r === 4 && (symC === 6 || symC === 7);
+              isAccent = (r === 5 && symC >= 8);
+              isSteel = includeSteel && r === 5 && (symC === 9 || symC === 10);
             }
             break;
 
-          case 16: // Stalactites / Crystal Clusters
-            const depths = [7, 6, 8, 5, 7, 4, 6];
+          case 16: // Stalactites
+            const depths = [10, 9, 11, 7, 10, 6, 9, 5, 8, 4];
             if (symC < depths.length && r >= 2 && r <= depths[symC]) {
               filled = true;
-              isCore = (symC === 0 || symC === 2) && (r === 3 || r === 4);
+              isCore = (symC === 0 || symC === 2) && (r === 4 || r === 5);
               isAccent = (r === depths[symC]);
-              isSteel = includeSteel && r === 2 && (symC === 2 || symC === 4);
+              isSteel = includeSteel && r === 2 && (symC === 3 || symC === 6);
             }
             break;
 
-          case 17: // Lotus / Floral Petals
-            const distL = Math.abs(r - 5) + symC;
-            if ((distL === 2 || distL === 3 || distL === 5) && r >= 2 && r <= 8 && symC <= 6) {
+          case 17: // Lotus
+            const distL = Math.abs(r - 7) + symC;
+            if ((distL === 3 || distL === 5 || distL === 8) && r >= 2 && r <= 12 && symC <= 9) {
               filled = true;
-              isCore = distL <= 3 && r === 5;
-              isAccent = distL === 5;
-              isSteel = includeSteel && distL === 5 && (r === 4 || r === 5);
+              isCore = (distL <= 5 && r === 7);
+              isAccent = (distL === 8);
+              isSteel = includeSteel && distL === 8 && (r === 6 || r === 7);
             }
             break;
 
-          case 18: // Double Chevron / Forward Arrows
-            const chev1 = Math.abs(symC - (r - 2)) <= 1 && r >= 2 && r <= 5;
-            const chev2 = Math.abs(symC - (r - 5)) <= 1 && r >= 5 && r <= 8;
-            if ((chev1 || chev2) && symC <= 6) {
+          case 18: // Double Chevron
+            const chev1 = Math.abs(symC - (r - 2)) <= 1 && r >= 2 && r <= 7;
+            const chev2 = Math.abs(symC - (r - 7)) <= 1 && r >= 7 && r <= 12;
+            if ((chev1 || chev2) && symC <= 9) {
               filled = true;
-              isCore = chev1 && symC <= 1;
-              isAccent = symC >= 5;
-              isSteel = includeSteel && symC === 6;
+              isCore = chev1 && symC <= 2;
+              isAccent = symC >= 7;
+              isSteel = includeSteel && symC === 9;
             }
             break;
 
-          case 19: // Vault Fort with wide opening
-            const isOuter = ((r === 2 || r === 8) && symC <= 6) || (symC === 6 && r >= 2 && r <= 8);
-            const isGate = (r === 8 && (symC === 0 || symC === 1));
-            const isTreasure = (r >= 3 && r <= 7 && symC <= 4 && (r + symC) % 2 === 0);
+          case 19: // Vault Fort
+            const isOuter = ((r === 2 || r === 12) && symC <= 9) || (symC === 9 && r >= 2 && r <= 12);
+            const isGate = (r === 12 && (symC === 0 || symC === 1 || symC === 2));
+            const isTreasure = (r >= 4 && r <= 10 && symC <= 6 && (r + symC) % 2 === 0);
             if ((isOuter && !isGate) || isTreasure) {
               filled = true;
-              isSteel = includeSteel && isOuter && symC === 6;
-              isCore = isTreasure && (r === 4 || r === 5) && symC <= 2;
+              isSteel = includeSteel && isOuter && symC === 9;
+              isCore = isTreasure && (r === 6 || r === 7) && symC <= 3;
               isAccent = isOuter;
             }
             break;
@@ -637,7 +608,7 @@
               filled = false;
             }
           } else if (style === 2) { // Windowed filter
-            if (!isSteel && (archetype === 0 || archetype === 4 || archetype === 15) && (r === 4 || r === 5) && (symC === 2 || symC === 3)) {
+            if (!isSteel && (archetype === 0 || archetype === 4 || archetype === 15) && (r === 5 || r === 6 || r === 7) && (symC === 3 || symC === 4)) {
               filled = false;
             }
           }
@@ -649,8 +620,8 @@
           else if (isCore) cellType = pal.core;
           else if (isAccent) cellType = pal.accent;
 
-          const cLeft = 8 - symC;
-          const cRight = 9 + symC;
+          const cLeft = 11 - symC;
+          const cRight = 12 + symC;
           grid[r][cLeft] = cellType;
           grid[r][cRight] = cellType;
         }
@@ -671,7 +642,7 @@
   let pauseClickTimer = null;
 
   // Slower, comfortable ball speed
-  const BASE_BALL_SPEED = 3.6;
+  const BASE_BALL_SPEED = 3.0;
 
   // Paddle
   const paddle = {
