@@ -183,39 +183,6 @@ body {
   padding-bottom: 32px;
 }
 
-.brand-badge-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: var(--color-canvas);
-  border: 1px solid var(--color-hairline);
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-}
-
-.brand-name {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-}
-
-.brand-status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--color-ink-muted-48);
-}
-
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: #34c759;
-}
-
 .site-title {
   font-family: var(--font-display);
   font-size: 56px;
