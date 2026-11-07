@@ -4,7 +4,7 @@
 - [x] Configure `.gitignore` with `.AI/`, Windows 11 system files, and VS Code configs
 - [x] Initialize Git repository structure on branch `main`
 - [x] Create bilingual documentation (`README.md` and `README.ru.md`)
-- [x] Select visual direction: Hardware Pocket Console (`.AI/DESIGN.md`)
+- [x] Select visual direction: Apple Design System (`.AI/DESIGN.md`)
 
 ## Core Platform & Architecture
 - [x] Redesign main hub (`index.html`) as dedicated game catalog with spacious, aligned layout

@@ -149,15 +149,15 @@
   const brickOffsetTop = 32;
   const brickOffsetLeft = 21; // (400 - (18*20 - 2)) / 2 = 21px centered
 
-  // Brick Color & Type Definitions
+  // Brick Color & Type Definitions (Apple System Palette)
   const BRICK_TYPES = {
-    1: { fill: '#22C55E', border: '#4ADE80', maxHp: 1, points: 10 }, // 1-hit Emerald Green
-    2: { fill: '#FF9F1C', border: '#FFAF3D', maxHp: 2, points: 25 }, // 2-hit Amber Gold
-    3: { fill: '#FF4D36', border: '#FF6B57', maxHp: 3, points: 50 }, // 3-hit Crimson
-    4: { fill: '#2E66FF', border: '#60A5FA', maxHp: 1, points: 15 }, // 1-hit Cobalt Blue
-    5: { fill: '#FFE047', border: '#FDE047', maxHp: 1, points: 15 }, // 1-hit Lemon Yellow
-    6: { fill: '#A855F7', border: '#C084FC', maxHp: 2, points: 35 }, // 2-hit Purple Amethyst
-    9: { fill: '#475569', border: '#94A3B8', maxHp: Infinity, unbreakable: true, points: 0 } // Unbreakable Steel
+    1: { fill: '#34C759', border: '#30B753', maxHp: 1, points: 10 }, // 1-hit Apple Green
+    2: { fill: '#FF9500', border: '#E08500', maxHp: 2, points: 25 }, // 2-hit Apple Orange
+    3: { fill: '#FF3B30', border: '#E03228', maxHp: 3, points: 50 }, // 3-hit Apple Red
+    4: { fill: '#007AFF', border: '#0066CC', maxHp: 1, points: 15 }, // 1-hit Apple Blue
+    5: { fill: '#FFCC00', border: '#E0B400', maxHp: 1, points: 15 }, // 1-hit Apple Yellow
+    6: { fill: '#AF52DE', border: '#9B45C6', maxHp: 2, points: 35 }, // 2-hit Apple Purple
+    9: { fill: '#3A3A3C', border: '#48484A', maxHp: Infinity, unbreakable: true, points: 0 } // Unbreakable Dark Steel
   };
 
   // 60 Handcrafted / Algorithmic Levels (18 cols x 14 rows)
@@ -682,7 +682,7 @@
     y: 425,
     speed: 7,
     radius: 4,
-    color: '#2E66FF'
+    color: '#0066CC'
   };
 
   // Multi-Ball System
@@ -696,7 +696,7 @@
       speed: BASE_BALL_SPEED,
       dx: dx,
       dy: dy,
-      color: '#F4F5F8'
+      color: '#FFFFFF'
     };
   }
 
@@ -718,24 +718,24 @@
 
     let type = 'MULTIBALL';
     let label = '+3';
-    let color = '#22C55E';
+    let color = '#34C759';
 
     if (roll < 0.03) { // 3% Floor Barrier (rare!)
       type = 'BARRIER';
       label = 'FLOOR';
-      color = '#FF4D36';
+      color = '#FF3B30';
     } else if (roll < 0.09) { // 6% Multiply all balls by 3!
       type = 'MULTIPLIER';
       label = '×3';
-      color = '#FFD700';
+      color = '#FF9500';
     } else if (roll < 0.16) { // 7% Widen
       type = 'WIDEN';
       label = 'WIDE';
-      color = '#2E66FF';
+      color = '#0066CC';
     } else { // 6% Multiball (+3)
       type = 'MULTIBALL';
       label = '+3';
-      color = '#22C55E';
+      color = '#34C759';
     }
 
     powerups.push({
@@ -1228,16 +1228,16 @@
     }
   }
 
-  // Render Game Scene
+  // Render Game Scene (Apple Canvas Display)
   function render() {
-    ctx.fillStyle = '#0A0B0E';
+    ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Bottom barrier (if buff active)
     if (buffBarrierTimer > 0) {
-      ctx.fillStyle = '#FF4D36';
+      ctx.fillStyle = '#FF3B30';
       ctx.fillRect(0, canvas.height - 4, canvas.width, 4);
-      ctx.shadowColor = '#FF4D36';
+      ctx.shadowColor = '#FF3B30';
       ctx.shadowBlur = 8;
       ctx.fillRect(0, canvas.height - 3, canvas.width, 2);
       ctx.shadowBlur = 0;
@@ -1251,16 +1251,16 @@
           const b = bricks[r][c];
           if (b && b.hp > 0) {
             if (b.unbreakable) {
-              ctx.fillStyle = '#475569';
+              ctx.fillStyle = '#3A3A3C';
               drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 2);
               ctx.fill();
 
-              ctx.strokeStyle = '#94A3B8';
+              ctx.strokeStyle = '#636366';
               ctx.lineWidth = 1;
               ctx.stroke();
 
               // Metal center rivet
-              ctx.fillStyle = '#CBD5E1';
+              ctx.fillStyle = '#8E8E93';
               ctx.fillRect(b.x + brickWidth / 2 - 1.5, b.y + brickHeight / 2 - 1.5, 3, 3);
             } else {
               ctx.fillStyle = b.fill;
@@ -1325,7 +1325,7 @@
       ctx.fill();
 
       // Specular shine
-      ctx.fillStyle = '#FFE5B4';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.beginPath();
       ctx.arc(b.x - 1.5, b.y - 1.5, 1.5, 0, Math.PI * 2);
       ctx.fill();
@@ -1333,8 +1333,8 @@
 
     // Ready launch hint
     if (state === 'READY') {
-      ctx.fillStyle = 'rgba(244, 245, 248, 0.75)';
-      ctx.font = '12px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.font = '13px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('Press Space or tap screen to launch ball', canvas.width / 2, 290);

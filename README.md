@@ -9,10 +9,12 @@ A clean, responsive web hub for lightweight browser mini-games, hosted on GitHub
 - **Dedicated Game Pages (`/game-name/`):** Each game resides in its own isolated subfolder, providing dedicated play space, full controls, and navigation back to the hub.
 
 ## Design & Accessibility
-- Built on a strict 8px modular spacing scale.
-- Clear, modern system typography with zero distorted fonts and balanced whitespace.
-- Tactile interactions: buttons with real press feedback (`active: translateY(1px)`), custom focus rings (`2px solid #FF9F1C`), and WCAG AA contrast compliance.
-- No page scrolling during touch or mouse drag gestures (`touch-action: none`).
+- Based on Apple Design System specifications (`.AI/DESIGN.md`).
+- Crisp SF Pro Display headlines with negative letter-spacing, body text at 17px with relaxed line-height.
+- Signature Action Blue (`#0066cc`) for interactive pills and links, paired with clean parchment (`#f5f5f7`) canvases.
+- Micro-interactions: `transform: scale(0.95)` press feedback, focus rings (`2px solid #0071e3`), WCAG AA contrast.
+- Zero decorative gradients or chrome clutter; single signature drop-shadow under game displays.
+- Touch optimization with `touch-action: none` during gameplay gestures.
 
 ## Available Games
 1. **Snake (`/snake/`):** Classic grid snake with progressive speed scaling, subtle food breathing, tactile score bumps, touch/mouse swipe controls, complete board victory state, and local high score tracking.

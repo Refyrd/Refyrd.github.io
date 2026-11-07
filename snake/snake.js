@@ -290,11 +290,11 @@
 
   // Render Loop
   function render(timestamp) {
-    ctx.fillStyle = '#0D0E11';
+    ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Subtle precision grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
     ctx.lineWidth = 1;
     for (let i = 1; i < gridCount; i++) {
       ctx.beginPath();
@@ -308,24 +308,24 @@
       ctx.stroke();
     }
 
-    // Food with subtle breathing
+    // Food with subtle breathing (Apple System Red)
     const pulse = Math.sin((timestamp || 0) / 260) * 0.08 + 0.94;
     const foodRadius = (cellSize / 2 - 2) * pulse;
     const fx = food.x * cellSize + cellSize / 2;
     const fy = food.y * cellSize + cellSize / 2;
 
-    ctx.fillStyle = '#FF9F1C';
+    ctx.fillStyle = '#FF3B30';
     ctx.beginPath();
     ctx.arc(fx, fy, Math.max(2, foodRadius), 0, Math.PI * 2);
     ctx.fill();
 
     // Food inner reflection pip
-    ctx.fillStyle = '#FFE5B4';
+    ctx.fillStyle = '#FF8078';
     ctx.beginPath();
     ctx.arc(fx - 1.5, fy - 1.5, Math.max(1, foodRadius * 0.35), 0, Math.PI * 2);
     ctx.fill();
 
-    // Snake rendering
+    // Snake rendering (Apple Action Blue & Sky Link Blue)
     const segRadius = 4;
     const isEating = eatPulseTimer > 0;
     if (eatPulseTimer > 0) eatPulseTimer--;
@@ -342,7 +342,7 @@
         size += 2;
       }
 
-      ctx.fillStyle = isHead ? '#2E66FF' : '#1F4ECC';
+      ctx.fillStyle = isHead ? '#0066CC' : '#2997FF';
       drawRoundedRect(ctx, x, y, size, size, segRadius);
       ctx.fill();
 
