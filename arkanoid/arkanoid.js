@@ -31,6 +31,22 @@
   const canvas = document.getElementById('game-canvas');
   const ctx = canvas.getContext('2d');
   const screenBox = document.querySelector('.canvas-screen-box');
+
+  // Logical Game Dimensions & High-DPI Retina Scaler
+  const GAME_WIDTH = 400;
+  const GAME_HEIGHT = 460;
+
+  function resizeCanvas() {
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 3));
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width || GAME_WIDTH;
+    const h = rect.height || GAME_HEIGHT;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
   const scoreDisplay = document.getElementById('score-display');
   const bestDisplay = document.getElementById('best-display');
   const multiplierBadge = document.getElementById('multiplier-badge');
@@ -849,7 +865,7 @@
   }
 
   function resetBallOnPaddle() {
-    paddle.x = (canvas.width - paddle.width) / 2;
+    paddle.x = (GAME_WIDTH - paddle.width) / 2;
     balls = [];
     const angle = (Math.random() * 0.4 + 0.3) * Math.PI; // Upwards
     const dx = Math.cos(angle) * BASE_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1);
@@ -1046,7 +1062,7 @@
       }
 
       // Check out of bounds bottom
-      if (p.y > canvas.height) {
+      if (p.y > GAME_HEIGHT) {
         powerups.splice(i, 1);
       }
     }
@@ -1062,8 +1078,8 @@
         b.x = b.radius;
         b.dx = Math.abs(b.dx);
         playSound('wall');
-      } else if (b.x + b.radius >= canvas.width) {
-        b.x = canvas.width - b.radius;
+      } else if (b.x + b.radius >= GAME_WIDTH) {
+        b.x = GAME_WIDTH - b.radius;
         b.dx = -Math.abs(b.dx);
         playSound('wall');
       }
@@ -1076,8 +1092,8 @@
       }
 
       // Bottom barrier bounce
-      if (buffBarrierTimer > 0 && b.y + b.radius >= canvas.height - 4 && b.dy > 0) {
-        b.y = canvas.height - 4 - b.radius;
+      if (buffBarrierTimer > 0 && b.y + b.radius >= GAME_HEIGHT - 4 && b.dy > 0) {
+        b.y = GAME_HEIGHT - 4 - b.radius;
         b.dy = -Math.abs(b.dy);
         playSound('paddle');
       }
@@ -1105,7 +1121,7 @@
       }
 
       // Out of bounds bottom
-      if (b.y - b.radius > canvas.height) {
+      if (b.y - b.radius > GAME_HEIGHT) {
         balls.splice(bi, 1);
         continue;
       }
@@ -1199,22 +1215,25 @@
     }
   }
 
-  // Render Game Scene (Apple Canvas Display)
+  // Render Game Scene (Apple High-DPI Canvas Display)
   function render() {
+    ctx.save();
+    ctx.scale(canvas.width / GAME_WIDTH, canvas.height / GAME_HEIGHT);
+
     ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     // Bottom barrier (if buff active)
     if (buffBarrierTimer > 0) {
       ctx.fillStyle = '#FF3B30';
-      ctx.fillRect(0, canvas.height - 4, canvas.width, 4);
+      ctx.fillRect(0, GAME_HEIGHT - 4, GAME_WIDTH, 4);
       ctx.shadowColor = '#FF3B30';
       ctx.shadowBlur = 8;
-      ctx.fillRect(0, canvas.height - 3, canvas.width, 2);
+      ctx.fillRect(0, GAME_HEIGHT - 3, GAME_WIDTH, 2);
       ctx.shadowBlur = 0;
     }
 
-    // Render Bricks
+    // Render Bricks (Clean Apple Glass Tile Bevels)
     if (bricks && bricks.length > 0) {
       for (let r = 0; r < brickRows; r++) {
         if (!bricks[r]) continue;
@@ -1222,17 +1241,17 @@
           const b = bricks[r][c];
           if (b && b.hp > 0) {
             if (b.unbreakable) {
-              ctx.fillStyle = '#3A3A3C';
+              ctx.fillStyle = '#2C2C2E';
               drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 2);
               ctx.fill();
 
-              ctx.strokeStyle = '#636366';
-              ctx.lineWidth = 1;
-              ctx.stroke();
+              // Clean steel highlight
+              ctx.fillStyle = '#48484A';
+              ctx.fillRect(b.x + 1, b.y + 1, brickWidth - 2, 1);
 
               // Metal center rivet
               ctx.fillStyle = '#8E8E93';
-              ctx.fillRect(b.x + brickWidth / 2 - 1.5, b.y + brickHeight / 2 - 1.5, 3, 3);
+              ctx.fillRect(b.x + Math.floor(brickWidth / 2) - 1, b.y + Math.floor(brickHeight / 2) - 1, 2, 2);
             } else {
               ctx.fillStyle = b.fill;
               if (b.hp < b.maxHp) {
@@ -1241,12 +1260,16 @@
                 ctx.globalAlpha = 1.0;
               }
 
-              drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 3);
+              drawRoundedRect(ctx, b.x, b.y, brickWidth, brickHeight, 2);
               ctx.fill();
 
-              ctx.strokeStyle = b.border;
-              ctx.lineWidth = 1;
-              ctx.stroke();
+              // Top bevel highlight (crisp glossy Apple glass tile)
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
+              ctx.fillRect(b.x + 1, b.y + 1, brickWidth - 2, 1);
+
+              // Bottom bevel shadow
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+              ctx.fillRect(b.x + 1, b.y + brickHeight - 2, brickWidth - 2, 1);
 
               ctx.globalAlpha = 1.0;
             }
@@ -1261,11 +1284,15 @@
       drawRoundedRect(ctx, p.x, p.y, p.width, p.height, 4);
       ctx.fill();
 
+      // Top capsule shine
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+      ctx.fillRect(p.x + 2, p.y + 1, p.width - 4, 1);
+
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 9px monospace';
+      ctx.font = 'bold 9px -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(p.label, p.x + p.width / 2, p.y + p.height / 2);
+      ctx.fillText(p.label, p.x + p.width / 2, p.y + p.height / 2 + 0.5);
     });
 
     // Render Particles
@@ -1284,6 +1311,10 @@
     drawRoundedRect(ctx, paddle.x, paddle.y, paddle.width, paddle.height, paddle.radius);
     ctx.fill();
 
+    // Top highlight on paddle
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.fillRect(paddle.x + 2, paddle.y + 1, paddle.width - 4, 1);
+
     // Center indicator on paddle
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(paddle.x + paddle.width / 2 - 4, paddle.y + 2, 8, 2);
@@ -1296,20 +1327,40 @@
       ctx.fill();
 
       // Specular shine
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       ctx.beginPath();
       ctx.arc(b.x - 1.5, b.y - 1.5, 1.5, 0, Math.PI * 2);
       ctx.fill();
     });
 
-    // Ready launch hint
+    // Ready launch hint (Apple Frosted Capsule Pill)
     if (state === 'READY') {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-      ctx.font = '13px -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif';
+      const promptText = 'Press Space or tap screen to launch ball';
+      ctx.font = '500 12px -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif';
+      const textMetrics = ctx.measureText(promptText);
+      const pillW = Math.round(textMetrics.width + 30);
+      const pillH = 30;
+      const pillX = Math.round((GAME_WIDTH - pillW) / 2);
+      const pillY = 275;
+
+      // Dark translucent capsule
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 15);
+      ctx.fill();
+
+      // Delicate Apple hairline outline
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Razor-sharp crisp white typography
+      ctx.fillStyle = '#FFFFFF';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('Press Space or tap screen to launch ball', canvas.width / 2, 290);
+      ctx.fillText(promptText, GAME_WIDTH / 2, pillY + pillH / 2);
     }
+
+    ctx.restore();
   }
 
   function drawRoundedRect(ctx, x, y, width, height, radius) {
@@ -1391,6 +1442,7 @@
     gameView.classList.remove('hidden');
     linkToHub.classList.add('hidden');
     btnToLevels.classList.remove('hidden');
+    resizeCanvas();
   }
 
   function switchToLevelSelect() {
@@ -1457,9 +1509,9 @@
   // Input Handling: Pointer / Touch / Mouse on Canvas
   function updatePaddlePosition(clientX) {
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const canvasX = (clientX - rect.left) * scaleX;
-    paddle.x = Math.max(0, Math.min(canvas.width - paddle.width, canvasX - paddle.width / 2));
+    if (!rect.width) return;
+    const canvasX = ((clientX - rect.left) / rect.width) * GAME_WIDTH;
+    paddle.x = Math.max(0, Math.min(GAME_WIDTH - paddle.width, canvasX - paddle.width / 2));
   }
 
   screenBox.addEventListener('pointerdown', (e) => {
@@ -1485,7 +1537,7 @@
       paddle.x = Math.max(0, paddle.x - paddle.speed * 3.5);
     } else if (key === 'ArrowRight' || key === 'd' || key === 'D' || key === 'В' || key === 'в') {
       e.preventDefault();
-      paddle.x = Math.min(canvas.width - paddle.width, paddle.x + paddle.speed * 3.5);
+      paddle.x = Math.min(GAME_WIDTH - paddle.width, paddle.x + paddle.speed * 3.5);
     } else if (key === ' ' || key === 'Spacebar') {
       e.preventDefault();
       initAudio();
